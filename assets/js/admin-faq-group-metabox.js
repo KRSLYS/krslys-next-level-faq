@@ -826,6 +826,12 @@
 			spinner.classList.add('is-active');
 		}
 
+		// Sync TinyMCE editors back to their textareas before collecting data.
+		// Without this, answers edited in the visual editor are not included in FormData.
+		if (window.tinyMCE) {
+			window.tinyMCE.triggerSave();
+		}
+
 		// Collect form data
 		const formData = new FormData(form);
 		formData.append('action', 'nlf_save_faq_group_ajax');
