@@ -103,6 +103,12 @@
 	box-sizing: border-box;
 }
 
+/* Restore dashicons font — the wildcard above overrides it */
+.nlf-faq-admin .dashicons,
+.nlf-faq-admin .dashicons::before {
+	font-family: dashicons !important;
+}
+
 /* ============================================
    Layout & Container Styles (Mobile First)
    ============================================ */
