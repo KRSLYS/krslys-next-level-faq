@@ -1808,25 +1808,42 @@ class Group_CPT {
 			);
 		}
 
-		// Update post title if provided
+		// Build update args.
+		$update_args = array( 'ID' => $post_id );
+
 		if ( isset( $_POST['post_title'] ) ) {
-			$post_title = sanitize_text_field( wp_unslash( $_POST['post_title'] ) );
-			wp_update_post(
-				array(
-					'ID'         => $post_id,
-					'post_title' => $post_title,
-				)
-			);
+			$update_args['post_title'] = sanitize_text_field( wp_unslash( $_POST['post_title'] ) );
 		}
 
-		// Call the existing save_metabox method to handle all the meta data
+		// Handle post status change.
+		if ( isset( $_POST['post_status'] ) ) {
+			$new_status = sanitize_key( $_POST['post_status'] );
+			$allowed    = array( 'publish', 'draft', 'pending', 'private' );
+
+			if ( in_array( $new_status, $allowed, true ) ) {
+				if ( 'publish' === $new_status && ! current_user_can( 'publish_posts' ) ) {
+					$new_status = 'pending';
+				}
+				$update_args['post_status'] = $new_status;
+			}
+		}
+
+		if ( count( $update_args ) > 1 ) {
+			wp_update_post( $update_args );
+		}
+
+		// Call the existing save_metabox method to handle all the meta data.
 		self::save_metabox( $post_id, $post );
 
-		// Send success response
+		// Get the final post status after update.
+		$updated_post = get_post( $post_id );
+
+		// Send success response.
 		wp_send_json_success(
 			array(
-				'message' => __( 'FAQ group saved successfully!', 'next-level-faq' ),
-				'post_id' => $post_id,
+				'message'     => __( 'FAQ group saved successfully!', 'next-level-faq' ),
+				'post_id'     => $post_id,
+				'post_status' => $updated_post->post_status,
 			)
 		);
 	}

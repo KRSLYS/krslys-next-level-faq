@@ -831,6 +831,14 @@
 		formData.append('action', 'nlf_save_faq_group_ajax');
 		formData.append('nlf_faq_group_nonce', nlfGroupData.saveNonce);
 
+		// Force post_status to "publish" when clicking the Publish/Update button.
+		// The #post_status field is a <select> that only has draft/pending options,
+		// so we override the value directly in FormData.
+		const originalPostStatus = document.getElementById('original_post_status');
+		if (!originalPostStatus || originalPostStatus.value !== 'publish') {
+			formData.set('post_status', 'publish');
+		}
+
 		// Convert FormData to URLSearchParams for fetch
 		const params = new URLSearchParams();
 		for (const [key, value] of formData.entries()) {
@@ -849,10 +857,28 @@
 		.then(data => {
 			if (data.success) {
 				publishButton.value = savedText;
-				
+
+				// Update UI after successful publish
+				const origStatus = document.getElementById('original_post_status');
+				const newStatus = data.data?.post_status;
+				if (origStatus && newStatus === 'publish' && origStatus.value !== 'publish') {
+					origStatus.value = 'publish';
+					// Hide Save Draft button since the post is now published
+					const saveDraft = document.getElementById('save-post');
+					if (saveDraft) saveDraft.style.display = 'none';
+					// Update the minor-publishing-actions (Save Draft area)
+					const minorActions = document.getElementById('minor-publishing-actions');
+					if (minorActions) minorActions.style.display = 'none';
+				}
+
 				// Reset button after a short delay
 				setTimeout(() => {
-					publishButton.value = originalText;
+					// Use "Update" text if the post is now published
+					if (origStatus && origStatus.value === 'publish') {
+						publishButton.value = nlfGroupData.i18n.update || 'Update';
+					} else {
+						publishButton.value = originalText;
+					}
 					publishButton.disabled = false;
 				}, 1500);
 			} else {
