@@ -1483,9 +1483,6 @@ class Group_CPT {
 			return;
 		}
 
-		$post_id   = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
-		$permalink = $post_id ? get_permalink( $post_id ) : '';
-
 		$message = '';
 		$type    = 'success';
 
@@ -1512,11 +1509,6 @@ class Group_CPT {
 			<p>
 				<span class="dashicons <?php echo 'error' === $type ? 'dashicons-warning' : 'dashicons-yes-alt'; ?>" aria-hidden="true"></span>
 				<strong><?php echo esc_html( $message ); ?></strong>
-				<?php if ( 'error' !== $type && $permalink ) : ?>
-					<a href="<?php echo esc_url( $permalink ); ?>" target="_blank" rel="noopener noreferrer">
-						<?php esc_html_e( 'View on site', 'next-level-faq' ); ?> →
-					</a>
-				<?php endif; ?>
 			</p>
 		</div>
 		<?php
