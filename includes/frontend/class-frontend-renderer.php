@@ -219,16 +219,15 @@ class Frontend_Renderer {
 				$settings = $group->display_settings;
 			}
 		}
-		if ( ! is_array( $settings ) ) {
-			$settings = array(
-				'accordion_mode'  => false,
-				'initial_state'   => 'all_closed',
-				'animation_speed' => 'normal',
-				'show_search'     => false,
-				'show_counter'    => false,
-				'smooth_scroll'   => true,
-			);
-		}
+		$defaults = array(
+			'accordion_mode'  => false,
+			'initial_state'   => 'all_closed',
+			'animation_speed' => 'normal',
+			'show_search'     => false,
+			'show_counter'    => false,
+			'smooth_scroll'   => true,
+		);
+		$settings = wp_parse_args( is_array( $settings ) ? $settings : array(), $defaults );
 
 		$items = Repository::get_all_published_faqs( $group_id );
 
@@ -291,9 +290,10 @@ class Frontend_Renderer {
 					<?php
 					// Determine initial open state based on settings.
 					$is_open = false;
-					if ( 'first_open' === $settings['initial_state'] && 0 === $index ) {
+					$initial_state = $settings['initial_state'] ?? 'all_closed';
+					if ( 'first_open' === $initial_state && 0 === $index ) {
 						$is_open = true;
-					} elseif ( 'custom' === $settings['initial_state'] && isset( $item->initial_state ) && 1 === (int) $item->initial_state ) {
+					} elseif ( 'custom' === $initial_state && isset( $item->initial_state ) && 1 === (int) $item->initial_state ) {
 						$is_open = true;
 					}
 
