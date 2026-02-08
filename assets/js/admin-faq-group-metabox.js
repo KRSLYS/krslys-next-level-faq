@@ -306,6 +306,21 @@
 			params.append('group_id', String(groupId));
 			params.append('nonce', nlfGroupData.nonce);
 
+			// Send the currently selected theme so the preview reflects unsaved changes.
+			const selectedTheme = $('input[name="nlf_faq_group_theme"]:checked');
+			if (selectedTheme) {
+				params.append('theme', selectedTheme.value);
+			}
+
+			// Send custom color overrides.
+			$$('.nlf-theme-color').forEach((input) => {
+				const key = input.getAttribute('data-color-key');
+				const val = input.value;
+				if (key && val) {
+					params.append('theme_custom_' + key, val);
+				}
+			});
+
 			fetch(nlfGroupData.ajaxurl, {
 				method: 'POST',
 				credentials: 'same-origin',

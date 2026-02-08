@@ -1282,60 +1282,209 @@ class Group_CPT {
 	private static function get_theme_presets() {
 		return array(
 			'default'      => array(
-				'name'       => __( 'Default', 'next-level-faq' ),
-				'description'=> __( 'Clean and professional look for most sites.', 'next-level-faq' ),
-				'background' => '#ffffff',
-				'border'     => '#e2e8f0',
-				'question'   => '#0f172a',
-				'answer'     => '#4b5563',
-				'accent'     => '#3b82f6',
+				'name'        => __( 'Default', 'next-level-faq' ),
+				'description' => __( 'Clean and professional look for most sites.', 'next-level-faq' ),
+				'background'  => '#ffffff',
+				'border'      => '#e2e8f0',
+				'question'    => '#0f172a',
+				'answer'      => '#4b5563',
+				'accent'      => '#3b82f6',
+				'values'      => array(
+					'container_background'    => '#ffffff',
+					'container_border_color'  => '#e2e8f0',
+					'container_border_radius' => 8,
+					'container_padding'       => 20,
+					'question_color'          => '#0f172a',
+					'question_font_size'      => 18,
+					'question_font_weight'    => 600,
+					'answer_color'            => '#4b5563',
+					'answer_font_size'        => 16,
+					'accent_color'            => '#3b82f6',
+					'icon_style'              => 'plus_minus',
+					'gap_between_items'       => 12,
+					'shadow'                  => false,
+					'animation'               => 'slide',
+				),
 			),
 			'modern'       => array(
-				'name'       => __( 'Modern', 'next-level-faq' ),
-				'description'=> __( 'Soft gradients and cool blue accents.', 'next-level-faq' ),
-				'background' => '#f8fafc',
-				'border'     => '#cbd5e1',
-				'question'   => '#1e293b',
-				'answer'     => '#64748b',
-				'accent'     => '#0ea5e9',
+				'name'        => __( 'Modern', 'next-level-faq' ),
+				'description' => __( 'Rounded cards with violet accents and smooth fades.', 'next-level-faq' ),
+				'background'  => '#f8fafc',
+				'border'      => '#e2e8f0',
+				'question'    => '#1e293b',
+				'answer'      => '#64748b',
+				'accent'      => '#8b5cf6',
+				'values'      => array(
+					'container_background'    => '#f8fafc',
+					'container_border_color'  => '#e2e8f0',
+					'container_border_radius' => 16,
+					'container_padding'       => 28,
+					'question_color'          => '#1e293b',
+					'question_font_size'      => 19,
+					'question_font_weight'    => 600,
+					'answer_color'            => '#64748b',
+					'answer_font_size'        => 16,
+					'accent_color'            => '#8b5cf6',
+					'icon_style'              => 'chevron',
+					'gap_between_items'       => 16,
+					'shadow'                  => true,
+					'animation'               => 'fade',
+				),
 			),
 			'classic'      => array(
-				'name'       => __( 'Classic', 'next-level-faq' ),
-				'description'=> __( 'Warm tones inspired by editorial layouts.', 'next-level-faq' ),
-				'background' => '#fefce8',
-				'border'     => '#fde047',
-				'question'   => '#713f12',
-				'answer'     => '#78716c',
-				'accent'     => '#f59e0b',
+				'name'        => __( 'Classic', 'next-level-faq' ),
+				'description' => __( 'Warm editorial tones with amber accents.', 'next-level-faq' ),
+				'background'  => '#fffbeb',
+				'border'      => '#fde68a',
+				'question'    => '#78350f',
+				'answer'      => '#92400e',
+				'accent'      => '#f59e0b',
+				'values'      => array(
+					'container_background'    => '#fffbeb',
+					'container_border_color'  => '#fde68a',
+					'container_border_radius' => 6,
+					'container_padding'       => 22,
+					'question_color'          => '#78350f',
+					'question_font_size'      => 18,
+					'question_font_weight'    => 700,
+					'answer_color'            => '#92400e',
+					'answer_font_size'        => 16,
+					'accent_color'            => '#f59e0b',
+					'icon_style'              => 'plus_minus',
+					'gap_between_items'       => 14,
+					'shadow'                  => false,
+					'animation'               => 'slide',
+				),
 			),
 			'minimal'      => array(
-				'name'       => __( 'Minimal', 'next-level-faq' ),
-				'description'=> __( 'High-contrast monochrome aesthetic.', 'next-level-faq' ),
-				'background' => '#fafafa',
-				'border'     => '#e5e5e5',
-				'question'   => '#171717',
-				'answer'     => '#737373',
-				'accent'     => '#404040',
+				'name'        => __( 'Minimal', 'next-level-faq' ),
+				'description' => __( 'Ultra-clean monochrome with no distractions.', 'next-level-faq' ),
+				'background'  => '#fafafa',
+				'border'      => '#e5e5e5',
+				'question'    => '#171717',
+				'answer'      => '#737373',
+				'accent'      => '#404040',
+				'values'      => array(
+					'container_background'    => '#fafafa',
+					'container_border_color'  => '#e5e5e5',
+					'container_border_radius' => 4,
+					'container_padding'       => 16,
+					'question_color'          => '#171717',
+					'question_font_size'      => 17,
+					'question_font_weight'    => 500,
+					'answer_color'            => '#737373',
+					'answer_font_size'        => 15,
+					'accent_color'            => '#404040',
+					'icon_style'              => 'chevron',
+					'gap_between_items'       => 10,
+					'shadow'                  => false,
+					'animation'               => 'none',
+				),
 			),
 			'bold'         => array(
-				'name'       => __( 'Bold', 'next-level-faq' ),
-				'description'=> __( 'Vibrant reds for high-impact brands.', 'next-level-faq' ),
-				'background' => '#fef2f2',
-				'border'     => '#fca5a5',
-				'question'   => '#7f1d1d',
-				'answer'     => '#991b1b',
-				'accent'     => '#dc2626',
+				'name'        => __( 'Bold', 'next-level-faq' ),
+				'description' => __( 'Vibrant reds for high-impact brands.', 'next-level-faq' ),
+				'background'  => '#fef2f2',
+				'border'      => '#fca5a5',
+				'question'    => '#7f1d1d',
+				'answer'      => '#991b1b',
+				'accent'      => '#dc2626',
+				'values'      => array(
+					'container_background'    => '#fef2f2',
+					'container_border_color'  => '#fca5a5',
+					'container_border_radius' => 12,
+					'container_padding'       => 26,
+					'question_color'          => '#7f1d1d',
+					'question_font_size'      => 20,
+					'question_font_weight'    => 700,
+					'answer_color'            => '#991b1b',
+					'answer_font_size'        => 16,
+					'accent_color'            => '#dc2626',
+					'icon_style'              => 'plus_minus',
+					'gap_between_items'       => 14,
+					'shadow'                  => true,
+					'animation'               => 'slide',
+				),
 			),
 			'professional' => array(
-				'name'       => __( 'Professional', 'next-level-faq' ),
-				'description'=> __( 'Cool blues inspired by SaaS dashboards.', 'next-level-faq' ),
-				'background' => '#f0f9ff',
-				'border'     => '#bae6fd',
-				'question'   => '#082f49',
-				'answer'     => '#0c4a6e',
-				'accent'     => '#0284c7',
+				'name'        => __( 'Professional', 'next-level-faq' ),
+				'description' => __( 'Cool blues inspired by SaaS dashboards.', 'next-level-faq' ),
+				'background'  => '#f0f9ff',
+				'border'      => '#bae6fd',
+				'question'    => '#082f49',
+				'answer'      => '#0c4a6e',
+				'accent'      => '#0284c7',
+				'values'      => array(
+					'container_background'    => '#f0f9ff',
+					'container_border_color'  => '#bae6fd',
+					'container_border_radius' => 10,
+					'container_padding'       => 24,
+					'question_color'          => '#082f49',
+					'question_font_size'      => 18,
+					'question_font_weight'    => 600,
+					'answer_color'            => '#0c4a6e',
+					'answer_font_size'        => 16,
+					'accent_color'            => '#0284c7',
+					'icon_style'              => 'chevron',
+					'gap_between_items'       => 12,
+					'shadow'                  => true,
+					'animation'               => 'fade',
+				),
 			),
 		);
+	}
+
+	/**
+	 * Resolve a group's theme selection into a full CSS-compatible options array.
+	 *
+	 * Reads the group theme slug and optional custom color overrides from post meta,
+	 * then merges them into a complete options array that Style_Generator can use.
+	 *
+	 * @param int $group_id Group post ID.
+	 * @return array|null Full options array or null if no group theme is set.
+	 */
+	public static function resolve_group_theme_options( $group_id ) {
+		$group_id = absint( $group_id );
+
+		if ( ! $group_id ) {
+			return null;
+		}
+
+		$theme_slug   = get_post_meta( $group_id, '_nlf_faq_group_theme', true );
+		$theme_custom = get_post_meta( $group_id, '_nlf_faq_group_theme_custom', true );
+
+		if ( empty( $theme_slug ) || 'default' === $theme_slug ) {
+			// No group theme override — fall back to global styles if no custom colors.
+			if ( empty( $theme_custom ) || ! is_array( $theme_custom ) || ! array_filter( $theme_custom ) ) {
+				return null;
+			}
+		}
+
+		$themes = self::get_theme_presets();
+		$theme  = isset( $themes[ $theme_slug ] ) ? $themes[ $theme_slug ] : $themes['default'];
+		$values = isset( $theme['values'] ) ? $theme['values'] : array();
+
+		// Start from global defaults, then apply theme values.
+		$defaults = Presets::get_default_values();
+		$options  = wp_parse_args( $values, $defaults );
+
+		// Apply custom color overrides if set.
+		if ( is_array( $theme_custom ) ) {
+			$color_map = array(
+				'primary'    => 'question_color',
+				'secondary'  => 'answer_color',
+				'accent'     => 'accent_color',
+				'background' => 'container_background',
+			);
+
+			foreach ( $color_map as $custom_key => $option_key ) {
+				if ( ! empty( $theme_custom[ $custom_key ] ) && sanitize_hex_color( $theme_custom[ $custom_key ] ) ) {
+					$options[ $option_key ] = sanitize_hex_color( $theme_custom[ $custom_key ] );
+				}
+			}
+		}
+
+		return $options;
 	}
 
 	/**
@@ -1520,14 +1669,75 @@ class Group_CPT {
 			$settings = self::get_default_settings();
 		}
 
+		// Resolve theme styles for the preview.
+		// Accept unsaved theme from AJAX request for live preview.
+		$preview_theme = isset( $_POST['theme'] ) ? sanitize_key( wp_unslash( $_POST['theme'] ) ) : '';
+		$preview_custom = array();
+		$color_keys = array( 'primary', 'secondary', 'accent', 'background' );
+		foreach ( $color_keys as $key ) {
+			$post_key = 'theme_custom_' . $key;
+			if ( ! empty( $_POST[ $post_key ] ) ) {
+				$preview_custom[ $key ] = sanitize_hex_color( wp_unslash( $_POST[ $post_key ] ) );
+			}
+		}
+
+		$inline_style = '';
+		$icon_style   = 'plus_minus';
+		$faq_classes  = array( 'nlf-faq', 'nlf-faq--preview' );
+
+		if ( empty( $use_custom_style ) ) {
+			$preview_options = null;
+
+			if ( $preview_theme ) {
+				// Use the theme slug sent from the UI (may not be saved yet).
+				$themes = self::get_theme_presets();
+				$theme  = isset( $themes[ $preview_theme ] ) ? $themes[ $preview_theme ] : $themes['default'];
+				$values = isset( $theme['values'] ) ? $theme['values'] : array();
+				$defaults = Presets::get_default_values();
+				$preview_options = wp_parse_args( $values, $defaults );
+
+				// Apply preview custom colors.
+				$color_map = array(
+					'primary'    => 'question_color',
+					'secondary'  => 'answer_color',
+					'accent'     => 'accent_color',
+					'background' => 'container_background',
+				);
+				foreach ( $color_map as $custom_key => $option_key ) {
+					if ( ! empty( $preview_custom[ $custom_key ] ) ) {
+						$preview_options[ $option_key ] = $preview_custom[ $custom_key ];
+					}
+				}
+			} else {
+				$preview_options = self::resolve_group_theme_options( $group_id );
+			}
+
+			if ( is_array( $preview_options ) ) {
+				$inline_style = Style_Generator::build_inline_style( $preview_options );
+				$icon_style   = isset( $preview_options['icon_style'] ) ? $preview_options['icon_style'] : 'plus_minus';
+			} else {
+				// Fall back to global preset.
+				$global_options = Options::get_resolved_options();
+				$inline_style   = Style_Generator::build_inline_style( $global_options );
+				$icon_style     = isset( $global_options['icon_style'] ) ? $global_options['icon_style'] : 'plus_minus';
+			}
+		}
+
+		if ( 'chevron' === $icon_style ) {
+			$faq_classes[] = 'nlf-faq--icon-chevron';
+		}
+
 		// Build FAQ HTML
 		ob_start();
 		?>
-		<div class="nlf-faq nlf-faq--preview" 
+		<div class="<?php echo esc_attr( implode( ' ', $faq_classes ) ); ?>" 
 			data-group-id="<?php echo esc_attr( $group_id ); ?>"
 			data-accordion="<?php echo ! empty( $settings['accordion_mode'] ) ? '1' : '0'; ?>"
 			data-animation-speed="<?php echo esc_attr( $settings['animation_speed'] ?? 'normal' ); ?>"
-			data-smooth-scroll="<?php echo ! empty( $settings['smooth_scroll'] ) ? '1' : '0'; ?>">
+			data-smooth-scroll="<?php echo ! empty( $settings['smooth_scroll'] ) ? '1' : '0'; ?>"
+			<?php if ( $inline_style ) : ?>
+				style="<?php echo esc_attr( $inline_style ); ?>"
+			<?php endif; ?>>
 			<?php if ( ! empty( $settings['show_search'] ) ) : ?>
 				<div class="nlf-faq-search">
 					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'next-level-faq' ); ?>" />

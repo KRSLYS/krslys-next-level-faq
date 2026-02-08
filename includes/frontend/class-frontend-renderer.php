@@ -238,11 +238,26 @@ class Frontend_Renderer {
 		if ( $group_id ) {
 			$use_custom_style = (bool) get_post_meta( $group_id, '_nlf_faq_group_use_custom_style', true );
 		}
-		$inline_style = $use_custom_style ? '' : Style_Generator::build_inline_style( $resolved_options );
+
+		// Determine the effective options for inline styles.
+		// Priority: custom style CSS file > group theme > global preset.
+		$effective_options = $resolved_options;
+		if ( ! $use_custom_style && $group_id ) {
+			$group_theme_options = Group_CPT::resolve_group_theme_options( $group_id );
+			if ( is_array( $group_theme_options ) ) {
+				$effective_options = $group_theme_options;
+			}
+		}
+		$inline_style = $use_custom_style ? '' : Style_Generator::build_inline_style( $effective_options );
+
+		// Determine icon style for the data attribute (needed for CSS icon rendering).
+		$icon_style = isset( $effective_options['icon_style'] ) ? $effective_options['icon_style'] : 'plus_minus';
 
 		if ( ! is_array( $items ) ) {
 			$items = array();
 		}
+
+		$group_theme_slug = $group_id ? get_post_meta( $group_id, '_nlf_faq_group_theme', true ) : '';
 
 		$cache_context = array(
 			'atts'             => array(
@@ -251,6 +266,8 @@ class Frontend_Renderer {
 			'settings'         => $settings,
 			'preset'           => $preset_slug,
 			'use_custom_style' => $use_custom_style,
+			'group_theme'      => $group_theme_slug,
+			'icon_style'       => $icon_style,
 		);
 
 		if ( $group_id > 0 ) {
@@ -264,6 +281,9 @@ class Frontend_Renderer {
 		$faq_classes = array( 'nlf-faq' );
 		if ( ! empty( $settings['accordion_mode'] ) ) {
 			$faq_classes[] = 'nlf-faq--accordion';
+		}
+		if ( 'chevron' === $icon_style ) {
+			$faq_classes[] = 'nlf-faq--icon-chevron';
 		}
 
 		ob_start();

@@ -231,6 +231,15 @@ final class Krslys_NextLevelFaq_Plugin {
 		if ( get_option( 'nlf_faq_schema_version' ) !== NLF_FAQ_SCHEMA_VERSION ) {
 			\Krslys\NextLevelFaq\Database::create_tables();
 		}
+
+		// Regenerate CSS if the plugin version changed (CSS structure may have changed).
+		$css_version = get_option( 'nlf_faq_css_version', '' );
+		if ( $css_version !== NLF_FAQ_VERSION ) {
+			if ( class_exists( '\Krslys\NextLevelFaq\Style_Generator' ) ) {
+				\Krslys\NextLevelFaq\Style_Generator::generate_and_save();
+			}
+			update_option( 'nlf_faq_css_version', NLF_FAQ_VERSION );
+		}
 	}
 }
 

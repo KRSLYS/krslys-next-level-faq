@@ -219,6 +219,7 @@ class Style_Generator {
 	transition: transform var(--nlf-faq-transition), color var(--nlf-faq-transition);
 }
 
+/* Plus/Minus Icon (default) */
 .nlf-faq__icon::before {
 	content: '+';
 	font-weight: 700;
@@ -227,21 +228,22 @@ class Style_Generator {
 }
 
 .nlf-faq__item.is-open .nlf-faq__icon::before {
-	content: '-';
+	content: '\2212';
 }
 
-<?php if ( 'chevron' === $o['icon_style'] ) : ?>
-.nlf-faq__icon::before {
-	content: '›';
+/* Chevron Icon (via modifier class) */
+.nlf-faq--icon-chevron .nlf-faq__icon::before {
+	content: '\203A';
 	display: block;
+	font-size: 1.5rem;
 	transform: rotate(90deg);
 	transition: transform var(--nlf-faq-transition);
 }
 
-.nlf-faq__item.is-open .nlf-faq__icon::before {
+.nlf-faq--icon-chevron .nlf-faq__item.is-open .nlf-faq__icon::before {
+	content: '\203A';
 	transform: rotate(270deg);
 }
-<?php endif; ?>
 
 /* ============================================
    Answer Styles
