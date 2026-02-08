@@ -666,46 +666,42 @@
 
 			let content = textarea.value;
 
-			// Get content from TinyMCE editor if it exists
+			// Get content from TinyMCE editor if it exists.
 			if (window.tinymce) {
 				const editor = window.tinymce.get(id);
 				if (editor) {
-					// Always save content to textarea, even if editor is hidden
 					try {
-						editor.save();
-						// Get content directly from editor as backup
 						content = editor.getContent() || textarea.value;
 					} catch (e) {
-						// If save fails, try to get content directly
-						try {
-							content = editor.getContent() || textarea.value;
-						} catch (e2) {
-							// Fallback to textarea value
-							content = textarea.value;
-						}
+						content = textarea.value;
 					}
-					// Remove the editor instance
-					editor.remove();
+					try {
+						editor.remove();
+					} catch (e) {
+						// Editor might be in an invalid state, continue.
+					}
 				}
 			}
 
-			// Also remove wp.editor instance if it exists
-			if (window.wp && window.wp.editor && typeof window.wp.editor.remove === 'function') {
-				try {
-					window.wp.editor.remove(id);
-				} catch (e) {
-					// Editor might not exist, ignore error
-				}
+			// Remove QuickTags instance if it exists.
+			if (window.QTags && window.QTags.instances) {
+				delete window.QTags.instances[id];
 			}
 
-			// Ensure content is saved to textarea before storing
+			// Remove the WordPress editor wrapper entirely so that
+			// wp.editor.initialize() can build a fresh one after the drag.
+			// Without this the stale wrapper causes a blank visual editor.
+			const wrap = doc.getElementById('wp-' + id + '-wrap');
+			if (wrap) {
+				wrap.parentNode.insertBefore(textarea, wrap);
+				wrap.remove();
+			}
+
+			// Ensure textarea is visible and holds the saved content.
+			textarea.style.display = '';
 			textarea.value = content;
 
-			// Store editor info with content
-			editors.push({
-				id: id,
-				content: content
-			});
+			editors.push({ id: id, content: content });
 		});
 		return editors;
 	}
@@ -724,61 +720,63 @@
 			return;
 		}
 
-		// Use setTimeout to ensure DOM is stable after drag operation
+		// Small delay to let the DOM settle after drag.
 		setTimeout(() => {
 			editorData.forEach((editorInfo) => {
 				const id = editorInfo.id;
 				const content = editorInfo.content;
-				const textarea = row.querySelector(`#${id}`);
-				
+				const textarea = doc.getElementById(id);
+
 				if (!textarea) {
 					return;
 				}
 
-				// Ensure content is in textarea before reinitializing
-				if (content && textarea.value !== content) {
-					textarea.value = content;
-				}
+				// Put the saved content in the textarea first; TinyMCE reads
+				// the textarea value when it initialises in text (HTML) mode.
+				textarea.value = content;
 
-				// Remove any existing editor instance first
-				if (window.tinymce) {
-					const existingEditor = window.tinymce.get(id);
-					if (existingEditor) {
-						try {
-							existingEditor.remove();
-						} catch (e) {
-							// Editor might be in invalid state, continue anyway
-						}
+				// Clean up any stale TinyMCE instance that might linger.
+				if (window.tinymce && window.tinymce.get(id)) {
+					try {
+						window.tinymce.get(id).remove();
+					} catch (e) {
+						// Ignore – instance may already be invalid.
 					}
 				}
 
-				// Reinitialize the editor
+				// Re-initialize the WordPress editor from scratch.
+				// Do NOT pass a custom `setup` here – WordPress merges
+				// these settings with tinyMCEPreInit.mceInit[id] via
+				// Object.assign and a custom `setup` can get lost or
+				// override WordPress's own handlers.
 				editorAPI.initialize(id, {
-					tinymce: { 
-						wpautop: true
-					},
+					tinymce: { wpautop: true },
 					quicktags: true,
 					mediaButtons: false,
 				});
 
-				// Set content after editor is fully initialized
-				// Use a small delay to ensure editor is ready
-				setTimeout(() => {
-					if (window.tinymce && window.tinymce.get(id)) {
-						const editor = window.tinymce.get(id);
-						if (editor && content) {
-							try {
-								editor.setContent(content);
-							} catch (e) {
-								// If setContent fails, try setting textarea value directly
-								const textarea = row.querySelector(`#${id}`);
-								if (textarea) {
-									textarea.value = content;
-								}
-							}
-						}
+				// Set the content in the Visual (TinyMCE) editor once it
+				// is fully ready.  We attach the listener directly on the
+				// instance so it works regardless of how WP merges config.
+				(function syncVisualContent() {
+					const mce = window.tinymce && window.tinymce.get(id);
+					if (!mce) {
+						// Editor instance not registered yet – retry.
+						setTimeout(syncVisualContent, 50);
+						return;
 					}
-				}, 200);
+					if (mce.initialized) {
+						if (content) {
+							mce.setContent(content);
+						}
+					} else {
+						mce.on('init', function () {
+							if (content) {
+								mce.setContent(content);
+							}
+						});
+					}
+				})();
 			});
 		}, 50);
 	}
