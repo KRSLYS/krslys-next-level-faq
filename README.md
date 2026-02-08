@@ -14,7 +14,7 @@ A lightweight, professional FAQ plugin for WordPress with a focus on design. Con
 2. Create your FAQ entries under `FAQs` in the WordPress admin:
    - Each FAQ is a post of type `FAQ`.
    - Use the **FAQ Content** metabox to enter the **Question** and **Answer**. The post title is kept in sync with the question for clarity.
-3. Add the shortcode `[nlf_faq]` inside any post, page, or widget area to render all published FAQs using your saved styles.
+3. Add the shortcode `[krslys_nlf]` inside any post, page, or widget area to render all published FAQs using your saved styles.
 
 ### Styling
 

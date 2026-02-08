@@ -92,6 +92,66 @@ class Group_CPT {
 			'normal',
 			'high'
 		);
+
+		add_meta_box(
+			'nlf_faq_how_to_use',
+			__( 'How To Use', 'next-level-faq' ),
+			array( __CLASS__, 'render_how_to_use_metabox' ),
+			self::POST_TYPE,
+			'side',
+			'default'
+		);
+	}
+
+	/**
+	 * Render the "How To Use" side metabox.
+	 *
+	 * Shows shortcode, PHP template tag, and Gutenberg block usage
+	 * with click-to-copy interaction. Always displays the post ID.
+	 *
+	 * @param WP_Post $post Current post object.
+	 */
+	public static function render_how_to_use_metabox( $post ) {
+		$post_id        = (int) $post->ID;
+		$shortcode_text = '[krslys_nlf group="' . $post_id . '"]';
+		$php_text       = "<?php echo do_shortcode( '" . $shortcode_text . "' ); ?>";
+
+		// Inline SVG icons — no dashicon rendering issues.
+		$icon_copy = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+		$icon_check = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+		$icon_block = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>';
+		?>
+		<div class="nlf-how-to-use">
+
+			<button type="button" class="nlf-htu-snippet" data-copy-text="<?php echo esc_attr( $shortcode_text ); ?>">
+				<span class="nlf-htu-snippet__label"><?php esc_html_e( 'Shortcode', 'next-level-faq' ); ?></span>
+				<span class="nlf-htu-snippet__row">
+					<code class="nlf-htu-snippet__code"><?php echo esc_html( $shortcode_text ); ?></code>
+					<span class="nlf-htu-snippet__icon nlf-htu-snippet__icon--copy"><?php echo $icon_copy; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?></span>
+					<span class="nlf-htu-snippet__icon nlf-htu-snippet__icon--ok"><?php echo $icon_check; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?></span>
+				</span>
+				<span class="nlf-htu-snippet__toast"><?php esc_html_e( 'Copied!', 'next-level-faq' ); ?></span>
+			</button>
+
+			<button type="button" class="nlf-htu-snippet" data-copy-text="<?php echo esc_attr( $php_text ); ?>">
+				<span class="nlf-htu-snippet__label"><?php esc_html_e( 'PHP Template', 'next-level-faq' ); ?></span>
+				<span class="nlf-htu-snippet__row">
+					<code class="nlf-htu-snippet__code"><?php echo esc_html( $php_text ); ?></code>
+					<span class="nlf-htu-snippet__icon nlf-htu-snippet__icon--copy"><?php echo $icon_copy; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?></span>
+					<span class="nlf-htu-snippet__icon nlf-htu-snippet__icon--ok"><?php echo $icon_check; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?></span>
+				</span>
+				<span class="nlf-htu-snippet__toast"><?php esc_html_e( 'Copied!', 'next-level-faq' ); ?></span>
+			</button>
+
+			<div class="nlf-htu-block-hint">
+				<span class="nlf-htu-block-hint__icon"><?php echo $icon_block; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?></span>
+				<span class="nlf-htu-block-hint__text">
+					<?php esc_html_e( 'Also available as a Gutenberg block.', 'next-level-faq' ); ?>
+				</span>
+			</div>
+
+		</div>
+		<?php
 	}
 
 	/**

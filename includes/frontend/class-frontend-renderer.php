@@ -27,7 +27,7 @@ class Frontend_Renderer {
 	 * Register shortcodes.
 	 */
 	public static function register_shortcodes() {
-		add_shortcode( 'nlf_faq', array( __CLASS__, 'render_shortcode' ) );
+		add_shortcode( 'krslys_nlf', array( __CLASS__, 'render_shortcode' ) );
 	}
 
 	/**
@@ -189,8 +189,8 @@ class Frontend_Renderer {
 					'group_slug' => '',
 					'preset'     => '',
 				),
-				$atts,
-				'nlf_faq'
+			$atts,
+			'krslys_nlf'
 			)
 		);
 

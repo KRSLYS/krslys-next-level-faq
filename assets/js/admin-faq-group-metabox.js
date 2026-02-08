@@ -900,5 +900,39 @@
 		});
 	}
 
-	doc.addEventListener('DOMContentLoaded', init);
+	/**
+	 * Copy-to-clipboard for "How To Use" metabox.
+	 * The entire snippet button is the click target.
+	 */
+	function initCopyButtons() {
+		$$('.nlf-htu-snippet').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const text = btn.getAttribute('data-copy-text');
+				if (!text) return;
+
+				const write = navigator.clipboard && navigator.clipboard.writeText
+					? navigator.clipboard.writeText(text)
+					: new Promise(resolve => {
+						const ta = doc.createElement('textarea');
+						ta.value = text;
+						ta.style.cssText = 'position:fixed;opacity:0;';
+						doc.body.appendChild(ta);
+						ta.select();
+						doc.execCommand('copy');
+						doc.body.removeChild(ta);
+						resolve();
+					});
+
+				write.then(() => {
+					btn.classList.add('is-copied');
+					setTimeout(() => btn.classList.remove('is-copied'), 1500);
+				});
+			});
+		});
+	}
+
+	doc.addEventListener('DOMContentLoaded', () => {
+		init();
+		initCopyButtons();
+	});
 })();

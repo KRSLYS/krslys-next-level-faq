@@ -167,7 +167,7 @@ final class Krslys_NextLevelFaq_Plugin {
 								$title    = isset( $attributes['title'] ) ? (string) $attributes['title'] : '';
 								$preset   = isset( $attributes['preset'] ) ? sanitize_key( $attributes['preset'] ) : '';
 
-								$shortcode = '[nlf_faq';
+								$shortcode = '[krslys_nlf';
 
 								if ( $group_id > 0 ) {
 									$shortcode .= ' group="' . esc_attr( $group_id ) . '"';
