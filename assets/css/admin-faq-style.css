@@ -41,6 +41,10 @@
 	--color-primary-500: #3b82f6;
 	--color-primary-600: #2563eb;
 	--color-primary-700: #1d4ed8;
+	--color-primary-50: #eff6ff;
+	--color-primary-100: #dbeafe;
+	--color-primary-200: #bfdbfe;
+	--color-primary-800: #1e40af;
 	
 	/* Semantic Colors */
 	--color-error-50: #fef2f2;
@@ -48,6 +52,14 @@
 	--color-error-500: #ef4444;
 	--color-error-600: #dc2626;
 	--color-error-700: #991b1b;
+
+	/* Success Colors */
+	--color-success-50: #f0fdf4;
+	--color-success-100: #dcfce7;
+	--color-success-200: #bbf7d0;
+	--color-success-500: #22c55e;
+	--color-success-600: #16a34a;
+	--color-success-700: #15803d;
 	
 	--color-white: #ffffff;
 	--color-black: #000000;
@@ -539,89 +551,659 @@
 }
 
 /* ============================================
-   Tools Page Layout
+   Tools Page — Modern Dashboard
    ============================================ */
 
-.nlf-faq-tools__grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
-	gap: var(--spacing-6);
-	margin-top: var(--spacing-5);
-}
+/* ── Page Header ──────────────────────────── */
 
-.nlf-faq-tools__card {
-	background: var(--color-white);
+.nlf-tools-header {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-5);
+	padding: var(--spacing-6) var(--spacing-8);
+	background: linear-gradient(135deg, var(--color-slate-50) 0%, var(--color-white) 100%);
 	border: 1px solid var(--color-slate-200);
+	border-radius: var(--radius-xl);
+	margin-bottom: var(--spacing-6);
+	box-shadow: var(--shadow-sm);
+}
+
+.nlf-tools-header__icon-wrap {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 56px;
+	height: 56px;
+	background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
 	border-radius: var(--radius-lg);
-	padding: var(--spacing-6);
-	box-shadow: var(--shadow-md);
-	transition: box-shadow var(--transition-base), transform var(--transition-base);
+	box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+	flex-shrink: 0;
 }
 
-.nlf-faq-tools__card:hover {
-	box-shadow: var(--shadow-xl);
-	transform: translateY(-2px);
+.nlf-tools-header__icon-wrap .dashicons {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: var(--color-white);
 }
 
-.nlf-faq-tools__card h2 {
-	margin-top: 0;
+.nlf-tools-header__content h1 {
+	margin: 0 0 var(--spacing-1);
+	font-size: 1.5rem;
+	font-weight: var(--font-weight-bold);
+	color: var(--color-slate-900);
+	letter-spacing: var(--letter-spacing-tight);
+	line-height: var(--line-height-tight);
+	padding: 0;
+}
+
+.nlf-tools-header__content p {
+	margin: 0;
+	font-size: var(--font-size-base);
+	color: var(--color-slate-500);
+	line-height: var(--line-height-normal);
+}
+
+/* ── Sections ─────────────────────────────── */
+
+.nlf-tools-section {
+	margin-bottom: var(--spacing-10);
+}
+
+.nlf-tools-section__header {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--spacing-3);
+	margin-bottom: var(--spacing-6);
+	padding-bottom: var(--spacing-4);
+	border-bottom: 1px solid var(--color-slate-200);
+}
+
+.nlf-tools-section__header > .dashicons {
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+	color: var(--color-slate-400);
+	margin-top: 2px;
+	flex-shrink: 0;
+}
+
+.nlf-tools-section__header h2 {
+	margin: 0 0 var(--spacing-1);
 	font-size: var(--font-size-xl);
 	font-weight: var(--font-weight-semibold);
 	color: var(--color-slate-800);
 	letter-spacing: var(--letter-spacing-tight);
+	line-height: var(--line-height-tight);
 }
 
-.nlf-faq-tools__form {
-	margin-top: var(--spacing-4);
+.nlf-tools-section__header p {
+	margin: 0;
+	font-size: var(--font-size-sm);
+	color: var(--color-slate-500);
+	line-height: var(--line-height-normal);
+}
+
+/* ── Tools Grid ───────────────────────────── */
+
+.nlf-tools-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+	gap: var(--spacing-6);
+}
+
+/* ── Tool Card ────────────────────────────── */
+
+.nlf-tool-card {
+	position: relative;
+	background: var(--color-white);
+	border: 1px solid var(--color-slate-200);
+	border-radius: var(--radius-xl);
+	overflow: hidden;
+	box-shadow: var(--shadow-sm);
+	transition: box-shadow var(--transition-slow), transform var(--transition-slow);
+}
+
+.nlf-tool-card:hover {
+	box-shadow: var(--shadow-lg);
+	transform: translateY(-3px);
+}
+
+/* Accent bar */
+.nlf-tool-card__accent {
+	height: 4px;
+	background: var(--color-slate-300);
+}
+
+.nlf-tool-card--export .nlf-tool-card__accent {
+	background: linear-gradient(90deg, var(--color-primary-500) 0%, #60a5fa 100%);
+}
+
+.nlf-tool-card--import .nlf-tool-card__accent {
+	background: linear-gradient(90deg, var(--color-success-500) 0%, #4ade80 100%);
+}
+
+/* Card Header */
+.nlf-tool-card__header {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--spacing-4);
+	padding: var(--spacing-6) var(--spacing-6) 0;
+}
+
+.nlf-tool-card__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: var(--radius-lg);
+	flex-shrink: 0;
+	transition: transform var(--transition-base);
+}
+
+.nlf-tool-card:hover .nlf-tool-card__icon {
+	transform: scale(1.05);
+}
+
+.nlf-tool-card--export .nlf-tool-card__icon {
+	background: var(--color-primary-50);
+	color: var(--color-primary-600);
+}
+
+.nlf-tool-card--import .nlf-tool-card__icon {
+	background: var(--color-success-50);
+	color: var(--color-success-600);
+}
+
+.nlf-tool-card__icon .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+}
+
+.nlf-tool-card__header h3 {
+	margin: 0 0 var(--spacing-1);
+	font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-slate-900);
+	line-height: var(--line-height-tight);
+}
+
+.nlf-tool-card__header p {
+	margin: 0;
+	font-size: var(--font-size-sm);
+	color: var(--color-slate-500);
+	line-height: var(--line-height-normal);
+}
+
+/* Card Body */
+.nlf-tool-card__body {
+	padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
+}
+
+/* ── Form Elements inside Tool Cards ──────── */
+
+.nlf-tool-card__form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-4);
+}
+
+.nlf-tool-card__field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-2);
+}
+
+.nlf-tool-card__field-label {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-slate-700);
+	line-height: var(--line-height-tight);
+}
+
+.nlf-tool-card__select {
+	width: 100%;
+	padding: var(--spacing-3) var(--spacing-4);
+	padding-right: 2.5rem;
+	border: 1px solid var(--color-slate-300);
+	border-radius: var(--radius-md);
+	font-size: var(--font-size-sm);
+	font-family: var(--font-family-base);
+	color: var(--color-slate-800);
+	background-color: var(--color-white);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 12px;
+	transition: border-color var(--transition-base), box-shadow var(--transition-base);
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+}
+
+.nlf-tool-card__select:hover {
+	border-color: var(--color-slate-400);
+}
+
+.nlf-tool-card__select:focus {
+	outline: none;
+	border-color: var(--color-primary-500);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Checkbox Options Group */
+.nlf-tool-card__options {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-3);
+	padding: var(--spacing-4);
+	background: var(--color-slate-50);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-slate-100);
 }
 
-.nlf-faq-tools__option {
+.nlf-tool-card__option {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-3);
-	font-size: var(--font-size-base);
+	font-size: var(--font-size-sm);
 	color: var(--color-slate-700);
+	cursor: pointer;
+	line-height: var(--line-height-normal);
+	transition: color var(--transition-base);
 }
 
-.nlf-faq-tools__option input[type="checkbox"] {
+.nlf-tool-card__option:hover {
+	color: var(--color-slate-900);
+}
+
+.nlf-tool-card__option input[type="checkbox"] {
+	width: 1rem;
+	height: 1rem;
+	margin: 0;
+	cursor: pointer;
+	border: 2px solid var(--color-slate-300);
+	border-radius: 4px;
+	background: var(--color-white);
+	transition: all var(--transition-base);
+	appearance: none;
+	-webkit-appearance: none;
+	position: relative;
+	flex-shrink: 0;
+}
+
+.nlf-tool-card__option input[type="checkbox"]:hover {
+	border-color: var(--color-slate-400);
+}
+
+.nlf-tool-card__option input[type="checkbox"]:checked {
+	background: var(--color-primary-500);
+	border-color: var(--color-primary-500);
+}
+
+.nlf-tool-card__option input[type="checkbox"]:checked::after {
+	content: '';
+	position: absolute;
+	top: 1px;
+	left: 4px;
+	width: 5px;
+	height: 8px;
+	border: solid var(--color-white);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.nlf-tool-card__option input[type="checkbox"]:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Hint text */
+.nlf-tool-card__hint {
+	font-size: var(--font-size-sm);
+	color: var(--color-slate-500);
+	padding: var(--spacing-3) var(--spacing-4);
+	background: var(--color-slate-50);
+	border-radius: var(--radius-md);
+	border-left: 3px solid var(--color-primary-500);
+	line-height: var(--line-height-relaxed);
 	margin: 0;
 }
 
-.nlf-faq-tools__field-label {
-	font-weight: var(--font-weight-semibold);
-	color: var(--color-slate-800);
+/* ── File Upload Zone ─────────────────────── */
+
+.nlf-file-zone {
+	position: relative;
+	border: 2px dashed var(--color-slate-300);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-8) var(--spacing-6);
+	text-align: center;
+	background: var(--color-slate-50);
+	transition: all var(--transition-base);
+	cursor: pointer;
 }
 
-.nlf-faq-tools select,
-.nlf-faq-tools input[type="file"] {
-	max-width: 100%;
-	width: 100%;
+.nlf-file-zone:hover {
+	border-color: var(--color-success-500);
+	background: var(--color-success-50);
 }
 
-.nlf-faq-tools select {
-	padding: var(--spacing-3);
-	border: 1px solid var(--color-slate-300);
-	border-radius: var(--radius-md);
-	font-size: var(--font-size-base);
-	color: var(--color-slate-800);
+.nlf-file-zone.is-dragover {
+	border-color: var(--color-success-500);
+	background: var(--color-success-50);
+	border-style: solid;
+	box-shadow: inset 0 0 0 2px rgba(34, 197, 94, 0.1);
+}
+
+.nlf-file-zone__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 52px;
+	height: 52px;
+	margin: 0 auto var(--spacing-3);
 	background: var(--color-white);
+	border-radius: 50%;
+	box-shadow: var(--shadow-sm);
+	color: var(--color-slate-400);
+	transition: all var(--transition-base);
 }
 
-.nlf-faq-tools .description {
+.nlf-file-zone:hover .nlf-file-zone__icon,
+.nlf-file-zone.is-dragover .nlf-file-zone__icon {
+	color: var(--color-success-600);
+	box-shadow: var(--shadow-md);
+	transform: translateY(-2px);
+}
+
+.nlf-file-zone__icon .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+}
+
+.nlf-file-zone__text {
+	font-size: var(--font-size-sm);
 	color: var(--color-slate-600);
-	margin-bottom: 0;
+	margin: 0;
+	line-height: var(--line-height-normal);
 }
 
-@media (max-width: 640px) {
-	.nlf-faq-tools__grid {
+.nlf-file-zone__browse {
+	color: var(--color-primary-600);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.nlf-file-zone__meta {
+	font-size: var(--font-size-xs);
+	color: var(--color-slate-400);
+	margin: var(--spacing-2) 0 0;
+}
+
+.nlf-file-zone input[type="file"] {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	cursor: pointer;
+}
+
+/* File Selected Info Bar */
+.nlf-file-info {
+	display: none;
+	align-items: center;
+	gap: var(--spacing-3);
+	padding: var(--spacing-3) var(--spacing-4);
+	background: var(--color-success-50);
+	border: 1px solid var(--color-success-200);
+	border-radius: var(--radius-md);
+}
+
+.nlf-file-info.is-visible {
+	display: flex;
+}
+
+.nlf-file-info__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	background: var(--color-white);
+	border-radius: var(--radius-md);
+	color: var(--color-success-600);
+	flex-shrink: 0;
+	box-shadow: var(--shadow-sm);
+}
+
+.nlf-file-info__icon .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.nlf-file-info__details {
+	flex: 1;
+	min-width: 0;
+}
+
+.nlf-file-info__name {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
+	color: var(--color-slate-800);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.nlf-file-info__size {
+	font-size: var(--font-size-xs);
+	color: var(--color-slate-500);
+}
+
+.nlf-file-info__remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid var(--color-slate-200);
+	background: var(--color-white);
+	border-radius: var(--radius-sm);
+	color: var(--color-slate-400);
+	cursor: pointer;
+	transition: all var(--transition-base);
+	flex-shrink: 0;
+	font-size: var(--font-size-lg);
+	line-height: 1;
+}
+
+.nlf-file-info__remove:hover {
+	border-color: var(--color-error-500);
+	color: var(--color-error-600);
+	background: var(--color-error-50);
+}
+
+/* ── Tool Card Buttons ────────────────────── */
+
+.nlf-tool-card .button.button-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--spacing-2);
+	width: 100%;
+	padding: var(--spacing-3) var(--spacing-5);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	font-family: var(--font-family-base);
+	line-height: var(--line-height-normal);
+	border: none;
+	border-radius: var(--radius-md);
+	cursor: pointer;
+	transition: all var(--transition-base);
+	box-shadow: var(--shadow-sm);
+	height: auto;
+	text-shadow: none;
+	margin-top: var(--spacing-2);
+}
+
+.nlf-tool-card--export .button.button-primary {
+	background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+	color: var(--color-white);
+}
+
+.nlf-tool-card--export .button.button-primary:hover {
+	background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+	box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+	transform: translateY(-1px);
+}
+
+.nlf-tool-card--import .button.button-primary {
+	background: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+	color: var(--color-white);
+}
+
+.nlf-tool-card--import .button.button-primary:hover {
+	background: linear-gradient(135deg, var(--color-success-600) 0%, var(--color-success-700) 100%);
+	box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+	transform: translateY(-1px);
+}
+
+.nlf-tool-card .button.button-primary:active {
+	transform: translateY(0);
+	box-shadow: var(--shadow-sm);
+}
+
+.nlf-tool-card .button.button-primary:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* ── Placeholder / Coming Soon Cards ──────── */
+
+.nlf-tool-card--placeholder {
+	opacity: 0.6;
+	cursor: default;
+	pointer-events: none;
+	user-select: none;
+}
+
+.nlf-tool-card--placeholder .nlf-tool-card__accent {
+	background: linear-gradient(90deg, var(--color-slate-200) 0%, var(--color-slate-300) 100%);
+}
+
+.nlf-tool-card--placeholder .nlf-tool-card__icon {
+	background: var(--color-slate-100);
+	color: var(--color-slate-400);
+}
+
+.nlf-tool-card--placeholder:hover {
+	transform: none;
+	box-shadow: var(--shadow-sm);
+}
+
+/* Badge */
+.nlf-badge {
+	display: inline-flex;
+	align-items: center;
+	font-size: 10px;
+	font-weight: var(--font-weight-bold);
+	letter-spacing: var(--letter-spacing-wide);
+	text-transform: uppercase;
+	padding: 2px 8px;
+	border-radius: 999px;
+	vertical-align: middle;
+	margin-left: var(--spacing-2);
+	line-height: 1.6;
+}
+
+.nlf-badge--soon {
+	background: var(--color-slate-100);
+	color: var(--color-slate-500);
+	border: 1px solid var(--color-slate-200);
+}
+
+/* ── Tools Page Notice Override ───────────── */
+
+.nlf-faq-tools > .notice {
+	border-radius: var(--radius-md);
+	margin: 0 0 var(--spacing-6);
+	padding: var(--spacing-4) var(--spacing-5);
+	box-shadow: var(--shadow-sm);
+}
+
+/* ── Responsive ───────────────────────────── */
+
+@media (max-width: 782px) {
+	.nlf-tools-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--spacing-4);
+		padding: var(--spacing-5);
+	}
+
+	.nlf-tools-header__icon-wrap {
+		width: 44px;
+		height: 44px;
+	}
+
+	.nlf-tools-header__icon-wrap .dashicons {
+		font-size: 22px;
+		width: 22px;
+		height: 22px;
+	}
+
+	.nlf-tools-header__content h1 {
+		font-size: 1.25rem;
+	}
+
+	.nlf-tools-grid {
 		grid-template-columns: 1fr;
 	}
 
-	.nlf-faq-tools__card {
-		padding: var(--spacing-5);
+	.nlf-tool-card__header {
+		padding: var(--spacing-5) var(--spacing-5) 0;
+	}
+
+	.nlf-tool-card__body {
+		padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
+	}
+
+	.nlf-tool-card__icon {
+		width: 40px;
+		height: 40px;
+	}
+
+	.nlf-tool-card__icon .dashicons {
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
+	}
+
+	.nlf-file-zone {
+		padding: var(--spacing-6) var(--spacing-4);
+	}
+}
+
+@media (max-width: 480px) {
+	.nlf-tools-header {
+		padding: var(--spacing-4);
+	}
+
+	.nlf-tool-card__header {
+		flex-direction: column;
+		gap: var(--spacing-3);
+		padding: var(--spacing-4) var(--spacing-4) 0;
+	}
+
+	.nlf-tool-card__body {
+		padding: var(--spacing-4);
 	}
 }
 

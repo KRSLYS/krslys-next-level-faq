@@ -568,111 +568,218 @@ class Admin_Settings {
 		$cpt_groups = self::get_cpt_group_choices();
 		?>
 		<div class="wrap nlf-faq-admin nlf-faq-tools">
-			<h1><?php esc_html_e( 'Next Level FAQ – Tools', 'next-level-faq' ); ?></h1>
+
+			<!-- ── Page Header ──────────────────────────── -->
+			<div class="nlf-tools-header">
+				<div class="nlf-tools-header__icon-wrap">
+					<span class="dashicons dashicons-admin-tools"></span>
+				</div>
+				<div class="nlf-tools-header__content">
+					<h1><?php esc_html_e( 'Tools', 'next-level-faq' ); ?></h1>
+					<p><?php esc_html_e( 'Manage, backup, and migrate your FAQ data with powerful utilities.', 'next-level-faq' ); ?></p>
+				</div>
+			</div>
+
 			<?php self::output_tools_notice(); ?>
 
-			<div class="nlf-faq-tools__grid">
+			<!-- ── Data Management ──────────────────────── -->
+			<div class="nlf-tools-section">
+				<div class="nlf-tools-section__header">
+					<span class="dashicons dashicons-database"></span>
+					<div>
+						<h2><?php esc_html_e( 'Data Management', 'next-level-faq' ); ?></h2>
+						<p><?php esc_html_e( 'Export and import your FAQ content, themes, and settings.', 'next-level-faq' ); ?></p>
+					</div>
+				</div>
 
-				<!-- ── Export ─────────────────────────────────── -->
-				<section class="nlf-faq-tools__card">
-					<h2><?php esc_html_e( 'Export', 'next-level-faq' ); ?></h2>
-					<p class="description">
-						<?php esc_html_e( 'Download a JSON file with your FAQ data for backups or site migrations.', 'next-level-faq' ); ?>
-					</p>
+				<div class="nlf-tools-grid">
 
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-faq-tools__form">
-						<?php wp_nonce_field( 'nlf_faq_export', 'nlf_faq_export_nonce' ); ?>
-						<input type="hidden" name="action" value="nlf_faq_export" />
-
-						<label for="nlf-faq-export-scope" class="nlf-faq-tools__field-label">
-							<?php esc_html_e( 'Export scope', 'next-level-faq' ); ?>
-						</label>
-						<select id="nlf-faq-export-scope" name="nlf_faq_export_group" class="nlf-faq-tools__select">
-							<option value="all"><?php esc_html_e( 'All groups (full backup)', 'next-level-faq' ); ?></option>
-							<?php foreach ( $cpt_groups as $value => $label ) : ?>
-								<option value="<?php echo esc_attr( $value ); ?>">
-									<?php echo esc_html( $label ); ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-
-						<div id="nlf-export-global-opts">
-							<label class="nlf-faq-tools__option">
-								<input type="checkbox" name="nlf_faq_include_styles" value="1" checked="checked" />
-								<span><?php esc_html_e( 'Include style settings', 'next-level-faq' ); ?></span>
-							</label>
-
-							<label class="nlf-faq-tools__option">
-								<input type="checkbox" name="nlf_faq_include_questions" value="1" checked="checked" />
-								<span><?php esc_html_e( 'Include FAQ entries', 'next-level-faq' ); ?></span>
-							</label>
+					<!-- ── Export Card ─────────────── -->
+					<div class="nlf-tool-card nlf-tool-card--export">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-download"></span>
+							</div>
+							<div>
+								<h3><?php esc_html_e( 'Export', 'next-level-faq' ); ?></h3>
+								<p><?php esc_html_e( 'Download a JSON file for backups or site migration.', 'next-level-faq' ); ?></p>
+							</div>
 						</div>
+						<div class="nlf-tool-card__body">
+							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-tool-card__form">
+								<?php wp_nonce_field( 'nlf_faq_export', 'nlf_faq_export_nonce' ); ?>
+								<input type="hidden" name="action" value="nlf_faq_export" />
 
-						<p class="description" id="nlf-export-group-hint" style="display:none;">
-							<?php esc_html_e( 'Exports the selected group with all its questions, theme, and settings.', 'next-level-faq' ); ?>
-						</p>
+								<div class="nlf-tool-card__field">
+									<label for="nlf-faq-export-scope" class="nlf-tool-card__field-label">
+										<?php esc_html_e( 'Export scope', 'next-level-faq' ); ?>
+									</label>
+									<select id="nlf-faq-export-scope" name="nlf_faq_export_group" class="nlf-tool-card__select">
+										<option value="all"><?php esc_html_e( 'All groups (full backup)', 'next-level-faq' ); ?></option>
+										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+											<option value="<?php echo esc_attr( $value ); ?>">
+												<?php echo esc_html( $label ); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
 
-						<?php submit_button( __( 'Download Export', 'next-level-faq' ), 'primary', 'submit', false ); ?>
-					</form>
-				</section>
+								<div id="nlf-export-global-opts" class="nlf-tool-card__options">
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_faq_include_styles" value="1" checked="checked" />
+										<span><?php esc_html_e( 'Include style settings', 'next-level-faq' ); ?></span>
+									</label>
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_faq_include_questions" value="1" checked="checked" />
+										<span><?php esc_html_e( 'Include FAQ entries', 'next-level-faq' ); ?></span>
+									</label>
+								</div>
 
-				<!-- ── Import ─────────────────────────────────── -->
-				<section class="nlf-faq-tools__card">
-					<h2><?php esc_html_e( 'Import', 'next-level-faq' ); ?></h2>
-					<p class="description">
-						<?php esc_html_e( 'Upload a JSON file exported from this or another site to restore FAQ data.', 'next-level-faq' ); ?>
-					</p>
+								<p class="nlf-tool-card__hint" id="nlf-export-group-hint" style="display:none;">
+									<?php esc_html_e( 'Exports the selected group with all its questions, theme, and settings.', 'next-level-faq' ); ?>
+								</p>
 
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-faq-tools__form" enctype="multipart/form-data">
-						<?php wp_nonce_field( 'nlf_faq_import', 'nlf_faq_import_nonce' ); ?>
-						<input type="hidden" name="action" value="nlf_faq_import" />
-
-						<label for="nlf-faq-import-target" class="nlf-faq-tools__field-label">
-							<?php esc_html_e( 'Import target', 'next-level-faq' ); ?>
-						</label>
-						<select id="nlf-faq-import-target" name="nlf_faq_import_target" class="nlf-faq-tools__select">
-							<option value="all"><?php esc_html_e( 'Global (all FAQ data)', 'next-level-faq' ); ?></option>
-							<option value="duplicate"><?php esc_html_e( 'Duplicate as new group', 'next-level-faq' ); ?></option>
-							<?php foreach ( $cpt_groups as $value => $label ) : ?>
-								<option value="<?php echo esc_attr( $value ); ?>">
-									<?php echo esc_html( $label ); ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-
-						<p class="description" id="nlf-import-duplicate-hint" style="display:none;">
-							<?php esc_html_e( 'Creates a brand-new group from the exported file with all its questions, theme, and settings.', 'next-level-faq' ); ?>
-						</p>
-
-						<label for="nlf-faq-import-file" class="nlf-faq-tools__field-label">
-							<?php esc_html_e( 'Select export file (.json)', 'next-level-faq' ); ?>
-						</label>
-						<input type="file" id="nlf-faq-import-file" name="nlf_faq_import_file" accept=".json,application/json" required />
-
-						<div id="nlf-import-replace-opt">
-							<label class="nlf-faq-tools__option">
-								<input type="checkbox" name="nlf_faq_replace_existing" value="1" />
-								<span><?php esc_html_e( 'Replace existing items before import', 'next-level-faq' ); ?></span>
-							</label>
+								<?php submit_button( __( 'Download Export', 'next-level-faq' ), 'primary', 'submit', false ); ?>
+							</form>
 						</div>
+					</div>
 
-						<div id="nlf-import-group-opts" style="display:none;">
-							<label class="nlf-faq-tools__option">
-								<input type="checkbox" name="nlf_import_apply_styles" value="1" />
-								<span><?php esc_html_e( 'Apply imported theme and styles to this group', 'next-level-faq' ); ?></span>
-							</label>
+					<!-- ── Import Card ─────────────── -->
+					<div class="nlf-tool-card nlf-tool-card--import">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-upload"></span>
+							</div>
+							<div>
+								<h3><?php esc_html_e( 'Import', 'next-level-faq' ); ?></h3>
+								<p><?php esc_html_e( 'Upload a JSON file to restore FAQ data from a backup.', 'next-level-faq' ); ?></p>
+							</div>
 						</div>
+						<div class="nlf-tool-card__body">
+							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-tool-card__form" enctype="multipart/form-data">
+								<?php wp_nonce_field( 'nlf_faq_import', 'nlf_faq_import_nonce' ); ?>
+								<input type="hidden" name="action" value="nlf_faq_import" />
 
-						<?php submit_button( __( 'Import', 'next-level-faq' ), 'primary', 'submit', false ); ?>
-					</form>
-				</section>
+								<div class="nlf-tool-card__field">
+									<label for="nlf-faq-import-target" class="nlf-tool-card__field-label">
+										<?php esc_html_e( 'Import target', 'next-level-faq' ); ?>
+									</label>
+									<select id="nlf-faq-import-target" name="nlf_faq_import_target" class="nlf-tool-card__select">
+										<option value="all"><?php esc_html_e( 'Global (all FAQ data)', 'next-level-faq' ); ?></option>
+										<option value="duplicate"><?php esc_html_e( 'Duplicate as new group', 'next-level-faq' ); ?></option>
+										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+											<option value="<?php echo esc_attr( $value ); ?>">
+												<?php echo esc_html( $label ); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
 
+								<p class="nlf-tool-card__hint" id="nlf-import-duplicate-hint" style="display:none;">
+									<?php esc_html_e( 'Creates a brand-new group from the exported file with all its questions, theme, and settings.', 'next-level-faq' ); ?>
+								</p>
+
+								<div class="nlf-tool-card__field">
+									<label class="nlf-tool-card__field-label">
+										<?php esc_html_e( 'Upload file', 'next-level-faq' ); ?>
+									</label>
+									<div class="nlf-file-zone" id="nlf-file-zone">
+										<div class="nlf-file-zone__icon">
+											<span class="dashicons dashicons-cloud-upload"></span>
+										</div>
+										<p class="nlf-file-zone__text">
+											<?php esc_html_e( 'Drag & drop your file here or', 'next-level-faq' ); ?>
+											<span class="nlf-file-zone__browse"><?php esc_html_e( 'browse', 'next-level-faq' ); ?></span>
+										</p>
+										<p class="nlf-file-zone__meta"><?php esc_html_e( 'Accepts .json files only', 'next-level-faq' ); ?></p>
+										<input type="file" id="nlf-faq-import-file" name="nlf_faq_import_file" accept=".json,application/json" required />
+									</div>
+									<div class="nlf-file-info" id="nlf-file-info">
+										<div class="nlf-file-info__icon">
+											<span class="dashicons dashicons-media-code"></span>
+										</div>
+										<div class="nlf-file-info__details">
+											<div class="nlf-file-info__name" id="nlf-file-name"></div>
+											<div class="nlf-file-info__size" id="nlf-file-size"></div>
+										</div>
+										<button type="button" class="nlf-file-info__remove" id="nlf-file-remove" title="<?php esc_attr_e( 'Remove file', 'next-level-faq' ); ?>">&times;</button>
+									</div>
+								</div>
+
+								<div id="nlf-import-replace-opt" class="nlf-tool-card__options">
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_faq_replace_existing" value="1" />
+										<span><?php esc_html_e( 'Replace existing items before import', 'next-level-faq' ); ?></span>
+									</label>
+								</div>
+
+								<div id="nlf-import-group-opts" class="nlf-tool-card__options" style="display:none;">
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_import_apply_styles" value="1" />
+										<span><?php esc_html_e( 'Apply imported theme and styles to this group', 'next-level-faq' ); ?></span>
+									</label>
+								</div>
+
+								<?php submit_button( __( 'Import', 'next-level-faq' ), 'primary', 'submit', false ); ?>
+							</form>
+						</div>
+					</div>
+
+				</div>
 			</div>
+
+			<!-- ── More Tools Coming Soon ───────────────── -->
+			<div class="nlf-tools-section">
+				<div class="nlf-tools-section__header">
+					<span class="dashicons dashicons-superhero-alt"></span>
+					<div>
+						<h2><?php esc_html_e( 'More Tools', 'next-level-faq' ); ?></h2>
+						<p><?php esc_html_e( 'Powerful utilities coming in future updates.', 'next-level-faq' ); ?></p>
+					</div>
+				</div>
+
+				<div class="nlf-tools-grid">
+					<div class="nlf-tool-card nlf-tool-card--placeholder">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-image-rotate"></span>
+							</div>
+							<div>
+								<h3>
+									<?php esc_html_e( 'Reset', 'next-level-faq' ); ?>
+									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'next-level-faq' ); ?></span>
+								</h3>
+								<p><?php esc_html_e( 'Selectively reset FAQ data, styles, or all plugin settings at once.', 'next-level-faq' ); ?></p>
+							</div>
+						</div>
+					</div>
+
+					<div class="nlf-tool-card nlf-tool-card--placeholder">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-chart-bar"></span>
+							</div>
+							<div>
+								<h3>
+									<?php esc_html_e( 'Diagnostics', 'next-level-faq' ); ?>
+									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'next-level-faq' ); ?></span>
+								</h3>
+								<p><?php esc_html_e( 'Analyze your FAQ setup and get optimization suggestions.', 'next-level-faq' ); ?></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 		<script>
 		(function(){
-			/* Export: toggle global options vs single-group hint */
+			/* ── Export: toggle global options vs single-group hint ── */
 			var expScope  = document.getElementById('nlf-faq-export-scope');
 			var expGlobal = document.getElementById('nlf-export-global-opts');
 			var expHint   = document.getElementById('nlf-export-group-hint');
@@ -684,7 +791,7 @@ class Admin_Settings {
 				});
 			}
 
-			/* Import: toggle options based on target */
+			/* ── Import: toggle options based on target ── */
 			var impTarget    = document.getElementById('nlf-faq-import-target');
 			var impGroupOps  = document.getElementById('nlf-import-group-opts');
 			var impReplaceOp = document.getElementById('nlf-import-replace-opt');
@@ -697,6 +804,60 @@ class Admin_Settings {
 					impGroupOps.style.display  = isGroup ? '' : 'none';
 					impReplaceOp.style.display = isDup ? 'none' : '';
 					impDupHint.style.display   = isDup ? '' : 'none';
+				});
+			}
+
+			/* ── File upload zone UX ── */
+			var zone     = document.getElementById('nlf-file-zone');
+			var fileInfo = document.getElementById('nlf-file-info');
+			var fileInp  = document.getElementById('nlf-faq-import-file');
+			var fileName = document.getElementById('nlf-file-name');
+			var fileSize = document.getElementById('nlf-file-size');
+			var fileRem  = document.getElementById('nlf-file-remove');
+
+			function formatBytes(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				var k = 1024, sizes = ['Bytes','KB','MB'];
+				var i = Math.floor(Math.log(bytes) / Math.log(k));
+				return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+			}
+
+			function showFileInfo() {
+				if (fileInp.files && fileInp.files.length) {
+					var f = fileInp.files[0];
+					fileName.textContent = f.name;
+					fileSize.textContent = formatBytes(f.size);
+					zone.style.display = 'none';
+					fileInfo.classList.add('is-visible');
+				}
+			}
+
+			function clearFile() {
+				fileInp.value = '';
+				zone.style.display = '';
+				fileInfo.classList.remove('is-visible');
+			}
+
+			if (fileInp) {
+				fileInp.addEventListener('change', showFileInfo);
+			}
+			if (fileRem) {
+				fileRem.addEventListener('click', clearFile);
+			}
+
+			/* Drag & drop visual feedback */
+			if (zone) {
+				['dragenter','dragover'].forEach(function(evt){
+					zone.addEventListener(evt, function(e){
+						e.preventDefault();
+						zone.classList.add('is-dragover');
+					});
+				});
+				['dragleave','drop'].forEach(function(evt){
+					zone.addEventListener(evt, function(e){
+						e.preventDefault();
+						zone.classList.remove('is-dragover');
+					});
 				});
 			}
 		})();
