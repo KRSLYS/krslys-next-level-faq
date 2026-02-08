@@ -277,13 +277,14 @@
 							$submit.text(nlfFaqAdmin.i18n.saved);
 						}
 
-						// Show success notice
-						$('<div class="notice notice-success is-dismissible nlf-ajax-notice"><p>' + 
-							(response.data.message || 'Settings saved successfully!') + 
-							'</p></div>')
-							.insertAfter('.wrap h1')
-							.hide()
-							.fadeIn();
+					// Show success notice (escape server message to prevent XSS).
+					var safeSuccessMsg = $('<span>').text(response.data.message || 'Settings saved successfully!').html();
+					$('<div class="notice notice-success is-dismissible nlf-ajax-notice" role="status" aria-live="polite"><p>' + 
+						safeSuccessMsg + 
+						'</p></div>')
+						.insertAfter('.wrap h1')
+						.hide()
+						.fadeIn();
 
 						// Restore button after delay
 						setTimeout(function () {
@@ -303,16 +304,18 @@
 						}, 3000);
 					} else {
 						// Show error message
-						var errorMsg = response.data && response.data.message 
-							? response.data.message 
-							: 'Failed to save settings. Please try again.';
+					var errorMsg = response.data && response.data.message 
+						? response.data.message 
+						: 'Failed to save settings. Please try again.';
 
-						$('<div class="notice notice-error is-dismissible nlf-ajax-notice"><p>' + 
-							errorMsg + 
-							'</p></div>')
-							.insertAfter('.wrap h1')
-							.hide()
-							.fadeIn();
+					// Escape server message to prevent XSS.
+					var safeErrorMsg = $('<span>').text(errorMsg).html();
+					$('<div class="notice notice-error is-dismissible nlf-ajax-notice" role="alert" aria-live="assertive"><p>' + 
+						safeErrorMsg + 
+						'</p></div>')
+						.insertAfter('.wrap h1')
+						.hide()
+						.fadeIn();
 
 						// Restore button
 						$submit.prop('disabled', false);
@@ -324,8 +327,8 @@
 					}
 				},
 				error: function (xhr, status, error) {
-					// Show error message
-					$('<div class="notice notice-error is-dismissible nlf-ajax-notice"><p>' + 
+					// Show error message.
+					$('<div class="notice notice-error is-dismissible nlf-ajax-notice" role="alert" aria-live="assertive"><p>' + 
 						'Network error: Failed to save settings. Please check your connection and try again.' + 
 						'</p></div>')
 						.insertAfter('.wrap h1')

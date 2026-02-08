@@ -119,13 +119,14 @@ class Settings_Repository {
 			// So we only fail if it's exactly false
 			if ( false === $result ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional debug logging behind WP_DEBUG check.
 					error_log( 'Settings_Repository: Update failed. Error: ' . $wpdb->last_error );
 				}
 				return false;
 			}
 			return true;
 		} else {
-			// Insert new setting
+			// Insert new setting.
 			$result = $wpdb->insert(
 				$table,
 				array(
@@ -134,9 +135,10 @@ class Settings_Repository {
 				),
 				array( '%s', '%s' )
 			);
-			
+
 			if ( false === $result ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional debug logging behind WP_DEBUG check.
 					error_log( 'Settings_Repository: Insert failed. Error: ' . $wpdb->last_error );
 				}
 				return false;

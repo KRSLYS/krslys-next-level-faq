@@ -325,10 +325,17 @@
 						if (typeof window.nlfInitFaq === 'function') {
 							window.nlfInitFaq(content);
 						}
-					} else {
-						const message = result.data && result.data.message ? result.data.message : 'Failed to load preview.';
-						loading.innerHTML = `<div class="nlf-preview-error"><span class="dashicons dashicons-warning"></span><p>${message}</p></div>`;
-					}
+				} else {
+					const message = result.data && result.data.message ? result.data.message : 'Failed to load preview.';
+					const errorDiv = document.createElement('div');
+					errorDiv.className = 'nlf-preview-error';
+					errorDiv.innerHTML = '<span class="dashicons dashicons-warning"></span>';
+					const p = document.createElement('p');
+					p.textContent = message;
+					errorDiv.appendChild(p);
+					loading.textContent = '';
+					loading.appendChild(errorDiv);
+				}
 				})
 				.catch(() => {
 					loading.innerHTML = '<div class="nlf-preview-error"><span class="dashicons dashicons-warning"></span><p>Error loading preview. Please save the group and try again.</p></div>';

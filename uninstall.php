@@ -48,44 +48,42 @@ $wpdb->query(
 	)
 );
 
-// Delete orphaned postmeta
+// Delete orphaned postmeta (no user input; table names come from $wpdb).
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- No user input, only core WP table references.
 $wpdb->query(
-	"DELETE pm FROM {$wpdb->postmeta} pm 
-	LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
+	"DELETE pm FROM {$wpdb->postmeta} pm
+	LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
 	WHERE p.ID IS NULL"
 );
 
 /**
- * Delete generated CSS files from uploads directory.
+ * Delete generated CSS files from uploads directory using WP_Filesystem.
  */
 $uploads = wp_upload_dir();
 $css_dir = trailingslashit( $uploads['basedir'] ) . 'nlf-faq-styles';
 
 if ( is_dir( $css_dir ) ) {
-	// Remove all files in directory
-	$files = glob( $css_dir . '/*' );
-	if ( is_array( $files ) ) {
-		foreach ( $files as $file ) {
-			if ( is_file( $file ) ) {
-				@unlink( $file );
-			}
-		}
+	if ( ! function_exists( 'WP_Filesystem' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 	}
-	// Remove directory
-	@rmdir( $css_dir );
+
+	WP_Filesystem();
+
+	global $wp_filesystem;
+
+	if ( $wp_filesystem ) {
+		$wp_filesystem->rmdir( $css_dir, true );
+	}
 }
 
 /**
  * Clear any transients.
  */
 $wpdb->query(
-	"DELETE FROM {$wpdb->options} 
-	WHERE option_name LIKE '_transient_nlf_%' 
-	OR option_name LIKE '_transient_timeout_nlf_%'"
+	$wpdb->prepare(
+		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+		$wpdb->esc_like( '_transient_nlf_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_nlf_' ) . '%'
+	)
 );
-
-// Log uninstall for debugging (if WP_DEBUG is enabled)
-if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'Next Level FAQ: Plugin uninstalled and all data removed.' );
-}
 

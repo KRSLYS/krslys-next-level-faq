@@ -203,13 +203,6 @@ class Database {
 			)
 		);
 
-		// Log cleanup for debugging
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( sprintf( 
-				'Next Level FAQ: Cleaned up %d legacy CPT posts and related data', 
-				$deleted_posts 
-			) );
-		}
 	}
 
 	/**

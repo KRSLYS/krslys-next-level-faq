@@ -126,27 +126,18 @@ class Autoloader {
 		if ( strpos( $class_name, 'Admin_' ) === 0 || strpos( $class_name, '_CPT' ) !== false ) {
 			return 'admin';
 		}
-		
+
 		// Frontend classes: Frontend_*.
 		if ( strpos( $class_name, 'Frontend_' ) === 0 ) {
 			return 'frontend';
 		}
-		
-		// Core classes: Options, Repository, Style_Generator, Database, etc.
-		$core_classes = array( 
-			'Options', 
-			'Repository', 
-			'Style_Generator', 
-			'Cache', 
-			'Presets',
-			'Database',
-			'Groups_Repository',
-			'Settings_Repository',
-		);
-		if ( in_array( $class_name, $core_classes, true ) ) {
+
+		// Fallback: check if the file exists in core/ directory.
+		$file_name = 'class-' . strtolower( str_replace( '_', '-', $class_name ) ) . '.php';
+		if ( file_exists( $this->base_dir . 'core/' . $file_name ) ) {
 			return 'core';
 		}
-		
+
 		// Default: no subdirectory (for backwards compatibility).
 		return '';
 	}

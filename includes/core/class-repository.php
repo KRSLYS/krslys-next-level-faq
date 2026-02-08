@@ -338,10 +338,10 @@ class Repository {
 	public static function delete_all_items() {
 		global $wpdb;
 
-	$table = self::get_table_name();
+		$table = self::get_table_name();
 
-	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, no user input.
-	$wpdb->query( "TRUNCATE TABLE {$table}" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, no user input.
+		$wpdb->query( "TRUNCATE TABLE {$table}" );
 	}
 
 	/**
@@ -355,26 +355,26 @@ class Repository {
 	 * @param string $table Table name.
 	 * @return void
 	 */
-private static function maybe_drop_legacy_columns( $table ) {
-	global $wpdb;
+	private static function maybe_drop_legacy_columns( $table ) {
+		global $wpdb;
 
-	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
-	$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table}", ARRAY_A );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
+		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table}", ARRAY_A );
 
 		if ( empty( $columns ) ) {
 			return;
 		}
 
-	$existing = wp_list_pluck( $columns, 'Field' );
+		$existing = wp_list_pluck( $columns, 'Field' );
 
-	$drop_allowlist = array(
+		$drop_allowlist = array(
 			'icon',
 			'category',
 		);
 
-	foreach ( $drop_allowlist as $column ) {
-		if ( in_array( $column, $existing, true ) ) {
-			$safe_column = esc_sql( $column );
+		foreach ( $drop_allowlist as $column ) {
+			if ( in_array( $column, $existing, true ) ) {
+				$safe_column = esc_sql( $column );
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are safe.
 				$wpdb->query( "ALTER TABLE {$table} DROP COLUMN {$safe_column}" );
 			}

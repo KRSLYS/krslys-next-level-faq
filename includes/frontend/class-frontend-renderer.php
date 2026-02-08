@@ -180,8 +180,8 @@ class Frontend_Renderer {
 	 *
 	 * @return string
 	 */
-public static function render_shortcode( $atts, $content = '' ) {
-	$atts = self::sanitize_shortcode_atts(
+	public static function render_shortcode( $atts, $content = '' ) {
+		$atts = self::sanitize_shortcode_atts(
 			shortcode_atts(
 				array(
 					'title'      => __( 'Frequently Asked Questions', 'next-level-faq' ),
@@ -194,24 +194,24 @@ public static function render_shortcode( $atts, $content = '' ) {
 			)
 		);
 
-	$preset_slug = Options::get_active_preset_slug( Options::get_options(), $atts['preset'] );
-	$resolved_options = Options::resolve_for_preset( $preset_slug, Options::get_options() );
+		$preset_slug      = Options::get_active_preset_slug( Options::get_options(), $atts['preset'] );
+		$resolved_options = Options::resolve_for_preset( $preset_slug, Options::get_options() );
 
-	$group_id = $atts['group'];
+		$group_id = $atts['group'];
 
-	if ( 0 === $group_id && '' !== $atts['group_slug'] ) {
+		if ( 0 === $group_id && '' !== $atts['group_slug'] ) {
 			$group_post = get_page_by_path( $atts['group_slug'], OBJECT, 'nlf_faq_group' );
 			if ( $group_post instanceof WP_Post ) {
 				$group_id = (int) $group_post->ID;
 			}
 		}
 
-		// Enqueue group-specific CSS if custom styles enabled
+		// Enqueue group-specific CSS if custom styles enabled.
 		if ( $group_id ) {
 			self::maybe_enqueue_group_css( $group_id );
 		}
 
-		// Get group-specific settings
+		// Get group-specific settings.
 		$settings = array();
 		if ( $group_id ) {
 			$group = Groups_Repository::get_group_by_id( $group_id );
@@ -236,18 +236,18 @@ public static function render_shortcode( $atts, $content = '' ) {
 		if ( $group_id && isset( $group ) && $group ) {
 			$use_custom_style = $group->use_custom_style;
 		}
-		$inline_style     = $use_custom_style ? '' : Style_Generator::build_inline_style( $resolved_options );
+		$inline_style = $use_custom_style ? '' : Style_Generator::build_inline_style( $resolved_options );
 
 		if ( ! is_array( $items ) ) {
 			$items = array();
 		}
 
 		$cache_context = array(
-			'atts'     => array(
+			'atts'             => array(
 				'title' => $atts['title'],
 			),
-			'settings' => $settings,
-			'preset'   => $preset_slug,
+			'settings'         => $settings,
+			'preset'           => $preset_slug,
 			'use_custom_style' => $use_custom_style,
 		);
 
@@ -266,7 +266,7 @@ public static function render_shortcode( $atts, $content = '' ) {
 
 		ob_start();
 		?>
-		<div class="<?php echo esc_attr( implode( ' ', $faq_classes ) ); ?>" 
+		<div class="<?php echo esc_attr( implode( ' ', $faq_classes ) ); ?>"
 			data-group-id="<?php echo esc_attr( $group_id ); ?>"
 			data-animation-speed="<?php echo esc_attr( $settings['animation_speed'] ?? 'normal' ); ?>"
 			data-accordion="<?php echo ! empty( $settings['accordion_mode'] ) ? '1' : '0'; ?>"
@@ -287,9 +287,9 @@ public static function render_shortcode( $atts, $content = '' ) {
 			<?php endif; ?>
 
 			<?php if ( ! empty( $items ) ) : ?>
-			<?php foreach ( $items as $index => $item ) : ?>
-				<?php
-				// Determine initial open state based on settings
+				<?php foreach ( $items as $index => $item ) : ?>
+					<?php
+					// Determine initial open state based on settings.
 					$is_open = false;
 					if ( 'first_open' === $settings['initial_state'] && 0 === $index ) {
 						$is_open = true;
@@ -297,7 +297,7 @@ public static function render_shortcode( $atts, $content = '' ) {
 						$is_open = true;
 					}
 
-					$is_active = isset( $item->highlight ) ? ( 1 === (int) $item->highlight ) : false;
+					$is_active  = isset( $item->highlight ) ? ( 1 === (int) $item->highlight ) : false;
 					$item_class = array();
 
 					if ( $is_open ) {
@@ -315,10 +315,8 @@ public static function render_shortcode( $atts, $content = '' ) {
 							<span><?php echo esc_html( (string) $item->question ); ?></span>
 							<span class="nlf-faq__icon" aria-hidden="true"></span>
 						</div>
-					<div class="nlf-faq__answer">
-						<?php
-						echo wp_kses_post( wpautop( (string) $item->answer ) );
-							?>
+						<div class="nlf-faq__answer">
+							<?php echo wp_kses_post( wpautop( (string) $item->answer ) ); ?>
 						</div>
 					</div>
 				<?php endforeach; ?>

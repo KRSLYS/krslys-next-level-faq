@@ -101,14 +101,14 @@ class Group_CPT {
 	 *
 	 * @param string $hook_suffix Hook suffix.
 	 */
-public static function enqueue_admin_assets( $hook_suffix ) {
-	if ( ! in_array( $hook_suffix, array( 'post.php', 'post-new.php' ), true ) ) {
-		return;
-	}
+	public static function enqueue_admin_assets( $hook_suffix ) {
+		if ( ! in_array( $hook_suffix, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
 
-	$screen = get_current_screen();
+		$screen = get_current_screen();
 
-	if ( ! $screen || self::POST_TYPE !== $screen->post_type ) {
+		if ( ! $screen || self::POST_TYPE !== $screen->post_type ) {
 			return;
 		}
 
@@ -117,7 +117,7 @@ public static function enqueue_admin_assets( $hook_suffix ) {
 			wp_enqueue_editor();
 		}
 
-		// Enqueue color picker
+		// Enqueue color picker.
 		wp_enqueue_style( 'wp-color-picker' );
 
 		wp_enqueue_style(
@@ -127,7 +127,7 @@ public static function enqueue_admin_assets( $hook_suffix ) {
 			NLF_FAQ_VERSION
 		);
 
-		// Enqueue generated FAQ styles for preview
+		// Enqueue generated FAQ styles for preview.
 		$css_path = Style_Generator::get_css_file_path();
 		$css_url  = Style_Generator::get_css_file_url();
 		if ( $css_url && $css_path && file_exists( $css_path ) ) {
@@ -139,7 +139,7 @@ public static function enqueue_admin_assets( $hook_suffix ) {
 			);
 		}
 
-		// Enqueue frontend FAQ script for preview toggle functionality
+		// Enqueue frontend FAQ script for preview toggle functionality.
 		wp_enqueue_script(
 			'nlf-faq-frontend',
 			NLF_FAQ_PLUGIN_URL . 'assets/js/frontend-faq.js',
@@ -156,16 +156,16 @@ public static function enqueue_admin_assets( $hook_suffix ) {
 			true
 		);
 
-		// Localize script for AJAX
+		// Localize script for AJAX.
 		wp_localize_script(
 			'nlf-faq-group-metabox',
 			'nlfGroupData',
 			array(
-				'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-				'nonce'      => wp_create_nonce( 'nlf_group_preview' ),
-				'saveNonce'  => wp_create_nonce( 'nlf_faq_group_save' ),
-				'postId'     => get_the_ID(),
-				'i18n'       => array(
+				'ajaxurl'   => admin_url( 'admin-ajax.php' ),
+				'nonce'     => wp_create_nonce( 'nlf_group_preview' ),
+				'saveNonce' => wp_create_nonce( 'nlf_faq_group_save' ),
+				'postId'    => get_the_ID(),
+				'i18n'      => array(
 					'saving' => __( 'Saving…', 'next-level-faq' ),
 					'saved'  => __( 'Saved!', 'next-level-faq' ),
 				),
@@ -359,7 +359,7 @@ public static function enqueue_admin_assets( $hook_suffix ) {
 		}
 		?>
 
-		<table class="widefat fixed striped nlf-faq-questions-table nlf-faq-group-table" <?php echo empty( $items ) ? 'style="display:none;"' : ''; ?>>
+		<table class="widefat fixed striped nlf-faq-questions-table nlf-faq-group-table"<?php if ( empty( $items ) ) : ?> style="display:none;"<?php endif; ?>>
 			<thead>
 				<tr>
 					<th style="width:32px;"></th>
@@ -1457,25 +1457,25 @@ public static function enqueue_admin_assets( $hook_suffix ) {
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post object.
 	 */
-public static function save_metabox( $post_id, $post ) {
-	if ( ! isset( $_POST['nlf_faq_group_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nlf_faq_group_nonce'] ) ), 'nlf_faq_group_save' ) ) {
-		return; 
-	}
+	public static function save_metabox( $post_id, $post ) {
+		if ( ! isset( $_POST['nlf_faq_group_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nlf_faq_group_nonce'] ) ), 'nlf_faq_group_save' ) ) {
+			return;
+		}
 
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-		return;
-	}
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
 
-	if ( self::POST_TYPE !== $post->post_type ) {
-		return;
-	}
+		if ( self::POST_TYPE !== $post->post_type ) {
+			return;
+		}
 
-	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
-	}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 
-	// Save FAQ Items
-	$ids       = isset( $_POST['nlf_faq_group_item_id'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['nlf_faq_group_item_id'] ) ) : array();
+		// Save FAQ Items.
+		$ids       = isset( $_POST['nlf_faq_group_item_id'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['nlf_faq_group_item_id'] ) ) : array();
 		$questions = isset( $_POST['nlf_faq_group_question'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['nlf_faq_group_question'] ) ) : array();
 		$answers   = isset( $_POST['nlf_faq_group_answer'] ) ? array_map( 'wp_kses_post', wp_unslash( (array) $_POST['nlf_faq_group_answer'] ) ) : array();
 		$visible   = isset( $_POST['nlf_faq_group_visible'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['nlf_faq_group_visible'] ) ) : array();
@@ -1506,19 +1506,19 @@ public static function save_metabox( $post_id, $post ) {
 
 		Repository::delete_all_except( $keep_ids, $post_id );
 
-	// Save Theme
-	if ( isset( $_POST['nlf_faq_group_theme'] ) ) {
-		update_post_meta( $post_id, '_nlf_faq_group_theme', sanitize_text_field( wp_unslash( $_POST['nlf_faq_group_theme'] ) ) );
-	}
+		// Save Theme.
+		if ( isset( $_POST['nlf_faq_group_theme'] ) ) {
+			update_post_meta( $post_id, '_nlf_faq_group_theme', sanitize_text_field( wp_unslash( $_POST['nlf_faq_group_theme'] ) ) );
+		}
 
 		if ( isset( $_POST['nlf_faq_group_theme_custom'] ) && is_array( $_POST['nlf_faq_group_theme_custom'] ) ) {
 			$theme_custom = array_map( 'sanitize_hex_color', wp_unslash( $_POST['nlf_faq_group_theme_custom'] ) );
 			update_post_meta( $post_id, '_nlf_faq_group_theme_custom', $theme_custom );
 		}
 
-		// Save Settings
+		// Save Settings.
 		if ( isset( $_POST['nlf_faq_group_settings'] ) && is_array( $_POST['nlf_faq_group_settings'] ) ) {
-			$settings = wp_unslash( $_POST['nlf_faq_group_settings'] );
+			$settings           = wp_unslash( $_POST['nlf_faq_group_settings'] );
 			$sanitized_settings = array(
 				'accordion_mode'  => ! empty( $settings['accordion_mode'] ),
 				'initial_state'   => in_array( $settings['initial_state'] ?? '', array( 'all_closed', 'first_open', 'custom' ), true ) ? $settings['initial_state'] : 'all_closed',
@@ -1530,7 +1530,7 @@ public static function save_metabox( $post_id, $post ) {
 			update_post_meta( $post_id, '_nlf_faq_group_settings', $sanitized_settings );
 		}
 
-		// Save Custom Style Settings
+		// Save Custom Style Settings.
 		$use_custom_style = ! empty( $_POST['nlf_faq_group_use_custom_style'] );
 		update_post_meta( $post_id, '_nlf_faq_group_use_custom_style', $use_custom_style );
 
@@ -1538,12 +1538,12 @@ public static function save_metabox( $post_id, $post ) {
 			$custom_styles = Options::sanitize( wp_unslash( $_POST['nlf_faq_group_custom_styles'] ) );
 			update_post_meta( $post_id, '_nlf_faq_group_custom_styles', $custom_styles );
 
-			// Generate group-specific CSS
+			// Generate group-specific CSS.
 			if ( class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
 				Style_Generator::generate_and_save_for_group( $post_id, $custom_styles );
 			}
 		} else {
-			// Remove group-specific CSS if custom styles disabled
+			// Remove group-specific CSS if custom styles disabled.
 			delete_post_meta( $post_id, '_nlf_faq_group_custom_styles' );
 			if ( class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
 				Style_Generator::delete_group_css( $post_id );
@@ -1559,10 +1559,10 @@ public static function save_metabox( $post_id, $post ) {
 	 *
 	 * @param int $post_id Post ID.
 	 */
-public static function handle_delete( $post_id ) {
-	$post = get_post( $post_id );
+	public static function handle_delete( $post_id ) {
+		$post = get_post( $post_id );
 
-	if ( ! $post || self::POST_TYPE !== $post->post_type ) {
+		if ( ! $post || self::POST_TYPE !== $post->post_type ) {
 			return;
 		}
 
@@ -1630,7 +1630,7 @@ public static function handle_delete( $post_id ) {
 				$is_first     = 0 === $index && 'first_open' === ( $settings['initial_state'] ?? 'all_closed' );
 				$is_highlight = ! empty( $item->highlight );
 				?>
-				<div class="nlf-faq__item <?php echo ( $is_open || $is_first ) ? 'is-open' : ''; ?> <?php echo $is_highlight ? 'is-highlighted' : ''; ?>" data-faq-id="<?php echo esc_attr( $item->id ); ?>">
+				<div class="nlf-faq__item <?php echo esc_attr( ( $is_open || $is_first ) ? 'is-open' : '' ); ?> <?php echo esc_attr( $is_highlight ? 'is-highlighted' : '' ); ?>" data-faq-id="<?php echo esc_attr( $item->id ); ?>">
 					<div class="nlf-faq__question">
 						<?php if ( ! empty( $settings['show_counter'] ) ) : ?>
 							<span class="nlf-faq__counter"><?php echo esc_html( $index + 1 ); ?>.</span>

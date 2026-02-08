@@ -1,11 +1,19 @@
 <?php
 /**
  * Plugin Name: Next Level FAQ
+ * Plugin URI:  https://github.com/krslys/next-level-faq
  * Description: Flexible FAQ plugin with customizable styling and live preview.
- * Version: 1.0.0
- * Author: Your Name
+ * Version:     1.0.0
+ * Author:      Krslys
+ * Author URI:  https://github.com/krslys
  * Text Domain: next-level-faq
  * Domain Path: /languages
+ * License:     GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Requires at least: 5.8
+ * Requires PHP: 7.4
+ *
+ * @package Krslys\NextLevelFaq
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -73,15 +81,12 @@ final class Krslys_NextLevelFaq_Plugin {
 	 * Register hooks.
 	 */
 	private function hooks() {
-		// Activation hooks
-		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( '\Krslys\NextLevelFaq\Database', 'create_tables' ) );
-		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( '\Krslys\NextLevelFaq\Database', 'cleanup_legacy_data' ) );
-		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( '\Krslys\NextLevelFaq\Settings_Repository', 'initialize_defaults' ) );
-		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( '\Krslys\NextLevelFaq\Options', 'activate' ) );
+		// Consolidated activation hook.
+		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( $this, 'activate' ) );
 
-		// Core hooks
+		// Core hooks.
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
-		add_action( 'plugins_loaded', array( '\Krslys\NextLevelFaq\Database', 'create_tables' ) );
+		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Group_CPT', 'register' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_shortcodes' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_tracking_routes' ) );
@@ -202,6 +207,30 @@ final class Krslys_NextLevelFaq_Plugin {
 			false,
 			dirname( plugin_basename( NLF_FAQ_PLUGIN_FILE ) ) . '/languages'
 		);
+	}
+
+	/**
+	 * Consolidated activation handler.
+	 *
+	 * Runs all activation tasks in the correct order.
+	 */
+	public function activate() {
+		\Krslys\NextLevelFaq\Database::create_tables();
+		\Krslys\NextLevelFaq\Database::cleanup_legacy_data();
+		\Krslys\NextLevelFaq\Settings_Repository::initialize_defaults();
+		\Krslys\NextLevelFaq\Options::activate();
+	}
+
+	/**
+	 * Update database schema when the version changes.
+	 *
+	 * Only runs the expensive create_tables() call when the stored
+	 * schema version differs from the current constant.
+	 */
+	public function maybe_update_schema() {
+		if ( get_option( 'nlf_faq_schema_version' ) !== NLF_FAQ_SCHEMA_VERSION ) {
+			\Krslys\NextLevelFaq\Database::create_tables();
+		}
 	}
 }
 

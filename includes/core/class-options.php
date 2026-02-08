@@ -71,11 +71,6 @@ class Options {
 			$saved = array();
 		}
 
-		// Debug logging
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'NLF Options::get_options() - Preset from DB: ' . ( isset( $saved['preset'] ) ? $saved['preset'] : 'NOT SET' ) );
-		}
-
 		return wp_parse_args( $saved, $defaults );
 	}
 

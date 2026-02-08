@@ -148,13 +148,7 @@ class Admin_Settings {
 		// Sanitize using Options class
 		$sanitized = Options::sanitize( $raw_input );
 
-		// Debug logging
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'NLF AJAX Save - Raw preset: ' . ( isset( $raw_input['preset'] ) ? $raw_input['preset'] : 'NOT SET' ) );
-			error_log( 'NLF AJAX Save - Sanitized preset: ' . ( isset( $sanitized['preset'] ) ? $sanitized['preset'] : 'NOT SET' ) );
-		}
-
-		// Ensure tables exist before saving
+		// Ensure tables exist before saving.
 		if ( ! Database::tables_exist() ) {
 			Database::create_tables( true ); // Force creation
 			
@@ -181,12 +175,6 @@ class Admin_Settings {
 			// Get last database error for debugging
 			global $wpdb;
 			$db_error = $wpdb->last_error ? $wpdb->last_error : 'Unknown database error';
-			
-			// Log error if WP_DEBUG is enabled
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Next Level FAQ: Failed to save settings. DB Error: ' . $db_error );
-				error_log( 'Next Level FAQ: Sanitized data: ' . print_r( $sanitized, true ) );
-			}
 			
 			wp_send_json_error(
 				array( 
@@ -225,14 +213,14 @@ class Admin_Settings {
 	 *
 	 * @param string $hook_suffix Current screen hook.
 	 */
-public static function enqueue_assets( $hook_suffix ) {
-	if ( ! isset( $_GET['page'] ) ) {
-		return;
-	}
+	public static function enqueue_assets( $hook_suffix ) {
+		if ( ! isset( $_GET['page'] ) ) {
+			return;
+		}
 
-	$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
 
-	$allowed_pages = array(
+		$allowed_pages = array(
 			self::STYLE_SLUG,
 			self::QUESTIONS_SLUG,
 			self::TOP_MENU_SLUG,
@@ -665,12 +653,12 @@ public static function enqueue_assets( $hook_suffix ) {
 	 *
 	 * @return void
 	 */
-public static function handle_export() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have permission to export FAQs.', 'next-level-faq' ) );
-	}
+	public static function handle_export() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to export FAQs.', 'next-level-faq' ) );
+		}
 
-	check_admin_referer( 'nlf_faq_export', 'nlf_faq_export_nonce' );
+		check_admin_referer( 'nlf_faq_export', 'nlf_faq_export_nonce' );
 
 		$include_styles    = self::get_checkbox_state_from_post( 'nlf_faq_include_styles' );
 		$include_questions = self::get_checkbox_state_from_post( 'nlf_faq_include_questions' );
@@ -704,27 +692,28 @@ public static function handle_export() {
 			$payload['meta']['group_scope_label'] = self::get_group_label( $group_scope );
 			$payload['faqs']                      = self::group_faq_export_items(
 				Repository::get_all_items_for_export( $group_scope )
-		);
-	}
+			);
+		}
 
-	while ( ob_get_level() > 0 ) {
-		ob_end_clean();
-	}
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
+		}
 
-	$filename_parts = array( 'next-level-faq-export' );
+		$filename_parts = array( 'next-level-faq-export' );
 
-	if ( $include_questions && null !== $group_scope ) {
-		$filename_parts[] = 'group-' . (int) $group_scope;
-	}
+		if ( $include_questions && null !== $group_scope ) {
+			$filename_parts[] = 'group-' . (int) $group_scope;
+		}
 
-	$filename = sanitize_file_name( implode( '-', $filename_parts ) . '-' . gmdate( 'Ymd-His' ) . '.json' );
+		$filename = sanitize_file_name( implode( '-', $filename_parts ) . '-' . gmdate( 'Ymd-His' ) . '.json' );
 
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
-	header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
-	header( 'X-Export-Context: nlf-faq' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+		header( 'X-Export-Context: nlf-faq' );
 
-	echo wp_json_encode(
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON download, not HTML context.
+		echo wp_json_encode(
 			$payload,
 			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 		);
@@ -742,36 +731,36 @@ public static function handle_export() {
 	 *
 	 * @return void
 	 */
-public static function handle_import() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have permission to import FAQs.', 'next-level-faq' ) );
-	}
-
-	check_admin_referer( 'nlf_faq_import', 'nlf_faq_import_nonce' );
-
-	$page_url = self::get_tools_page_url();
-
-	if ( empty( $_FILES['nlf_faq_import_file'] ) ) {
-		self::store_tools_notice( 'error', __( 'Upload an export file before running import.', 'next-level-faq' ) );
-		wp_safe_redirect( $page_url );
-		exit;
-	}
-
-	$file = self::validate_json_file_upload( $_FILES['nlf_faq_import_file'] );
-
-	if ( false === $file ) {
-		if ( isset( $_FILES['nlf_faq_import_file']['error'] ) && (int) $_FILES['nlf_faq_import_file']['error'] !== UPLOAD_ERR_OK ) {
-			self::store_tools_notice( 'error', self::describe_upload_error( (int) $_FILES['nlf_faq_import_file']['error'] ) );
-		} elseif ( isset( $_FILES['nlf_faq_import_file']['size'] ) && (int) $_FILES['nlf_faq_import_file']['size'] > ( defined( 'MB_IN_BYTES' ) ? 2 * MB_IN_BYTES : 2 * 1024 * 1024 ) ) {
-			self::store_tools_notice( 'error', __( 'Import file is too large. Please keep exports under 2MB.', 'next-level-faq' ) );
-		} else {
-			self::store_tools_notice( 'error', __( 'Only JSON files exported by this plugin are allowed.', 'next-level-faq' ) );
+	public static function handle_import() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to import FAQs.', 'next-level-faq' ) );
 		}
-		wp_safe_redirect( $page_url );
-		exit;
-	}
 
-	$data = self::decode_import_file( $file['tmp_name'] );
+		check_admin_referer( 'nlf_faq_import', 'nlf_faq_import_nonce' );
+
+		$page_url = self::get_tools_page_url();
+
+		if ( empty( $_FILES['nlf_faq_import_file'] ) ) {
+			self::store_tools_notice( 'error', __( 'Upload an export file before running import.', 'next-level-faq' ) );
+			wp_safe_redirect( $page_url );
+			exit;
+		}
+
+		$file = self::validate_json_file_upload( $_FILES['nlf_faq_import_file'] );
+
+		if ( false === $file ) {
+			if ( isset( $_FILES['nlf_faq_import_file']['error'] ) && (int) $_FILES['nlf_faq_import_file']['error'] !== UPLOAD_ERR_OK ) {
+				self::store_tools_notice( 'error', self::describe_upload_error( (int) $_FILES['nlf_faq_import_file']['error'] ) );
+			} elseif ( isset( $_FILES['nlf_faq_import_file']['size'] ) && (int) $_FILES['nlf_faq_import_file']['size'] > ( defined( 'MB_IN_BYTES' ) ? 2 * MB_IN_BYTES : 2 * 1024 * 1024 ) ) {
+				self::store_tools_notice( 'error', __( 'Import file is too large. Please keep exports under 2MB.', 'next-level-faq' ) );
+			} else {
+				self::store_tools_notice( 'error', __( 'Only JSON files exported by this plugin are allowed.', 'next-level-faq' ) );
+			}
+			wp_safe_redirect( $page_url );
+			exit;
+		}
+
+		$data = self::decode_import_file( $file['tmp_name'] );
 
 		if ( null === $data ) {
 			self::store_tools_notice( 'error', __( 'The uploaded file is not a valid export.', 'next-level-faq' ) );
@@ -790,12 +779,12 @@ public static function handle_import() {
 			}
 
 			foreach ( $faq_entries as $index => $item ) {
-			if ( ! is_array( $item ) ) {
-				continue;
-			}
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
 
-			// Sanitize inputs to prevent XSS - match normal save_metabox() behavior.
-			$question = isset( $item['question'] ) ? sanitize_text_field( $item['question'] ) : '';
+				// Sanitize inputs to prevent XSS - match normal save_metabox() behavior.
+				$question = isset( $item['question'] ) ? sanitize_text_field( $item['question'] ) : '';
 				$answer   = isset( $item['answer'] ) ? wp_kses_post( $item['answer'] ) : '';
 
 				$trimmed_question = trim( wp_strip_all_tags( $question ) );
@@ -824,13 +813,13 @@ public static function handle_import() {
 
 				$imported_count++;
 			}
-	}
+		}
 
-	if ( isset( $data['styles'] ) && is_array( $data['styles'] ) ) {
-		$sanitized = Options::sanitize( $data['styles'] );
-		Settings_Repository::update_setting( Settings_Repository::KEY_GLOBAL_STYLES, $sanitized );
-		$styles_applied = true;
-	}
+		if ( isset( $data['styles'] ) && is_array( $data['styles'] ) ) {
+			$sanitized = Options::sanitize( $data['styles'] );
+			Settings_Repository::update_setting( Settings_Repository::KEY_GLOBAL_STYLES, $sanitized );
+			$styles_applied = true;
+		}
 
 		if ( 0 === $imported_count && ! $styles_applied ) {
 			self::store_tools_notice( 'error', __( 'Nothing was imported. Ensure the file contains FAQ entries or style settings.', 'next-level-faq' ) );
@@ -867,8 +856,8 @@ public static function handle_import() {
 	 *
 	 * @return void
 	 */
-private static function store_tools_notice( $type, $message ) {
-	$allowed = array( 'success', 'error', 'warning', 'info' );
+	private static function store_tools_notice( $type, $message ) {
+		$allowed = array( 'success', 'error', 'warning', 'info' );
 		$type    = in_array( $type, $allowed, true ) ? $type : 'info';
 
 		set_transient(
