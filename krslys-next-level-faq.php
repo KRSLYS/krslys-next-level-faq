@@ -94,6 +94,7 @@ final class Krslys_NextLevelFaq_Plugin {
 		
 		// AJAX handlers for admin settings
 		add_action( 'wp_ajax_nlf_save_settings_ajax', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_ajax_save_settings' ) );
+		add_action( 'wp_ajax_nlf_save_faq_group_ajax', array( '\Krslys\NextLevelFaq\Group_CPT', 'handle_ajax_save_group' ) );
 
 		// Style generation (no longer tied to wp_options update)
 		add_action( 'nlf_faq_settings_updated', array( '\Krslys\NextLevelFaq\Style_Generator', 'generate_and_save' ), 10, 2 );

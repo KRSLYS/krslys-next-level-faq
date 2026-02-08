@@ -39,6 +39,7 @@
 		initHelpTooltips();
 		initEmptyStateHandlers();
 		initQuestionList();
+		initAjaxSave();
 	}
 
 	// Tabs
@@ -773,6 +774,97 @@
 				}, 200);
 			});
 		}, 50);
+	}
+
+	// AJAX Save
+	function initAjaxSave() {
+		const form = $('#post');
+		const publishButton = $('#publish');
+		
+		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		form.addEventListener('submit', function(e) {
+			// Only intercept if clicking the publish/update button
+			if (e.submitter && e.submitter.id === 'publish') {
+				e.preventDefault();
+				handleAjaxSave();
+			}
+		});
+
+		publishButton.addEventListener('click', function(e) {
+			e.preventDefault();
+			handleAjaxSave();
+		});
+	}
+
+	function handleAjaxSave() {
+		const form = $('#post');
+		const publishButton = $('#publish');
+		const spinner = $('.spinner', publishButton.parentElement);
+		
+		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		const originalText = publishButton.value || publishButton.textContent;
+		const savingText = nlfGroupData.i18n.saving || 'Saving…';
+		const savedText = nlfGroupData.i18n.saved || 'Saved!';
+
+		// Update button state
+		publishButton.disabled = true;
+		publishButton.value = savingText;
+		if (spinner) {
+			spinner.classList.add('is-active');
+		}
+
+		// Collect form data
+		const formData = new FormData(form);
+		formData.append('action', 'nlf_save_faq_group_ajax');
+		formData.append('nlf_faq_group_nonce', nlfGroupData.saveNonce);
+
+		// Convert FormData to URLSearchParams for fetch
+		const params = new URLSearchParams();
+		for (const [key, value] of formData.entries()) {
+			params.append(key, value);
+		}
+
+		// Send AJAX request
+		fetch(nlfGroupData.ajaxurl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: params.toString(),
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				publishButton.value = savedText;
+				
+				// Reset button after a short delay
+				setTimeout(() => {
+					publishButton.value = originalText;
+					publishButton.disabled = false;
+				}, 1500);
+			} else {
+				alert(data.data?.message || 'Error saving FAQ group.');
+				publishButton.value = originalText;
+				publishButton.disabled = false;
+			}
+		})
+		.catch(error => {
+			console.error('Save error:', error);
+			alert('An unexpected error occurred while saving.');
+			publishButton.value = originalText;
+			publishButton.disabled = false;
+		})
+		.finally(() => {
+			if (spinner) {
+				spinner.classList.remove('is-active');
+			}
+		});
 	}
 
 	doc.addEventListener('DOMContentLoaded', init);

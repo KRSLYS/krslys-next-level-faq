@@ -161,8 +161,14 @@ public static function enqueue_admin_assets( $hook_suffix ) {
 			'nlf-faq-group-metabox',
 			'nlfGroupData',
 			array(
-				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'nlf_group_preview' ),
+				'ajaxurl'    => admin_url( 'admin-ajax.php' ),
+				'nonce'      => wp_create_nonce( 'nlf_group_preview' ),
+				'saveNonce'  => wp_create_nonce( 'nlf_faq_group_save' ),
+				'postId'     => get_the_ID(),
+				'i18n'       => array(
+					'saving' => __( 'Saving…', 'next-level-faq' ),
+					'saved'  => __( 'Saved!', 'next-level-faq' ),
+				),
 			)
 		);
 	}
@@ -1657,18 +1663,27 @@ public static function handle_delete( $post_id ) {
 			return $location;
 		}
 
-		// Force redirect back to edit page (not post list)
-		// If WordPress wants to redirect to edit.php (post list), redirect to post.php (edit page) instead
+		// If WordPress wants to redirect to edit.php (post list), 
+		// redirect to post.php (edit page) instead, but PRESERVE all query args
 		if ( strpos( $location, 'edit.php' ) !== false ) {
+			// Parse the original URL to extract query parameters
+			$parsed = parse_url( $location );
+			parse_str( $parsed['query'] ?? '', $query_args );
+			
+			// Rebuild URL to post.php while keeping WordPress's parameters
 			$location = add_query_arg(
-				array(
-					'post'   => $post_id,
-					'action' => 'edit',
+				array_merge(
+					array(
+						'post'   => $post_id,
+						'action' => 'edit',
+					),
+					$query_args // Preserve WordPress's status messages
 				),
 				admin_url( 'post.php' )
 			);
 		}
 
+		// Add custom notice flag
 		return add_query_arg(
 			array(
 				'nlf_group_notice' => 'saved',
@@ -1752,5 +1767,67 @@ public static function handle_delete( $post_id ) {
 			</p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Handle AJAX save for FAQ group.
+	 */
+	public static function handle_ajax_save_group() {
+		// Verify nonce
+		if ( ! isset( $_POST['nlf_faq_group_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nlf_faq_group_nonce'] ) ), 'nlf_faq_group_save' ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Security check failed. Please refresh the page and try again.', 'next-level-faq' ) ),
+				403
+			);
+		}
+
+		// Get post ID
+		$post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
+
+		if ( ! $post_id ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid post ID.', 'next-level-faq' ) ),
+				400
+			);
+		}
+
+		// Check capability
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'You do not have permission to edit this FAQ group.', 'next-level-faq' ) ),
+				403
+			);
+		}
+
+		// Get the post
+		$post = get_post( $post_id );
+		if ( ! $post || self::POST_TYPE !== $post->post_type ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid FAQ group.', 'next-level-faq' ) ),
+				400
+			);
+		}
+
+		// Update post title if provided
+		if ( isset( $_POST['post_title'] ) ) {
+			$post_title = sanitize_text_field( wp_unslash( $_POST['post_title'] ) );
+			wp_update_post(
+				array(
+					'ID'         => $post_id,
+					'post_title' => $post_title,
+				)
+			);
+		}
+
+		// Call the existing save_metabox method to handle all the meta data
+		self::save_metabox( $post_id, $post );
+
+		// Send success response
+		wp_send_json_success(
+			array(
+				'message' => __( 'FAQ group saved successfully!', 'next-level-faq' ),
+				'post_id' => $post_id,
+			)
+		);
 	}
 }
