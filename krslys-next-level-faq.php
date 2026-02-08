@@ -96,8 +96,6 @@ final class Krslys_NextLevelFaq_Plugin {
 		add_action( 'admin_enqueue_scripts', array( '\Krslys\NextLevelFaq\Admin_Settings', 'enqueue_assets' ) );
 		add_action( 'admin_post_nlf_faq_export', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_export' ) );
 		add_action( 'admin_post_nlf_faq_import', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_import' ) );
-		add_action( 'admin_post_nlf_export_single_group', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_group_export' ) );
-		add_action( 'admin_post_nlf_import_single_group', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_group_import' ) );
 		
 		// AJAX handlers for admin settings
 		add_action( 'wp_ajax_nlf_save_settings_ajax', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_ajax_save_settings' ) );
