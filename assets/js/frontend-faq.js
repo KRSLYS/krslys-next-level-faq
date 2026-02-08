@@ -6,40 +6,92 @@
 		analyticsConfig = null;
 	}
 
+	/**
+	 * Open a single FAQ item with proper height animation.
+	 *
+	 * @param {Element} item The .nlf-faq__item element.
+	 */
+	function openItem(item) {
+		var answer = item.querySelector('.nlf-faq__answer');
+		var question = item.querySelector('.nlf-faq__question');
+
+		if (answer) {
+			// Ensure we start from 0 (inline override of CSS max-height: 1000px)
+			answer.style.maxHeight = '0px';
+			// Force reflow so the browser registers the starting value.
+			void answer.offsetHeight;
+		}
+
+		item.classList.add('is-open');
+		if (question) {
+			question.setAttribute('aria-expanded', 'true');
+		}
+
+		if (answer) {
+			// Animate to real content height instead of CSS 1000px.
+			answer.style.maxHeight = answer.scrollHeight + 'px';
+
+			var onEnd = function (e) {
+				if (e.propertyName !== 'max-height') {
+					return;
+				}
+				// After transition, allow flexible content sizing.
+				if (item.classList.contains('is-open')) {
+					answer.style.maxHeight = 'none';
+				}
+				answer.removeEventListener('transitionend', onEnd);
+			};
+			answer.addEventListener('transitionend', onEnd);
+		}
+	}
+
+	/**
+	 * Close a single FAQ item with proper height animation.
+	 *
+	 * @param {Element} item The .nlf-faq__item element.
+	 */
+	function closeItem(item) {
+		var answer = item.querySelector('.nlf-faq__answer');
+		var question = item.querySelector('.nlf-faq__question');
+
+		if (answer) {
+			// Capture current visible height (works whether maxHeight is 'none' or a value).
+			answer.style.maxHeight = answer.scrollHeight + 'px';
+			// Force reflow so the browser registers the starting value.
+			void answer.offsetHeight;
+			// Now animate to 0.
+			answer.style.maxHeight = '0px';
+		}
+
+		item.classList.remove('is-open');
+		if (question) {
+			question.setAttribute('aria-expanded', 'false');
+		}
+	}
+
 	function toggleItem(item, container) {
 		if (!item) {
 			return;
 		}
 
-		var question = item.querySelector('.nlf-faq__question');
 		var isOpen = item.classList.contains('is-open');
 		var isAccordion = container && container.dataset.accordion === '1';
 
-		// If accordion mode, close all other items and update their aria state.
+		// If accordion mode, close all other items.
 		if (!isOpen && isAccordion) {
 			var allItems = container.querySelectorAll('.nlf-faq__item.is-open');
 			for (var i = 0; i < allItems.length; i++) {
 				if (allItems[i] !== item) {
-					allItems[i].classList.remove('is-open');
-					var otherQuestion = allItems[i].querySelector('.nlf-faq__question');
-					if (otherQuestion) {
-						otherQuestion.setAttribute('aria-expanded', 'false');
-					}
+					closeItem(allItems[i]);
 				}
 			}
 		}
 
 		if (isOpen) {
-			item.classList.remove('is-open');
-			if (question) {
-				question.setAttribute('aria-expanded', 'false');
-			}
+			closeItem(item);
 			trackAnalytics(container, item, 'close');
 		} else {
-			item.classList.add('is-open');
-			if (question) {
-				question.setAttribute('aria-expanded', 'true');
-			}
+			openItem(item);
 			trackAnalytics(container, item, 'open');
 		}
 
@@ -97,7 +149,8 @@
 
 		var dur = durationMs + 'ms';
 		container.style.setProperty('--nlf-faq-transition', dur + ' ease');
-		container.style.setProperty('--nlf-faq-answer-transition', 'max-height ' + dur + ' ease, opacity ' + dur + ' ease, transform ' + dur + ' ease');
+		container.style.setProperty('--nlf-faq-answer-transition',
+			'max-height ' + dur + ' ease-in-out, opacity ' + dur + ' ease, transform ' + dur + ' ease');
 	}
 
 	function bindFaq(container) {
@@ -117,6 +170,13 @@
 			var parentItem = questionEl.closest('.nlf-faq__item');
 			var isOpen = parentItem && parentItem.classList.contains('is-open');
 			questionEl.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+		}
+
+		// For items that are initially open (via server-side class), let their
+		// answer max-height be 'none' so JS-driven close animation works correctly.
+		var openAnswers = container.querySelectorAll('.nlf-faq__item.is-open .nlf-faq__answer');
+		for (var o = 0; o < openAnswers.length; o++) {
+			openAnswers[o].style.maxHeight = 'none';
 		}
 
 		// Handle click events.
@@ -230,5 +290,3 @@
 		});
 	}
 })();
-
-
