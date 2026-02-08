@@ -79,10 +79,34 @@
 		});
 	}
 
+	function applyAnimationSpeed(container) {
+		var speed = container.dataset.animationSpeed || 'normal';
+		var durationMs;
+
+		switch (speed) {
+			case 'fast':
+				durationMs = 150;
+				break;
+			case 'slow':
+				durationMs = 500;
+				break;
+			default:
+				durationMs = 300;
+				break;
+		}
+
+		var dur = durationMs + 'ms';
+		container.style.setProperty('--nlf-faq-transition', dur + ' ease');
+		container.style.setProperty('--nlf-faq-answer-transition', 'max-height ' + dur + ' ease, opacity ' + dur + ' ease, transform ' + dur + ' ease');
+	}
+
 	function bindFaq(container) {
 		if (!container) {
 			return;
 		}
+
+		// Apply animation speed from data attribute.
+		applyAnimationSpeed(container);
 
 		// Set up accessibility attributes on question elements.
 		var questions = container.querySelectorAll('.nlf-faq__question');

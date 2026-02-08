@@ -1677,6 +1677,7 @@ class Group_CPT {
 		<div class="nlf-faq nlf-faq--preview" 
 			data-group-id="<?php echo esc_attr( $group_id ); ?>"
 			data-accordion="<?php echo ! empty( $settings['accordion_mode'] ) ? '1' : '0'; ?>"
+			data-animation-speed="<?php echo esc_attr( $settings['animation_speed'] ?? 'normal' ); ?>"
 			data-smooth-scroll="<?php echo ! empty( $settings['smooth_scroll'] ) ? '1' : '0'; ?>">
 			<?php if ( ! empty( $settings['show_search'] ) ) : ?>
 				<div class="nlf-faq-search">
@@ -1690,7 +1691,7 @@ class Group_CPT {
 				$is_first     = 0 === $index && 'first_open' === ( $settings['initial_state'] ?? 'all_closed' );
 				$is_highlight = ! empty( $item->highlight );
 				?>
-				<div class="nlf-faq__item <?php echo esc_attr( ( $is_open || $is_first ) ? 'is-open' : '' ); ?> <?php echo esc_attr( $is_highlight ? 'is-highlighted' : '' ); ?>" data-faq-id="<?php echo esc_attr( $item->id ); ?>">
+				<div class="nlf-faq__item <?php echo esc_attr( ( $is_open || $is_first ) ? 'is-open' : '' ); ?> <?php echo esc_attr( $is_highlight ? 'nlf-faq__item--highlight' : '' ); ?>" data-faq-id="<?php echo esc_attr( $item->id ); ?>">
 					<div class="nlf-faq__question">
 						<?php if ( ! empty( $settings['show_counter'] ) ) : ?>
 							<span class="nlf-faq__counter"><?php echo esc_html( $index + 1 ); ?>.</span>

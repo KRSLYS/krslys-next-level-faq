@@ -93,9 +93,9 @@ class Frontend_Renderer {
 			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'next-level-faq' ) ), 400 );
 		}
 
-		// Get group to verify it exists
-		$group = Groups_Repository::get_group_by_id( $group_id );
-		if ( ! $group ) {
+		// Verify the group post exists and is the correct type.
+		$group_post = get_post( $group_id );
+		if ( ! $group_post || 'nlf_faq_group' !== $group_post->post_type ) {
 			wp_send_json_error( array( 'message' => __( 'Group not found.', 'next-level-faq' ) ), 404 );
 		}
 
@@ -138,16 +138,19 @@ class Frontend_Renderer {
 	/**
 	 * Enqueue group-specific CSS if custom styles are enabled.
 	 *
-	 * @param int $group_id Group ID.
+	 * Reads the custom style toggle from post meta (_nlf_faq_group_use_custom_style)
+	 * to match where the admin Group CPT editor saves it.
+	 *
+	 * @param int $group_id Group post ID.
 	 */
 	private static function maybe_enqueue_group_css( $group_id ) {
 		if ( ! $group_id ) {
 			return;
 		}
 
-		$group = Groups_Repository::get_group_by_id( $group_id );
+		$use_custom_style = get_post_meta( $group_id, '_nlf_faq_group_use_custom_style', true );
 
-		if ( ! $group || empty( $group->use_custom_style ) ) {
+		if ( empty( $use_custom_style ) ) {
 			return;
 		}
 
@@ -211,12 +214,12 @@ class Frontend_Renderer {
 			self::maybe_enqueue_group_css( $group_id );
 		}
 
-		// Get group-specific settings.
+		// Get group-specific settings from post meta (where the admin CPT editor saves them).
 		$settings = array();
 		if ( $group_id ) {
-			$group = Groups_Repository::get_group_by_id( $group_id );
-			if ( $group && ! empty( $group->display_settings ) ) {
-				$settings = $group->display_settings;
+			$saved_settings = get_post_meta( $group_id, '_nlf_faq_group_settings', true );
+			if ( is_array( $saved_settings ) ) {
+				$settings = $saved_settings;
 			}
 		}
 		$defaults = array(
@@ -232,8 +235,8 @@ class Frontend_Renderer {
 		$items = Repository::get_all_published_faqs( $group_id );
 
 		$use_custom_style = false;
-		if ( $group_id && isset( $group ) && $group ) {
-			$use_custom_style = $group->use_custom_style;
+		if ( $group_id ) {
+			$use_custom_style = (bool) get_post_meta( $group_id, '_nlf_faq_group_use_custom_style', true );
 		}
 		$inline_style = $use_custom_style ? '' : Style_Generator::build_inline_style( $resolved_options );
 
