@@ -76,6 +76,10 @@ class Group_CPT {
 		add_action( 'admin_notices', array( __CLASS__, 'render_save_notice' ) );
 		add_filter( 'post_row_actions', array( __CLASS__, 'add_row_actions' ), 10, 2 );
 		add_action( 'admin_post_nlf_duplicate_group', array( __CLASS__, 'handle_duplicate_group' ) );
+
+		// List table columns.
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( __CLASS__, 'register_list_columns' ) );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'render_list_column' ), 10, 2 );
 	}
 
 	/**
@@ -160,13 +164,46 @@ class Group_CPT {
 	 * @param string $hook_suffix Hook suffix.
 	 */
 	public static function enqueue_admin_assets( $hook_suffix ) {
-		if ( ! in_array( $hook_suffix, array( 'post.php', 'post-new.php' ), true ) ) {
-			return;
-		}
-
 		$screen = get_current_screen();
 
 		if ( ! $screen || self::POST_TYPE !== $screen->post_type ) {
+			return;
+		}
+
+		// List table page: enqueue admin CSS + clipboard script.
+		if ( 'edit.php' === $hook_suffix ) {
+			wp_enqueue_style(
+				'nlf-faq-admin',
+				NLF_FAQ_PLUGIN_URL . 'assets/css/admin-faq-style.css',
+				array(),
+				NLF_FAQ_VERSION
+			);
+
+			// Inline script for shortcode copy-to-clipboard.
+			wp_add_inline_script( 'common', '
+				document.addEventListener("click",function(e){
+					var btn=e.target.closest(".nlf-list-shortcode");
+					if(!btn) return;
+					e.preventDefault();
+					var text=btn.getAttribute("data-clipboard");
+					if(!text) return;
+					if(navigator.clipboard){
+						navigator.clipboard.writeText(text);
+					}else{
+						var t=document.createElement("textarea");
+						t.value=text;t.style.position="fixed";t.style.opacity="0";
+						document.body.appendChild(t);t.select();
+						document.execCommand("copy");document.body.removeChild(t);
+					}
+					btn.classList.add("is-copied");
+					setTimeout(function(){btn.classList.remove("is-copied");},1500);
+				});
+			' );
+
+			return;
+		}
+
+		if ( ! in_array( $hook_suffix, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
 
@@ -848,6 +885,110 @@ class Group_CPT {
 		$actions['nlf_duplicate'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Duplicate', 'next-level-faq' ) . '</a>';
 
 		return $actions;
+	}
+
+	/* ─────────────────────────────────────────────
+	 * List table columns.
+	 * ───────────────────────────────────────────── */
+
+	/**
+	 * Register custom columns for the FAQ Groups list table.
+	 *
+	 * @param array $columns Existing columns.
+	 * @return array
+	 */
+	public static function register_list_columns( $columns ) {
+		$new = array();
+
+		foreach ( $columns as $key => $label ) {
+			$new[ $key ] = $label;
+
+			// Insert custom columns right after "title".
+			if ( 'title' === $key ) {
+				$new['nlf_shortcode'] = __( 'Shortcode', 'next-level-faq' );
+				$new['nlf_questions'] = __( 'Questions', 'next-level-faq' );
+				$new['nlf_theme']     = __( 'Theme', 'next-level-faq' );
+			}
+		}
+
+		return $new;
+	}
+
+	/**
+	 * Render custom column content for the FAQ Groups list table.
+	 *
+	 * @param string $column  Column slug.
+	 * @param int    $post_id Post ID.
+	 */
+	public static function render_list_column( $column, $post_id ) {
+		switch ( $column ) {
+			case 'nlf_shortcode':
+				$shortcode = '[next_level_faq id="' . (int) $post_id . '"]';
+				printf(
+					'<button type="button" class="nlf-list-shortcode" data-clipboard="%1$s" title="%2$s">'
+					. '<code>%1$s</code>'
+					. '<span class="nlf-list-shortcode__icon dashicons dashicons-clipboard"></span>'
+					. '<span class="nlf-list-shortcode__ok dashicons dashicons-yes-alt"></span>'
+					. '</button>',
+					esc_attr( $shortcode ),
+					esc_attr__( 'Copy shortcode', 'next-level-faq' )
+				);
+				break;
+
+			case 'nlf_questions':
+				$items = Repository::get_items_for_group( $post_id, false );
+				$total = count( $items );
+				$visible = 0;
+				foreach ( $items as $item ) {
+					if ( ! empty( $item->status ) ) {
+						++$visible;
+					}
+				}
+				$hidden = $total - $visible;
+
+				printf(
+					'<span class="nlf-list-count">'
+					. '<span class="nlf-list-count__number">%d</span>'
+					. '</span>',
+					(int) $total
+				);
+
+				if ( $hidden > 0 ) {
+					printf(
+						'<span class="nlf-list-count__hidden" title="%s">(%d %s)</span>',
+						esc_attr__( 'Hidden from frontend', 'next-level-faq' ),
+						(int) $hidden,
+						esc_html__( 'hidden', 'next-level-faq' )
+					);
+				}
+				break;
+
+			case 'nlf_theme':
+				$theme_slug = get_post_meta( $post_id, '_nlf_faq_group_theme', true );
+
+				if ( empty( $theme_slug ) ) {
+					$theme_slug = Presets::DEFAULT_PRESET;
+				}
+
+				$registry = Presets::get_registry();
+				$accent   = '';
+				$name     = ucfirst( $theme_slug );
+
+				if ( isset( $registry[ $theme_slug ] ) ) {
+					$name   = $registry[ $theme_slug ]['name'];
+					$accent = $registry[ $theme_slug ]['values']['accent_color'] ?? '';
+				}
+
+				printf(
+					'<span class="nlf-list-theme">'
+					. '<span class="nlf-list-theme__dot" style="background:%1$s;"></span>'
+					. '<span class="nlf-list-theme__name">%2$s</span>'
+					. '</span>',
+					esc_attr( $accent ),
+					esc_html( $name )
+				);
+				break;
+		}
 	}
 
 	/**
