@@ -284,6 +284,12 @@ class Frontend_Renderer {
 		}
 		if ( 'chevron' === $icon_style ) {
 			$faq_classes[] = 'nlf-faq--icon-chevron';
+		} elseif ( 'arrow' === $icon_style ) {
+			$faq_classes[] = 'nlf-faq--icon-arrow';
+		}
+		$layout = isset( $effective_options['layout'] ) ? $effective_options['layout'] : 'flat';
+		if ( 'flat' !== $layout ) {
+			$faq_classes[] = 'nlf-faq--layout-' . sanitize_html_class( $layout );
 		}
 
 		ob_start();

@@ -14,17 +14,47 @@
 		var container = root.find('.nlf-faq');
 		var icons = container.find('.nlf-faq__icon');
 		var iconStyle = root.data('icon-style') || 'plus_minus';
+		var layout = root.data('layout') || 'flat';
+
+		// Shadow mapping
+		var shadowVal = root.data('shadow');
+		var shadowMap = {
+			'sm': '0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1)',
+			'md': '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
+			'lg': '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+			'xl': '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+			'colored': '0 4px 14px -3px rgba(99,102,241,0.25)'
+		};
+		var shadowCss = 'none';
+		if (typeof shadowVal === 'string' && shadowMap[shadowVal]) {
+			shadowCss = shadowMap[shadowVal];
+		} else if (shadowVal === 1 || shadowVal === '1' || shadowVal === true) {
+			shadowCss = shadowMap['md'];
+		}
 
 		// Container styles
+		var isCards = layout === 'cards';
 		container.css({
-			backgroundColor: root.data('container-background'),
-			borderColor: root.data('container-border-color'),
+			backgroundColor: isCards ? 'transparent' : root.data('container-background'),
+			borderColor: isCards ? 'transparent' : root.data('container-border-color'),
 			borderRadius: root.data('container-border-radius') + 'px',
-			padding: root.data('container-padding') + 'px',
-			boxShadow: root.data('shadow') === 1 || root.data('shadow') === '1'
-				? '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)'
-				: 'none'
+			padding: isCards ? '0' : root.data('container-padding') + 'px',
+			boxShadow: isCards ? 'none' : shadowCss
 		});
+
+		// Layout classes
+		container.removeClass('nlf-faq--layout-cards nlf-faq--layout-bordered nlf-faq--layout-clean nlf-faq--layout-striped');
+		if (layout !== 'flat') {
+			container.addClass('nlf-faq--layout-' + layout);
+		}
+
+		// Icon style classes
+		container.removeClass('nlf-faq--icon-chevron nlf-faq--icon-arrow');
+		if (iconStyle === 'chevron') {
+			container.addClass('nlf-faq--icon-chevron');
+		} else if (iconStyle === 'arrow') {
+			container.addClass('nlf-faq--icon-arrow');
+		}
 
 		// Item spacing
 		container.find('.nlf-faq__item + .nlf-faq__item').css('margin-top', root.data('gap-between-items') + 'px');
@@ -44,40 +74,6 @@
 
 		// Icon color
 		icons.css('color', root.data('accent-color'));
-
-		// Icon style - inject dynamic CSS
-		var styleId = 'nlf-faq-preview-icon-style';
-		var $existingStyle = $('#' + styleId);
-		if ($existingStyle.length) {
-			$existingStyle.remove();
-		}
-
-		var iconCss = '';
-		if (iconStyle === 'chevron') {
-			iconCss = '#nlf-faq-preview-root .nlf-faq__icon::before {' +
-				'content: "›";' +
-				'display: block;' +
-				'transform: rotate(90deg);' +
-				'transition: transform 200ms ease;' +
-				'}' +
-				'#nlf-faq-preview-root .nlf-faq__item.is-open .nlf-faq__icon::before {' +
-				'transform: rotate(270deg);' +
-				'}';
-		} else {
-			iconCss = '#nlf-faq-preview-root .nlf-faq__icon::before {' +
-				'content: "+";' +
-				'font-weight: 700;' +
-				'font-size: 1.125rem;' +
-				'line-height: 1;' +
-				'}' +
-				'#nlf-faq-preview-root .nlf-faq__item.is-open .nlf-faq__icon::before {' +
-				'content: "-";' +
-				'}';
-		}
-
-		if (iconCss) {
-			$('<style id="' + styleId + '">' + iconCss + '</style>').appendTo('head');
-		}
 	}
 
 	function updateDataProp(prop, value) {
@@ -102,6 +98,7 @@
 			'shadow': 'shadow',
 			'animation': 'animation',
 			'icon_style': 'icon-style',
+			'layout': 'layout',
 			'preset': 'preset'
 		};
 

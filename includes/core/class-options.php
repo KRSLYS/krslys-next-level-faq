@@ -208,20 +208,30 @@ class Options {
 		$sanitized['accent_color'] = $preset_defaults['accent_color'] ?? $defaults['accent_color'];
 	}
 
-	$allowed_icon_styles = array( 'plus_minus', 'chevron' );
+	$allowed_icon_styles = array( 'plus_minus', 'chevron', 'arrow' );
 	$sanitized['icon_style'] = in_array( $raw['icon_style'] ?? '', $allowed_icon_styles, true )
 		? $raw['icon_style']
 		: ( $preset_defaults['icon_style'] ?? $defaults['icon_style'] );
 
 	$sanitized['gap_between_items'] = isset( $raw['gap_between_items'] ) ? max( 0, intval( $raw['gap_between_items'] ) ) : ( $preset_defaults['gap_between_items'] ?? $defaults['gap_between_items'] );
 	
-	// Shadow checkbox - if not present in $raw, it means unchecked (false)
-	$sanitized['shadow'] = ! empty( $raw['shadow'] );
+	// Shadow - supports boolean (checkbox) or string ('sm', 'md', 'lg', 'xl', 'colored').
+	$allowed_shadows = array( 'none', 'sm', 'md', 'lg', 'xl', 'colored' );
+	if ( isset( $raw['shadow'] ) && is_string( $raw['shadow'] ) && in_array( $raw['shadow'], $allowed_shadows, true ) ) {
+		$sanitized['shadow'] = $raw['shadow'];
+	} else {
+		$sanitized['shadow'] = ! empty( $raw['shadow'] );
+	}
 
 	$allowed_animation = array( 'slide', 'fade', 'none' );
 	$sanitized['animation'] = in_array( $raw['animation'] ?? '', $allowed_animation, true )
 		? $raw['animation']
 		: ( $preset_defaults['animation'] ?? $defaults['animation'] );
+
+	$allowed_layouts = array( 'flat', 'cards', 'bordered', 'clean', 'striped' );
+	$sanitized['layout'] = in_array( $raw['layout'] ?? '', $allowed_layouts, true )
+		? $raw['layout']
+		: ( $preset_defaults['layout'] ?? 'flat' );
 
 	return $sanitized;
 	}

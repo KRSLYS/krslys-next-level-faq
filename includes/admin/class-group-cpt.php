@@ -650,27 +650,64 @@ class Group_CPT {
 	 */
 	private static function render_theme_selector( $current_theme, $theme_custom ) {
 		$themes = self::get_theme_presets();
+
+		$layout_labels = array(
+			'flat'     => __( 'Flat', 'next-level-faq' ),
+			'cards'    => __( 'Cards', 'next-level-faq' ),
+			'bordered' => __( 'Bordered', 'next-level-faq' ),
+			'clean'    => __( 'Clean', 'next-level-faq' ),
+			'striped'  => __( 'Striped', 'next-level-faq' ),
+		);
 		?>
 		<div class="nlf-theme-selector" role="radiogroup" aria-label="<?php esc_attr_e( 'Choose a theme preset', 'next-level-faq' ); ?>" data-default-theme="default">
-			<?php foreach ( $themes as $theme_id => $theme_data ) : ?>
+			<?php foreach ( $themes as $theme_id => $theme_data ) :
+				$layout = $theme_data['values']['layout'] ?? 'flat';
+				$is_cards = 'cards' === $layout;
+				$radius = ( $theme_data['values']['container_border_radius'] ?? 8 ) . 'px';
+				$has_shadow = ! empty( $theme_data['values']['shadow'] ) && false !== $theme_data['values']['shadow'];
+				$preview_shadow = $has_shadow ? '0 2px 8px rgba(0,0,0,0.08)' : 'none';
+			?>
 				<div class="nlf-theme-option <?php echo ( $current_theme === $theme_id ) ? 'is-active' : ''; ?>" data-theme="<?php echo esc_attr( $theme_id ); ?>">
 					<input type="radio" name="nlf_faq_group_theme" value="<?php echo esc_attr( $theme_id ); ?>" <?php checked( $current_theme, $theme_id ); ?> id="theme_<?php echo esc_attr( $theme_id ); ?>" />
 					<label for="theme_<?php echo esc_attr( $theme_id ); ?>">
-						<div class="nlf-theme-preview" style="
-							background: <?php echo esc_attr( $theme_data['background'] ); ?>;
-							border-color: <?php echo esc_attr( $theme_data['border'] ); ?>;
+						<div class="nlf-theme-preview nlf-theme-preview--<?php echo esc_attr( $layout ); ?>" style="
+							background: <?php echo $is_cards ? 'transparent' : esc_attr( $theme_data['background'] ); ?>;
+							border-color: <?php echo $is_cards ? 'transparent' : esc_attr( $theme_data['border'] ); ?>;
+							border-radius: <?php echo esc_attr( $radius ); ?>;
+							box-shadow: <?php echo $is_cards ? 'none' : esc_attr( $preview_shadow ); ?>;
 						">
-							<div class="nlf-theme-preview-question" style="color: <?php echo esc_attr( $theme_data['question'] ); ?>;">
-								<?php esc_html_e( 'Sample Question?', 'next-level-faq' ); ?>
+							<div class="nlf-theme-preview-item" style="
+								background: <?php echo $is_cards ? esc_attr( $theme_data['background'] ) : 'transparent'; ?>;
+								border: <?php echo $is_cards ? '1px solid ' . esc_attr( $theme_data['border'] ) : 'none'; ?>;
+								border-radius: <?php echo $is_cards ? esc_attr( $radius ) : '0'; ?>;
+								border-bottom: <?php echo ! $is_cards ? '1px solid ' . esc_attr( $theme_data['border'] ) : 'none'; ?>;
+								box-shadow: <?php echo $is_cards ? esc_attr( $preview_shadow ) : 'none'; ?>;
+								padding: 8px <?php echo $is_cards ? '10px' : '0'; ?>;
+							">
+								<div class="nlf-theme-preview-question" style="color: <?php echo esc_attr( $theme_data['question'] ); ?>;">
+									<?php esc_html_e( 'Sample Question?', 'next-level-faq' ); ?>
+								</div>
+								<div class="nlf-theme-preview-answer" style="color: <?php echo esc_attr( $theme_data['answer'] ); ?>;">
+									<?php esc_html_e( 'Preview answer text...', 'next-level-faq' ); ?>
+								</div>
 							</div>
-							<div class="nlf-theme-preview-answer" style="color: <?php echo esc_attr( $theme_data['answer'] ); ?>;">
-								<?php esc_html_e( 'Sample answer text...', 'next-level-faq' ); ?>
+							<div class="nlf-theme-preview-item nlf-theme-preview-item--collapsed" style="
+								background: <?php echo $is_cards ? esc_attr( $theme_data['background'] ) : 'transparent'; ?>;
+								border: <?php echo $is_cards ? '1px solid ' . esc_attr( $theme_data['border'] ) : 'none'; ?>;
+								border-radius: <?php echo $is_cards ? esc_attr( $radius ) : '0'; ?>;
+								box-shadow: <?php echo $is_cards ? '0 1px 3px rgba(0,0,0,0.04)' : 'none'; ?>;
+								padding: 8px <?php echo $is_cards ? '10px' : '0'; ?>;
+							">
+								<div class="nlf-theme-preview-question" style="color: <?php echo esc_attr( $theme_data['question'] ); ?>; opacity: 0.7;">
+									<?php esc_html_e( 'Another Question?', 'next-level-faq' ); ?>
+								</div>
 							</div>
 							<div class="nlf-theme-preview-accent" style="background: <?php echo esc_attr( $theme_data['accent'] ); ?>;"></div>
 						</div>
 						<div class="nlf-theme-info">
 							<div class="nlf-theme-name"><?php echo esc_html( $theme_data['name'] ); ?></div>
 							<p><?php echo esc_html( $theme_data['description'] ); ?></p>
+							<span class="nlf-theme-layout-tag"><?php echo esc_html( $layout_labels[ $layout ] ?? $layout ); ?></span>
 						</div>
 						<span class="nlf-theme-badge" aria-hidden="<?php echo ( $current_theme === $theme_id ) ? 'false' : 'true'; ?>">
 							<?php esc_html_e( 'Applied', 'next-level-faq' ); ?>
@@ -1281,154 +1318,178 @@ class Group_CPT {
 	 */
 	private static function get_theme_presets() {
 		return array(
+			// -----------------------------------------------------------
+			// DEFAULT — Sophisticated neutral, flat dividers
+			// -----------------------------------------------------------
 			'default'      => array(
 				'name'        => __( 'Default', 'next-level-faq' ),
-				'description' => __( 'Clean and professional look for most sites.', 'next-level-faq' ),
+				'description' => __( 'Refined baseline with soft shadows. Fits any site.', 'next-level-faq' ),
 				'background'  => '#ffffff',
-				'border'      => '#e2e8f0',
-				'question'    => '#0f172a',
-				'answer'      => '#4b5563',
+				'border'      => '#e5e7eb',
+				'question'    => '#111827',
+				'answer'      => '#6b7280',
 				'accent'      => '#3b82f6',
 				'values'      => array(
 					'container_background'    => '#ffffff',
-					'container_border_color'  => '#e2e8f0',
-					'container_border_radius' => 8,
-					'container_padding'       => 20,
-					'question_color'          => '#0f172a',
-					'question_font_size'      => 18,
+					'container_border_color'  => '#e5e7eb',
+					'container_border_radius' => 12,
+					'container_padding'       => 28,
+					'question_color'          => '#111827',
+					'question_font_size'      => 17,
 					'question_font_weight'    => 600,
-					'answer_color'            => '#4b5563',
-					'answer_font_size'        => 16,
+					'answer_color'            => '#6b7280',
+					'answer_font_size'        => 15,
 					'accent_color'            => '#3b82f6',
 					'icon_style'              => 'plus_minus',
-					'gap_between_items'       => 12,
-					'shadow'                  => false,
+					'gap_between_items'       => 0,
+					'shadow'                  => 'sm',
 					'animation'               => 'slide',
+					'layout'                  => 'flat',
 				),
 			),
+			// -----------------------------------------------------------
+			// MODERN — Floating cards, violet/indigo, generous white space
+			// -----------------------------------------------------------
 			'modern'       => array(
 				'name'        => __( 'Modern', 'next-level-faq' ),
-				'description' => __( 'Rounded cards with violet accents and smooth fades.', 'next-level-faq' ),
-				'background'  => '#f8fafc',
-				'border'      => '#e2e8f0',
-				'question'    => '#1e293b',
+				'description' => __( 'Floating cards with indigo accent. Clean and airy.', 'next-level-faq' ),
+				'background'  => '#ffffff',
+				'border'      => '#e0e7ff',
+				'question'    => '#1e1b4b',
 				'answer'      => '#64748b',
-				'accent'      => '#8b5cf6',
+				'accent'      => '#6366f1',
 				'values'      => array(
-					'container_background'    => '#f8fafc',
-					'container_border_color'  => '#e2e8f0',
-					'container_border_radius' => 16,
-					'container_padding'       => 28,
-					'question_color'          => '#1e293b',
-					'question_font_size'      => 19,
+					'container_background'    => '#ffffff',
+					'container_border_color'  => '#e0e7ff',
+					'container_border_radius' => 14,
+					'container_padding'       => 0,
+					'question_color'          => '#1e1b4b',
+					'question_font_size'      => 17,
 					'question_font_weight'    => 600,
 					'answer_color'            => '#64748b',
-					'answer_font_size'        => 16,
-					'accent_color'            => '#8b5cf6',
-					'icon_style'              => 'chevron',
-					'gap_between_items'       => 16,
-					'shadow'                  => true,
-					'animation'               => 'fade',
-				),
-			),
-			'classic'      => array(
-				'name'        => __( 'Classic', 'next-level-faq' ),
-				'description' => __( 'Warm editorial tones with amber accents.', 'next-level-faq' ),
-				'background'  => '#fffbeb',
-				'border'      => '#fde68a',
-				'question'    => '#78350f',
-				'answer'      => '#92400e',
-				'accent'      => '#f59e0b',
-				'values'      => array(
-					'container_background'    => '#fffbeb',
-					'container_border_color'  => '#fde68a',
-					'container_border_radius' => 6,
-					'container_padding'       => 22,
-					'question_color'          => '#78350f',
-					'question_font_size'      => 18,
-					'question_font_weight'    => 700,
-					'answer_color'            => '#92400e',
-					'answer_font_size'        => 16,
-					'accent_color'            => '#f59e0b',
-					'icon_style'              => 'plus_minus',
-					'gap_between_items'       => 14,
-					'shadow'                  => false,
-					'animation'               => 'slide',
-				),
-			),
-			'minimal'      => array(
-				'name'        => __( 'Minimal', 'next-level-faq' ),
-				'description' => __( 'Ultra-clean monochrome with no distractions.', 'next-level-faq' ),
-				'background'  => '#fafafa',
-				'border'      => '#e5e5e5',
-				'question'    => '#171717',
-				'answer'      => '#737373',
-				'accent'      => '#404040',
-				'values'      => array(
-					'container_background'    => '#fafafa',
-					'container_border_color'  => '#e5e5e5',
-					'container_border_radius' => 4,
-					'container_padding'       => 16,
-					'question_color'          => '#171717',
-					'question_font_size'      => 17,
-					'question_font_weight'    => 500,
-					'answer_color'            => '#737373',
 					'answer_font_size'        => 15,
-					'accent_color'            => '#404040',
+					'accent_color'            => '#6366f1',
 					'icon_style'              => 'chevron',
 					'gap_between_items'       => 10,
-					'shadow'                  => false,
-					'animation'               => 'none',
+					'shadow'                  => 'md',
+					'animation'               => 'slide',
+					'layout'                  => 'cards',
 				),
 			),
+			// -----------------------------------------------------------
+			// ELEGANT — Warm neutrals, amber accent, stacked borders
+			// -----------------------------------------------------------
+			'elegant'      => array(
+				'name'        => __( 'Elegant', 'next-level-faq' ),
+				'description' => __( 'Warm tones with connected bordered items.', 'next-level-faq' ),
+				'background'  => '#fefce8',
+				'border'      => '#fde68a',
+				'question'    => '#422006',
+				'answer'      => '#78716c',
+				'accent'      => '#d97706',
+				'values'      => array(
+					'container_background'    => '#fefce8',
+					'container_border_color'  => '#fde68a',
+					'container_border_radius' => 12,
+					'container_padding'       => 28,
+					'question_color'          => '#422006',
+					'question_font_size'      => 17,
+					'question_font_weight'    => 600,
+					'answer_color'            => '#78716c',
+					'answer_font_size'        => 15,
+					'accent_color'            => '#d97706',
+					'icon_style'              => 'arrow',
+					'gap_between_items'       => 0,
+					'shadow'                  => false,
+					'animation'               => 'slide',
+					'layout'                  => 'bordered',
+				),
+			),
+			// -----------------------------------------------------------
+			// MINIMAL — Monochrome, no decoration, content-first
+			// -----------------------------------------------------------
+			'minimal'      => array(
+				'name'        => __( 'Minimal', 'next-level-faq' ),
+				'description' => __( 'Stripped to essentials. Content speaks for itself.', 'next-level-faq' ),
+				'background'  => '#ffffff',
+				'border'      => '#e5e5e5',
+				'question'    => '#18181b',
+				'answer'      => '#52525b',
+				'accent'      => '#18181b',
+				'values'      => array(
+					'container_background'    => '#ffffff',
+					'container_border_color'  => '#e5e5e5',
+					'container_border_radius' => 0,
+					'container_padding'       => 24,
+					'question_color'          => '#18181b',
+					'question_font_size'      => 17,
+					'question_font_weight'    => 500,
+					'answer_color'            => '#52525b',
+					'answer_font_size'        => 15,
+					'accent_color'            => '#18181b',
+					'icon_style'              => 'chevron',
+					'gap_between_items'       => 0,
+					'shadow'                  => false,
+					'animation'               => 'slide',
+					'layout'                  => 'clean',
+				),
+			),
+			// -----------------------------------------------------------
+			// BOLD — Emerald cards, prominent elevation
+			// -----------------------------------------------------------
 			'bold'         => array(
 				'name'        => __( 'Bold', 'next-level-faq' ),
-				'description' => __( 'Vibrant reds for high-impact brands.', 'next-level-faq' ),
-				'background'  => '#fef2f2',
-				'border'      => '#fca5a5',
-				'question'    => '#7f1d1d',
-				'answer'      => '#991b1b',
-				'accent'      => '#dc2626',
+				'description' => __( 'Strong cards with emerald accent. High visual impact.', 'next-level-faq' ),
+				'background'  => '#ffffff',
+				'border'      => '#d1fae5',
+				'question'    => '#064e3b',
+				'answer'      => '#4b5563',
+				'accent'      => '#059669',
 				'values'      => array(
-					'container_background'    => '#fef2f2',
-					'container_border_color'  => '#fca5a5',
-					'container_border_radius' => 12,
-					'container_padding'       => 26,
-					'question_color'          => '#7f1d1d',
-					'question_font_size'      => 20,
+					'container_background'    => '#ffffff',
+					'container_border_color'  => '#d1fae5',
+					'container_border_radius' => 14,
+					'container_padding'       => 0,
+					'question_color'          => '#064e3b',
+					'question_font_size'      => 18,
 					'question_font_weight'    => 700,
-					'answer_color'            => '#991b1b',
-					'answer_font_size'        => 16,
-					'accent_color'            => '#dc2626',
+					'answer_color'            => '#4b5563',
+					'answer_font_size'        => 15,
+					'accent_color'            => '#059669',
 					'icon_style'              => 'plus_minus',
-					'gap_between_items'       => 14,
-					'shadow'                  => true,
+					'gap_between_items'       => 10,
+					'shadow'                  => 'lg',
 					'animation'               => 'slide',
+					'layout'                  => 'cards',
 				),
 			),
+			// -----------------------------------------------------------
+			// PROFESSIONAL — Corporate blue, alternating rows
+			// -----------------------------------------------------------
 			'professional' => array(
 				'name'        => __( 'Professional', 'next-level-faq' ),
-				'description' => __( 'Cool blues inspired by SaaS dashboards.', 'next-level-faq' ),
-				'background'  => '#f0f9ff',
-				'border'      => '#bae6fd',
-				'question'    => '#082f49',
-				'answer'      => '#0c4a6e',
-				'accent'      => '#0284c7',
+				'description' => __( 'Structured alternating rows. Enterprise-ready.', 'next-level-faq' ),
+				'background'  => '#f8fafc',
+				'border'      => '#cbd5e1',
+				'question'    => '#0f172a',
+				'answer'      => '#475569',
+				'accent'      => '#2563eb',
 				'values'      => array(
-					'container_background'    => '#f0f9ff',
-					'container_border_color'  => '#bae6fd',
+					'container_background'    => '#f8fafc',
+					'container_border_color'  => '#cbd5e1',
 					'container_border_radius' => 10,
 					'container_padding'       => 24,
-					'question_color'          => '#082f49',
-					'question_font_size'      => 18,
+					'question_color'          => '#0f172a',
+					'question_font_size'      => 17,
 					'question_font_weight'    => 600,
-					'answer_color'            => '#0c4a6e',
-					'answer_font_size'        => 16,
-					'accent_color'            => '#0284c7',
+					'answer_color'            => '#475569',
+					'answer_font_size'        => 15,
+					'accent_color'            => '#2563eb',
 					'icon_style'              => 'chevron',
-					'gap_between_items'       => 12,
-					'shadow'                  => true,
-					'animation'               => 'fade',
+					'gap_between_items'       => 0,
+					'shadow'                  => 'sm',
+					'animation'               => 'slide',
+					'layout'                  => 'striped',
 				),
 			),
 		);
@@ -1681,12 +1742,12 @@ class Group_CPT {
 			}
 		}
 
-		$inline_style = '';
-		$icon_style   = 'plus_minus';
-		$faq_classes  = array( 'nlf-faq', 'nlf-faq--preview' );
+		$inline_style    = '';
+		$icon_style      = 'plus_minus';
+		$preview_options = null;
+		$faq_classes     = array( 'nlf-faq', 'nlf-faq--preview' );
 
 		if ( empty( $use_custom_style ) ) {
-			$preview_options = null;
 
 			if ( $preview_theme ) {
 				// Use the theme slug sent from the UI (may not be saved yet).
@@ -1725,6 +1786,23 @@ class Group_CPT {
 
 		if ( 'chevron' === $icon_style ) {
 			$faq_classes[] = 'nlf-faq--icon-chevron';
+		} elseif ( 'arrow' === $icon_style ) {
+			$faq_classes[] = 'nlf-faq--icon-arrow';
+		}
+
+		// Determine layout class from preview options.
+		$preview_layout = 'flat';
+		if ( is_array( $preview_options ) && isset( $preview_options['layout'] ) ) {
+			$preview_layout = $preview_options['layout'];
+		} elseif ( $preview_theme ) {
+			$themes_for_layout = self::get_theme_presets();
+			$t = isset( $themes_for_layout[ $preview_theme ] ) ? $themes_for_layout[ $preview_theme ] : null;
+			if ( $t && isset( $t['values']['layout'] ) ) {
+				$preview_layout = $t['values']['layout'];
+			}
+		}
+		if ( 'flat' !== $preview_layout ) {
+			$faq_classes[] = 'nlf-faq--layout-' . sanitize_html_class( $preview_layout );
 		}
 
 		// Build FAQ HTML
