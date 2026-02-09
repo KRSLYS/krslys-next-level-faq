@@ -21,12 +21,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'NLF_FAQ_VERSION', '1.1.0' );
+define( 'NLF_FAQ_VERSION', '1.0.0' );
 define( 'NLF_FAQ_PLUGIN_FILE', __FILE__ );
 define( 'NLF_FAQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NLF_FAQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'NLF_FAQ_DB_VERSION', '1.3.0' ); // Legacy, kept for cleanup
-define( 'NLF_FAQ_SCHEMA_VERSION', '2.0.0' ); // New schema version
 
 // Load PSR-4 autoloader.
 require_once NLF_FAQ_PLUGIN_DIR . 'includes/Autoloader.php';
@@ -224,13 +222,11 @@ final class Krslys_NextLevelFaq_Plugin {
 	/**
 	 * Update database schema when the version changes.
 	 *
-	 * Only runs the expensive create_tables() call when the stored
-	 * schema version differs from the current constant.
+	 * Database::create_tables() has its own version check internally,
+	 * so we simply delegate to it.
 	 */
 	public function maybe_update_schema() {
-		if ( get_option( 'nlf_faq_schema_version' ) !== NLF_FAQ_SCHEMA_VERSION ) {
-			\Krslys\NextLevelFaq\Database::create_tables();
-		}
+		\Krslys\NextLevelFaq\Database::create_tables();
 
 		// Regenerate CSS if the plugin version changed (CSS structure may have changed).
 		$css_version = get_option( 'nlf_faq_css_version', '' );

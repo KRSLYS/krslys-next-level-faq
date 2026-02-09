@@ -33,48 +33,6 @@ class Repository {
 	}
 
 	/**
-	 * Maybe create or upgrade the custom table.
-	 *
-	 * SECURITY: Uses dbDelta() which is WordPress's safe schema management function.
-	 */
-	public static function maybe_create_table() {
-		$installed_version = get_option( 'nlf_faq_db_version' );
-
-		if ( NLF_FAQ_DB_VERSION === $installed_version ) {
-			return;
-		}
-
-		global $wpdb;
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-		$table_name      = self::get_table_name();
-		$charset_collate = $wpdb->get_charset_collate();
-
-		$sql = "CREATE TABLE {$table_name} (
-			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			post_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
-			group_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
-			position INT(11) UNSIGNED NOT NULL DEFAULT 0,
-			question TEXT NOT NULL,
-			answer LONGTEXT NOT NULL,
-			status TINYINT(1) NOT NULL DEFAULT 0,
-			initial_state TINYINT(1) NOT NULL DEFAULT 0,
-			highlight TINYINT(1) NOT NULL DEFAULT 0,
-			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-			PRIMARY KEY  (id),
-			KEY post_id (post_id),
-			KEY group_id (group_id)
-		) {$charset_collate};";
-
-		dbDelta( $sql );
-		self::maybe_drop_legacy_columns( $table_name );
-
-		update_option( 'nlf_faq_db_version', NLF_FAQ_DB_VERSION );
-	}
-
-	/**
 	 * Get all FAQ items for a given group (any status) ordered by position/created date.
 	 *
 	 * SECURITY: Uses $wpdb->prepare() for group_id parameter.
@@ -344,40 +302,4 @@ class Repository {
 		$wpdb->query( "TRUNCATE TABLE {$table}" );
 	}
 
-	/**
-	 * Drop icon/category columns if they still exist.
-	 *
-	 * SECURITY:
-	 * - Table name from trusted source ($wpdb->prefix).
-	 * - Column names validated against allowlist before dropping.
-	 * - Uses esc_sql() for column names in ALTER statement.
-	 *
-	 * @param string $table Table name.
-	 * @return void
-	 */
-	private static function maybe_drop_legacy_columns( $table ) {
-		global $wpdb;
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
-		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table}", ARRAY_A );
-
-		if ( empty( $columns ) ) {
-			return;
-		}
-
-		$existing = wp_list_pluck( $columns, 'Field' );
-
-		$drop_allowlist = array(
-			'icon',
-			'category',
-		);
-
-		foreach ( $drop_allowlist as $column ) {
-			if ( in_array( $column, $existing, true ) ) {
-				$safe_column = esc_sql( $column );
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are safe.
-				$wpdb->query( "ALTER TABLE {$table} DROP COLUMN {$safe_column}" );
-			}
-		}
-	}
 }

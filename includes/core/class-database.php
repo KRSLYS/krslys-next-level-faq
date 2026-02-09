@@ -22,7 +22,7 @@ class Database {
 	/**
 	 * Schema version constant.
 	 */
-	const SCHEMA_VERSION = '2.0.0';
+	const SCHEMA_VERSION = '1.0.0';
 
 	/**
 	 * Get the groups table name with prefix.
@@ -192,7 +192,6 @@ class Database {
 
 		// Delete old style options (will be migrated to settings table)
 		delete_option( 'nlf_faq_style_options' );
-		delete_option( 'nlf_faq_db_version' );
 
 		// Clear legacy items with group_id = 0 (old questions feature)
 		$items_table = self::get_items_table();

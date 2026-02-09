@@ -1001,8 +1001,8 @@ class Admin_Settings {
 		$payload = array(
 			'meta' => array(
 				'schema'         => 'nlf-faq-tools.v1',
-				'plugin_version' => NLF_FAQ_VERSION,
-				'db_version'     => get_option( 'nlf_faq_db_version', NLF_FAQ_DB_VERSION ),
+				'plugin_version'  => NLF_FAQ_VERSION,
+				'schema_version'  => Database::get_schema_version(),
 				'site_url'       => home_url(),
 				'generated_at'   => gmdate( 'c' ),
 			),

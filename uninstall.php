@@ -32,7 +32,6 @@ Database::drop_tables();
  * Delete plugin options.
  */
 delete_option( 'nlf_faq_schema_version' );
-delete_option( 'nlf_faq_db_version' );
 delete_option( 'nlf_faq_style_options' );
 delete_option( 'nlf_faq_presets_css_version' );
 
