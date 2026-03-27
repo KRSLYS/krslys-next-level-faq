@@ -21,6 +21,10 @@
     "groupId": {
       "type": "number",
       "default": 0
+    },
+    "preset": {
+      "type": "string",
+      "default": ""
     }
   },
   "editorScript": "nlf-faq-block-editor",

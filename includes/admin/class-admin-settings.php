@@ -68,15 +68,6 @@ class Admin_Settings {
 
 		add_submenu_page(
 			self::TOP_MENU_SLUG,
-			__( 'FAQ Questions', 'next-level-faq' ),
-			__( 'Questions', 'next-level-faq' ),
-			'manage_options',
-			self::QUESTIONS_SLUG,
-			array( __CLASS__, 'render_questions_page' )
-		);
-
-		add_submenu_page(
-			self::TOP_MENU_SLUG,
 			__( 'FAQ Tools', 'next-level-faq' ),
 			__( 'Tools', 'next-level-faq' ),
 			'manage_options',
@@ -93,7 +84,124 @@ class Admin_Settings {
 			'nlf_faq_style_group',
 			Options::OPTION_KEY,
 			array(
-				'sanitize_callback' => array( 'Krslys\NextLevelFaq\Options', 'sanitize' ),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_and_save_to_repository' ),
+			)
+		);
+
+		// Register AJAX handler for instant save
+		add_action( 'wp_ajax_nlf_save_settings_ajax', array( __CLASS__, 'handle_ajax_save_settings' ) );
+	}
+
+	/**
+	 * Sanitize and save settings to custom table.
+	 *
+	 * @param array $input Raw input.
+	 * @return array Sanitized input (still needed for WordPress form flow).
+	 */
+	public static function sanitize_and_save_to_repository( $input ) {
+		$sanitized = Options::sanitize( $input );
+		
+		// Save to custom settings table
+		Settings_Repository::update_setting( Settings_Repository::KEY_GLOBAL_STYLES, $sanitized );
+		
+		// Trigger action for CSS regeneration
+		do_action( 'nlf_faq_settings_updated', $sanitized, null );
+		
+		return $sanitized;
+	}
+
+	/**
+	 * Handle AJAX save request for settings.
+	 *
+	 * SECURITY:
+	 * - Nonce verification
+	 * - Capability check
+	 * - Input sanitization via Options::sanitize()
+	 */
+	public static function handle_ajax_save_settings() {
+		// Verify nonce
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'nlf_save_settings' ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Security check failed. Please refresh the page and try again.', 'next-level-faq' ) ),
+				403
+			);
+		}
+
+		// Check capability
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'You do not have permission to save settings.', 'next-level-faq' ) ),
+				403
+			);
+		}
+
+		// Get and sanitize input
+		$raw_input = isset( $_POST[ Options::OPTION_KEY ] ) ? wp_unslash( $_POST[ Options::OPTION_KEY ] ) : array();
+		
+		if ( ! is_array( $raw_input ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid settings data.', 'next-level-faq' ) ),
+				400
+			);
+		}
+
+		// Sanitize using Options class
+		$sanitized = Options::sanitize( $raw_input );
+
+		// Ensure tables exist before saving.
+		if ( ! Database::tables_exist() ) {
+			Database::create_tables( true ); // Force creation
+			
+			// Double check after creation
+			if ( ! Database::tables_exist() ) {
+				global $wpdb;
+				wp_send_json_error(
+					array( 
+						'message' => __( 'Database tables could not be created. Please check database permissions.', 'next-level-faq' ),
+						'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? array(
+							'last_error' => $wpdb->last_error,
+							'prefix'     => $wpdb->prefix,
+						) : null,
+					),
+					500
+				);
+			}
+		}
+
+		// Save to custom settings table
+		$saved = Settings_Repository::update_setting( Settings_Repository::KEY_GLOBAL_STYLES, $sanitized );
+
+		if ( ! $saved ) {
+			// Get last database error for debugging
+			global $wpdb;
+			$db_error = $wpdb->last_error ? $wpdb->last_error : 'Unknown database error';
+			
+			wp_send_json_error(
+				array( 
+					'message' => __( 'Failed to save settings. Please try again.', 'next-level-faq' ),
+					'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? array(
+						'db_error' => $db_error,
+						'table'    => Database::get_settings_table(),
+						'key'      => Settings_Repository::KEY_GLOBAL_STYLES,
+					) : null,
+				),
+				500
+			);
+		}
+
+		// Regenerate CSS
+		if ( class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
+			Style_Generator::generate_and_save();
+		}
+
+		// Trigger action for extensions/integrations
+		do_action( 'nlf_faq_settings_updated', $sanitized, null );
+
+		// Send success response
+		wp_send_json_success(
+			array(
+				'message' => __( 'Settings saved successfully!', 'next-level-faq' ),
+				'data'    => $sanitized,
 			)
 		);
 	}
@@ -105,14 +213,14 @@ class Admin_Settings {
 	 *
 	 * @param string $hook_suffix Current screen hook.
 	 */
-public static function enqueue_assets( $hook_suffix ) {
-	if ( ! isset( $_GET['page'] ) ) {
-		return;
-	}
+	public static function enqueue_assets( $hook_suffix ) {
+		if ( ! isset( $_GET['page'] ) ) {
+			return;
+		}
 
-	$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
 
-	$allowed_pages = array(
+		$allowed_pages = array(
 			self::STYLE_SLUG,
 			self::QUESTIONS_SLUG,
 			self::TOP_MENU_SLUG,
@@ -164,16 +272,6 @@ public static function enqueue_assets( $hook_suffix ) {
 			);
 		}
 
-		if ( self::QUESTIONS_SLUG === $page ) {
-			wp_enqueue_script(
-				'nlf-faq-admin-questions',
-				NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-questions.js',
-				array( 'jquery' ),
-				NLF_FAQ_VERSION,
-				true
-			);
-		}
-
 		wp_localize_script(
 			'nlf-faq-admin',
 			'nlfFaqAdmin',
@@ -182,6 +280,12 @@ public static function enqueue_assets( $hook_suffix ) {
 					'saving' => __( 'Saving…', 'next-level-faq' ),
 					'saved'  => __( 'Saved', 'next-level-faq' ),
 				),
+				'presets'        => Options::get_preset_registry(),
+				'activePreset'   => Options::get_active_preset_slug( Options::get_options() ),
+				'defaultPreset'  => Options::get_default_preset_slug(),
+				'optionKey'      => Options::OPTION_KEY,
+				'currentOptions' => Options::get_resolved_options(),
+				'saveNonce'      => wp_create_nonce( 'nlf_save_settings' ),
 			)
 		);
 	}
@@ -196,19 +300,106 @@ public static function enqueue_assets( $hook_suffix ) {
 			return;
 		}
 
-		$options = Options::get_options();
+		$options       = Options::get_resolved_options();
+		$presets       = Options::get_preset_registry();
+		$active_preset = Options::get_active_preset_slug( $options );
 		?>
 		<div class="wrap nlf-faq-admin">
 			<h1><?php esc_html_e( 'Next Level FAQ – Style & Layout', 'next-level-faq' ); ?></h1>
 
 			<div class="nlf-faq-admin__layout">
 				<div class="nlf-faq-admin__left">
-					<form method="post" action="options.php" id="nlf-faq-style-form">
+					<div class="nlf-section">
+						<div class="nlf-section-header">
+							<h2><?php esc_html_e( 'Theme presets', 'next-level-faq' ); ?></h2>
+							<p class="description"><?php esc_html_e( 'Pick a curated starting point, then fine-tune colors, spacing, and typography below.', 'next-level-faq' ); ?></p>
+						</div>
 						<?php
-						settings_fields( 'nlf_faq_style_group' );
+						$layout_labels = array(
+							'flat'     => __( 'Flat', 'next-level-faq' ),
+							'cards'    => __( 'Cards', 'next-level-faq' ),
+							'bordered' => __( 'Bordered', 'next-level-faq' ),
+							'clean'    => __( 'Clean', 'next-level-faq' ),
+							'striped'  => __( 'Striped', 'next-level-faq' ),
+						);
 						?>
+						<div class="nlf-theme-grid" id="nlf-preset-grid" data-current-preset="<?php echo esc_attr( $active_preset ); ?>">
+							<?php foreach ( $presets as $slug => $preset ) :
+								$values    = $preset['values'];
+								$p_layout  = $values['layout'] ?? 'flat';
+								$is_cards  = 'cards' === $p_layout;
+								$p_radius  = ( $values['container_border_radius'] ?? 8 ) . 'px';
+								$has_shadow = ! empty( $values['shadow'] ) && false !== $values['shadow'];
+								$p_shadow  = $has_shadow ? '0 2px 8px rgba(0,0,0,0.08)' : 'none';
+							?>
+								<label class="nlf-theme-card nlf-preset-card <?php echo esc_attr( $active_preset === $slug ? 'active' : '' ); ?>">
+									<input type="radio"
+										name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[preset]"
+										value="<?php echo esc_attr( $slug ); ?>"
+										<?php checked( $active_preset, $slug ); ?>
+										data-preset-choice
+									/>
+									<span class="screen-reader-text"><?php echo esc_html( $preset['name'] ); ?></span>
+									<div class="nlf-theme-preview nlf-theme-preview--<?php echo esc_attr( $p_layout ); ?>" style="
+										background: <?php echo $is_cards ? 'transparent' : esc_attr( $values['container_background'] ); ?>;
+										border-color: <?php echo $is_cards ? 'transparent' : esc_attr( $values['container_border_color'] ); ?>;
+										border-radius: <?php echo esc_attr( $p_radius ); ?>;
+										box-shadow: <?php echo $is_cards ? 'none' : esc_attr( $p_shadow ); ?>;
+										color: <?php echo esc_attr( $values['answer_color'] ); ?>;">
+										<div class="nlf-theme-preview-item" style="
+											background: <?php echo $is_cards ? esc_attr( $values['container_background'] ) : 'transparent'; ?>;
+											border: <?php echo $is_cards ? '1px solid ' . esc_attr( $values['container_border_color'] ) : 'none'; ?>;
+											border-radius: <?php echo $is_cards ? esc_attr( $p_radius ) : '0'; ?>;
+											border-bottom: <?php echo ! $is_cards ? '1px solid ' . esc_attr( $values['container_border_color'] ) : 'none'; ?>;
+											box-shadow: <?php echo $is_cards ? esc_attr( $p_shadow ) : 'none'; ?>;
+											padding: 8px <?php echo $is_cards ? '10px' : '2px'; ?>;
+										">
+											<div class="nlf-theme-preview-question" style="color: <?php echo esc_attr( $values['question_color'] ); ?>;">
+												<?php esc_html_e( 'Sample question?', 'next-level-faq' ); ?>
+											</div>
+											<div class="nlf-theme-preview-answer">
+												<?php esc_html_e( 'Sample answer text...', 'next-level-faq' ); ?>
+											</div>
+										</div>
+										<div class="nlf-theme-preview-item nlf-theme-preview-item--collapsed" style="
+											background: <?php echo $is_cards ? esc_attr( $values['container_background'] ) : 'transparent'; ?>;
+											border: <?php echo $is_cards ? '1px solid ' . esc_attr( $values['container_border_color'] ) : 'none'; ?>;
+											border-radius: <?php echo $is_cards ? esc_attr( $p_radius ) : '0'; ?>;
+											padding: 8px <?php echo $is_cards ? '10px' : '2px'; ?>;
+										">
+											<div class="nlf-theme-preview-question" style="color: <?php echo esc_attr( $values['question_color'] ); ?>; opacity: 0.65;">
+												<?php esc_html_e( 'Another question?', 'next-level-faq' ); ?>
+											</div>
+										</div>
+										<div class="nlf-theme-preview-accent" style="background: <?php echo esc_attr( $values['accent_color'] ); ?>;"></div>
+									</div>
+									<div class="nlf-theme-name"><?php echo esc_html( $preset['name'] ); ?></div>
+									<p class="description" style="margin:0; padding: 0 var(--spacing-3) var(--spacing-3);"><?php echo esc_html( $preset['description'] ); ?></p>
+									<span class="nlf-theme-layout-tag" style="margin: 0 var(--spacing-3) var(--spacing-3);"><?php echo esc_html( $layout_labels[ $p_layout ] ?? $p_layout ); ?></span>
+								</label>
+							<?php endforeach; ?>
+						</div>
+					</div>
 
-						<h2><?php esc_html_e( 'Layout & Container', 'next-level-faq' ); ?></h2>
+				<form method="post" action="options.php" id="nlf-faq-style-form">
+					<?php
+					settings_fields( 'nlf_faq_style_group' );
+					
+					// Force redirect back to this specific page after save.
+					// Override the default _wp_http_referer that settings_fields() creates.
+					$settings_redirect = add_query_arg(
+						array(
+							'page' => self::STYLE_SLUG,
+						),
+						admin_url( 'admin.php' )
+					);
+					?>
+					<input type="hidden" name="_wp_http_referer" value="<?php echo esc_url( $settings_redirect ); ?>" />
+					
+					<!-- Hidden field to persist preset selection (synced via JS) -->
+					<input type="hidden" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[preset]" id="nlf-faq-hidden-preset" value="<?php echo esc_attr( $active_preset ); ?>" />
+
+					<h2><?php esc_html_e( 'Layout & Container', 'next-level-faq' ); ?></h2>
 
 						<table class="form-table" role="presentation">
 							<tr>
@@ -317,10 +508,11 @@ public static function enqueue_assets( $hook_suffix ) {
 									<label for="nlf_faq_icon_style"><?php esc_html_e( 'Icon style', 'next-level-faq' ); ?></label>
 								</th>
 								<td>
-									<select id="nlf_faq_icon_style" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[icon_style]" data-preview-prop="icon_style">
-										<option value="plus_minus" <?php selected( $options['icon_style'], 'plus_minus' ); ?>><?php esc_html_e( 'Plus / Minus', 'next-level-faq' ); ?></option>
-										<option value="chevron" <?php selected( $options['icon_style'], 'chevron' ); ?>><?php esc_html_e( 'Chevron', 'next-level-faq' ); ?></option>
-									</select>
+								<select id="nlf_faq_icon_style" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[icon_style]" data-preview-prop="icon_style">
+									<option value="plus_minus" <?php selected( $options['icon_style'], 'plus_minus' ); ?>><?php esc_html_e( 'Plus / Minus', 'next-level-faq' ); ?></option>
+									<option value="chevron" <?php selected( $options['icon_style'], 'chevron' ); ?>><?php esc_html_e( 'Chevron', 'next-level-faq' ); ?></option>
+									<option value="arrow" <?php selected( $options['icon_style'], 'arrow' ); ?>><?php esc_html_e( 'Arrow', 'next-level-faq' ); ?></option>
+								</select>
 								</td>
 							</tr>
 							<tr>
@@ -336,14 +528,28 @@ public static function enqueue_assets( $hook_suffix ) {
 									<label for="nlf_faq_animation"><?php esc_html_e( 'Animation', 'next-level-faq' ); ?></label>
 								</th>
 								<td>
-									<select id="nlf_faq_animation" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[animation]" data-preview-prop="animation">
-										<option value="slide" <?php selected( $options['animation'], 'slide' ); ?>><?php esc_html_e( 'Slide', 'next-level-faq' ); ?></option>
-										<option value="fade" <?php selected( $options['animation'], 'fade' ); ?>><?php esc_html_e( 'Fade', 'next-level-faq' ); ?></option>
-										<option value="none" <?php selected( $options['animation'], 'none' ); ?>><?php esc_html_e( 'None', 'next-level-faq' ); ?></option>
-									</select>
-								</td>
-							</tr>
-						</table>
+								<select id="nlf_faq_animation" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[animation]" data-preview-prop="animation">
+									<option value="slide" <?php selected( $options['animation'], 'slide' ); ?>><?php esc_html_e( 'Slide', 'next-level-faq' ); ?></option>
+									<option value="fade" <?php selected( $options['animation'], 'fade' ); ?>><?php esc_html_e( 'Fade', 'next-level-faq' ); ?></option>
+									<option value="none" <?php selected( $options['animation'], 'none' ); ?>><?php esc_html_e( 'None', 'next-level-faq' ); ?></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								<label for="nlf_faq_layout"><?php esc_html_e( 'Layout style', 'next-level-faq' ); ?></label>
+							</th>
+							<td>
+								<select id="nlf_faq_layout" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[layout]" data-preview-prop="layout">
+									<option value="flat" <?php selected( $options['layout'] ?? 'flat', 'flat' ); ?>><?php esc_html_e( 'Flat (dividers)', 'next-level-faq' ); ?></option>
+									<option value="cards" <?php selected( $options['layout'] ?? 'flat', 'cards' ); ?>><?php esc_html_e( 'Cards (floating)', 'next-level-faq' ); ?></option>
+									<option value="bordered" <?php selected( $options['layout'] ?? 'flat', 'bordered' ); ?>><?php esc_html_e( 'Bordered (stacked)', 'next-level-faq' ); ?></option>
+									<option value="clean" <?php selected( $options['layout'] ?? 'flat', 'clean' ); ?>><?php esc_html_e( 'Clean (no dividers)', 'next-level-faq' ); ?></option>
+									<option value="striped" <?php selected( $options['layout'] ?? 'flat', 'striped' ); ?>><?php esc_html_e( 'Striped (alternating)', 'next-level-faq' ); ?></option>
+								</select>
+							</td>
+						</tr>
+					</table>
 
 						<?php submit_button( __( 'Save Styles', 'next-level-faq' ) ); ?>
 					</form>
@@ -366,11 +572,26 @@ public static function enqueue_assets( $hook_suffix ) {
 						data-answer-font-size="<?php echo esc_attr( $options['answer_font_size'] ); ?>"
 						data-accent-color="<?php echo esc_attr( $options['accent_color'] ); ?>"
 						data-gap-between-items="<?php echo esc_attr( $options['gap_between_items'] ); ?>"
-						data-shadow="<?php echo esc_attr( $options['shadow'] ? '1' : '0' ); ?>"
+						data-shadow="<?php echo esc_attr( is_string( $options['shadow'] ) ? $options['shadow'] : ( $options['shadow'] ? 'md' : 'none' ) ); ?>"
 						data-icon-style="<?php echo esc_attr( $options['icon_style'] ); ?>"
 						data-animation="<?php echo esc_attr( $options['animation'] ); ?>"
+						data-layout="<?php echo esc_attr( $options['layout'] ?? 'flat' ); ?>"
+						data-preset="<?php echo esc_attr( $active_preset ); ?>"
 					>
-						<div class="nlf-faq nlf-faq--preview">
+						<?php
+						$preview_layout = $options['layout'] ?? 'flat';
+						$preview_icon   = $options['icon_style'] ?? 'plus_minus';
+						$preview_classes = array( 'nlf-faq', 'nlf-faq--preview' );
+						if ( 'flat' !== $preview_layout ) {
+							$preview_classes[] = 'nlf-faq--layout-' . sanitize_html_class( $preview_layout );
+						}
+						if ( 'chevron' === $preview_icon ) {
+							$preview_classes[] = 'nlf-faq--icon-chevron';
+						} elseif ( 'arrow' === $preview_icon ) {
+							$preview_classes[] = 'nlf-faq--icon-arrow';
+						}
+						?>
+						<div class="<?php echo esc_attr( implode( ' ', $preview_classes ) ); ?>">
 							<div class="nlf-faq__item is-open">
 								<div class="nlf-faq__question">
 									<span><?php esc_html_e( 'How quickly can I customize my FAQs?', 'next-level-faq' ); ?></span>
@@ -389,6 +610,15 @@ public static function enqueue_assets( $hook_suffix ) {
 									<p><?php esc_html_e( 'Yes. Configure colors, typography, spacing, and animations to align with your brand.', 'next-level-faq' ); ?></p>
 								</div>
 							</div>
+							<div class="nlf-faq__item">
+								<div class="nlf-faq__question">
+									<span><?php esc_html_e( 'Do all layout styles work the same way?', 'next-level-faq' ); ?></span>
+									<span class="nlf-faq__icon" aria-hidden="true"></span>
+								</div>
+								<div class="nlf-faq__answer">
+									<p><?php esc_html_e( 'Each layout has its own visual personality while keeping the same interactive behavior.', 'next-level-faq' ); ?></p>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -397,101 +627,6 @@ public static function enqueue_assets( $hook_suffix ) {
 		<?php
 	}
 
-	/**
-	 * Render questions repeater management page.
-	 *
-	 * SECURITY: Capability check at start of function.
-	 */
-	public static function render_questions_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		$items = Repository::get_all_items( 0 );
-		?>
-		<div class="wrap nlf-faq-admin">
-			<h1><?php esc_html_e( 'Next Level FAQ – Questions', 'next-level-faq' ); ?></h1>
-			<p class="description">
-				<?php esc_html_e( 'Manage the list of questions and answers that will appear in your FAQ sections. Use the checkboxes to control which items are visible.', 'next-level-faq' ); ?>
-			</p>
-
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="nlf-faq-questions-form">
-				<?php wp_nonce_field( 'nlf_faq_save_questions', 'nlf_faq_questions_nonce' ); ?>
-				<input type="hidden" name="action" value="nlf_faq_save_questions" />
-
-				<table class="widefat fixed striped nlf-faq-questions-table">
-					<thead>
-						<tr>
-							<th style="width:40px;"></th>
-							<th style="width:35%;"><?php esc_html_e( 'Question', 'next-level-faq' ); ?></th>
-							<th><?php esc_html_e( 'Answer', 'next-level-faq' ); ?></th>
-							<th style="width:80px;"><?php esc_html_e( 'Visible', 'next-level-faq' ); ?></th>
-							<th style="width:80px;"><?php esc_html_e( 'Actions', 'next-level-faq' ); ?></th>
-						</tr>
-					</thead>
-					<tbody id="nlf-faq-questions-body">
-						<?php if ( ! empty( $items ) ) : ?>
-							<?php foreach ( $items as $index => $item ) : ?>
-								<tr class="nlf-faq-question-row">
-									<td class="nlf-faq-sort-handle">⋮⋮</td>
-									<td>
-										<input type="hidden" name="nlf_faq_id[]" value="<?php echo esc_attr( $item->id ); ?>" />
-										<input type="text" class="regular-text" name="nlf_faq_question[]" value="<?php echo esc_attr( $item->question ); ?>" placeholder="<?php esc_attr_e( 'Question', 'next-level-faq' ); ?>" />
-									</td>
-									<td>
-										<textarea name="nlf_faq_answer[]" rows="3" class="large-text" placeholder="<?php esc_attr_e( 'Answer', 'next-level-faq' ); ?>"><?php echo esc_textarea( $item->answer ); ?></textarea>
-									</td>
-									<td class="nlf-faq-visible-cell">
-										<label>
-											<input type="checkbox" name="nlf_faq_active[<?php echo esc_attr( $index ); ?>]" value="1" <?php checked( (int) $item->status, 1 ); ?> />
-											<?php esc_html_e( 'Show', 'next-level-faq' ); ?>
-										</label>
-									</td>
-									<td class="nlf-faq-actions-cell">
-										<button type="button" class="button-link nlf-faq-remove-row"><?php esc_html_e( 'Remove', 'next-level-faq' ); ?></button>
-									</td>
-								</tr>
-							<?php endforeach; ?>
-						<?php endif; ?>
-					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="5">
-								<button type="button" class="button button-secondary" id="nlf-faq-add-row">
-									<?php esc_html_e( 'Add Question', 'next-level-faq' ); ?>
-								</button>
-							</td>
-						</tr>
-					</tfoot>
-				</table>
-
-				<?php submit_button( __( 'Save Questions', 'next-level-faq' ) ); ?>
-			</form>
-
-			<script type="text/template" id="tmpl-nlf-faq-row">
-				<tr class="nlf-faq-question-row">
-					<td class="nlf-faq-sort-handle">⋮⋮</td>
-					<td>
-						<input type="hidden" name="nlf_faq_id[]" value="" />
-						<input type="text" class="regular-text" name="nlf_faq_question[]" value="" placeholder="<?php esc_attr_e( 'Question', 'next-level-faq' ); ?>" />
-					</td>
-					<td>
-						<textarea name="nlf_faq_answer[]" rows="3" class="large-text" placeholder="<?php esc_attr_e( 'Answer', 'next-level-faq' ); ?>"></textarea>
-					</td>
-					<td class="nlf-faq-visible-cell">
-						<label>
-							<input type="checkbox" name="nlf_faq_active[{{index}}]" value="1" checked="checked" />
-							<?php esc_html_e( 'Show', 'next-level-faq' ); ?>
-						</label>
-					</td>
-					<td class="nlf-faq-actions-cell">
-						<button type="button" class="button-link nlf-faq-remove-row"><?php esc_html_e( 'Remove', 'next-level-faq' ); ?></button>
-					</td>
-				</tr>
-			</script>
-		</div>
-		<?php
-	}
 
 	/**
 	 * Render export/import tools page.
@@ -505,137 +640,306 @@ public static function enqueue_assets( $hook_suffix ) {
 			return;
 		}
 
-		$group_choices   = self::get_group_choices();
-		$selected_group  = 'all';
+		$cpt_groups = self::get_cpt_group_choices();
 		?>
 		<div class="wrap nlf-faq-admin nlf-faq-tools">
-			<h1><?php esc_html_e( 'Next Level FAQ – Tools', 'next-level-faq' ); ?></h1>
+
+			<!-- ── Page Header ──────────────────────────── -->
+			<div class="nlf-tools-header">
+				<div class="nlf-tools-header__icon-wrap">
+					<span class="dashicons dashicons-admin-tools"></span>
+				</div>
+				<div class="nlf-tools-header__content">
+					<h1><?php esc_html_e( 'Tools', 'next-level-faq' ); ?></h1>
+					<p><?php esc_html_e( 'Manage, backup, and migrate your FAQ data with powerful utilities.', 'next-level-faq' ); ?></p>
+				</div>
+			</div>
+
 			<?php self::output_tools_notice(); ?>
 
-			<div class="nlf-faq-tools__grid">
-				<section class="nlf-faq-tools__card">
-					<h2><?php esc_html_e( 'Export', 'next-level-faq' ); ?></h2>
-					<p class="description">
-						<?php esc_html_e( 'Generate a JSON bundle with your FAQ styles and entries for backups or migrations.', 'next-level-faq' ); ?>
-					</p>
+			<!-- ── Data Management ──────────────────────── -->
+			<div class="nlf-tools-section">
+				<div class="nlf-tools-section__header">
+					<span class="dashicons dashicons-database"></span>
+					<div>
+						<h2><?php esc_html_e( 'Data Management', 'next-level-faq' ); ?></h2>
+						<p><?php esc_html_e( 'Export and import your FAQ content, themes, and settings.', 'next-level-faq' ); ?></p>
+					</div>
+				</div>
 
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-faq-tools__form">
-						<?php wp_nonce_field( 'nlf_faq_export', 'nlf_faq_export_nonce' ); ?>
-						<input type="hidden" name="action" value="nlf_faq_export" />
+				<div class="nlf-tools-grid">
 
-						<label class="nlf-faq-tools__option">
-							<input type="checkbox" name="nlf_faq_include_styles" value="1" checked="checked" />
-							<span><?php esc_html_e( 'Include style settings', 'next-level-faq' ); ?></span>
-						</label>
+					<!-- ── Export Card ─────────────── -->
+					<div class="nlf-tool-card nlf-tool-card--export">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-download"></span>
+							</div>
+							<div>
+								<h3><?php esc_html_e( 'Export', 'next-level-faq' ); ?></h3>
+								<p><?php esc_html_e( 'Download a JSON file for backups or site migration.', 'next-level-faq' ); ?></p>
+							</div>
+						</div>
+						<div class="nlf-tool-card__body">
+							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-tool-card__form">
+								<?php wp_nonce_field( 'nlf_faq_export', 'nlf_faq_export_nonce' ); ?>
+								<input type="hidden" name="action" value="nlf_faq_export" />
 
-						<label class="nlf-faq-tools__option">
-							<input type="checkbox" name="nlf_faq_include_questions" value="1" checked="checked" />
-							<span><?php esc_html_e( 'Include FAQ entries', 'next-level-faq' ); ?></span>
-						</label>
+								<div class="nlf-tool-card__field">
+									<label for="nlf-faq-export-scope" class="nlf-tool-card__field-label">
+										<?php esc_html_e( 'Export scope', 'next-level-faq' ); ?>
+									</label>
+									<select id="nlf-faq-export-scope" name="nlf_faq_export_group" class="nlf-tool-card__select">
+										<option value="all"><?php esc_html_e( 'All groups (full backup)', 'next-level-faq' ); ?></option>
+										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+											<option value="<?php echo esc_attr( $value ); ?>">
+												<?php echo esc_html( $label ); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
 
-						<label for="nlf-faq-export-group" class="nlf-faq-tools__field-label">
-							<?php esc_html_e( 'Limit FAQ export to a specific group', 'next-level-faq' ); ?>
-						</label>
-						<select id="nlf-faq-export-group" name="nlf_faq_export_group" class="nlf-faq-tools__select">
-							<?php foreach ( $group_choices as $value => $label ) : ?>
-								<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $selected_group ); ?>>
-									<?php echo esc_html( $label ); ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-						<p class="description">
-							<?php esc_html_e( 'Choose "All groups" to export every FAQ entry.', 'next-level-faq' ); ?>
-						</p>
+								<div id="nlf-export-global-opts" class="nlf-tool-card__options">
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_faq_include_styles" value="1" checked="checked" />
+										<span><?php esc_html_e( 'Include style settings', 'next-level-faq' ); ?></span>
+									</label>
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_faq_include_questions" value="1" checked="checked" />
+										<span><?php esc_html_e( 'Include FAQ entries', 'next-level-faq' ); ?></span>
+									</label>
+								</div>
 
-						<?php submit_button( __( 'Download Export', 'next-level-faq' ), 'primary', 'submit', false ); ?>
-					</form>
-				</section>
+								<p class="nlf-tool-card__hint" id="nlf-export-group-hint" style="display:none;">
+									<?php esc_html_e( 'Exports the selected group with all its questions, theme, and settings.', 'next-level-faq' ); ?>
+								</p>
 
-				<section class="nlf-faq-tools__card">
-					<h2><?php esc_html_e( 'Import', 'next-level-faq' ); ?></h2>
-					<p class="description">
-						<?php esc_html_e( 'Upload an export file from this or another site to synchronize FAQs safely.', 'next-level-faq' ); ?>
-					</p>
+								<?php submit_button( __( 'Download Export', 'next-level-faq' ), 'primary', 'submit', false ); ?>
+							</form>
+						</div>
+					</div>
 
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-faq-tools__form" enctype="multipart/form-data">
-						<?php wp_nonce_field( 'nlf_faq_import', 'nlf_faq_import_nonce' ); ?>
-						<input type="hidden" name="action" value="nlf_faq_import" />
+					<!-- ── Import Card ─────────────── -->
+					<div class="nlf-tool-card nlf-tool-card--import">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-upload"></span>
+							</div>
+							<div>
+								<h3><?php esc_html_e( 'Import', 'next-level-faq' ); ?></h3>
+								<p><?php esc_html_e( 'Upload a JSON file to restore FAQ data from a backup.', 'next-level-faq' ); ?></p>
+							</div>
+						</div>
+						<div class="nlf-tool-card__body">
+							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-tool-card__form" enctype="multipart/form-data">
+								<?php wp_nonce_field( 'nlf_faq_import', 'nlf_faq_import_nonce' ); ?>
+								<input type="hidden" name="action" value="nlf_faq_import" />
 
-						<label for="nlf-faq-import-file" class="nlf-faq-tools__field-label">
-							<?php esc_html_e( 'Select export file (.json)', 'next-level-faq' ); ?>
-						</label>
-						<input type="file" id="nlf-faq-import-file" name="nlf_faq_import_file" accept=".json,application/json" required />
+								<div class="nlf-tool-card__field">
+									<label for="nlf-faq-import-target" class="nlf-tool-card__field-label">
+										<?php esc_html_e( 'Import target', 'next-level-faq' ); ?>
+									</label>
+									<select id="nlf-faq-import-target" name="nlf_faq_import_target" class="nlf-tool-card__select">
+										<option value="all"><?php esc_html_e( 'Global (all FAQ data)', 'next-level-faq' ); ?></option>
+										<option value="duplicate"><?php esc_html_e( 'Duplicate as new group', 'next-level-faq' ); ?></option>
+										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+											<option value="<?php echo esc_attr( $value ); ?>">
+												<?php echo esc_html( $label ); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
 
-						<label class="nlf-faq-tools__option">
-							<input type="checkbox" name="nlf_faq_replace_existing" value="1" />
-							<span><?php esc_html_e( 'Replace current FAQ entries before import', 'next-level-faq' ); ?></span>
-						</label>
-						<p class="description">
-							<?php esc_html_e( 'Enable this to wipe the FAQ table before importing to avoid duplicates.', 'next-level-faq' ); ?>
-						</p>
+								<p class="nlf-tool-card__hint" id="nlf-import-duplicate-hint" style="display:none;">
+									<?php esc_html_e( 'Creates a brand-new group from the exported file with all its questions, theme, and settings.', 'next-level-faq' ); ?>
+								</p>
 
-						<?php submit_button( __( 'Import Package', 'next-level-faq' ), 'primary', 'submit', false ); ?>
-					</form>
-				</section>
+								<div class="nlf-tool-card__field">
+									<label class="nlf-tool-card__field-label">
+										<?php esc_html_e( 'Upload file', 'next-level-faq' ); ?>
+									</label>
+									<div class="nlf-file-zone" id="nlf-file-zone">
+										<div class="nlf-file-zone__icon">
+											<span class="dashicons dashicons-cloud-upload"></span>
+										</div>
+										<p class="nlf-file-zone__text">
+											<?php esc_html_e( 'Drag & drop your file here or', 'next-level-faq' ); ?>
+											<span class="nlf-file-zone__browse"><?php esc_html_e( 'browse', 'next-level-faq' ); ?></span>
+										</p>
+										<p class="nlf-file-zone__meta"><?php esc_html_e( 'Accepts .json files only', 'next-level-faq' ); ?></p>
+										<input type="file" id="nlf-faq-import-file" name="nlf_faq_import_file" accept=".json,application/json" required />
+									</div>
+									<div class="nlf-file-info" id="nlf-file-info">
+										<div class="nlf-file-info__icon">
+											<span class="dashicons dashicons-media-code"></span>
+										</div>
+										<div class="nlf-file-info__details">
+											<div class="nlf-file-info__name" id="nlf-file-name"></div>
+											<div class="nlf-file-info__size" id="nlf-file-size"></div>
+										</div>
+										<button type="button" class="nlf-file-info__remove" id="nlf-file-remove" title="<?php esc_attr_e( 'Remove file', 'next-level-faq' ); ?>">&times;</button>
+									</div>
+								</div>
+
+								<div id="nlf-import-replace-opt" class="nlf-tool-card__options">
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_faq_replace_existing" value="1" />
+										<span><?php esc_html_e( 'Replace existing items before import', 'next-level-faq' ); ?></span>
+									</label>
+								</div>
+
+								<div id="nlf-import-group-opts" class="nlf-tool-card__options" style="display:none;">
+									<label class="nlf-tool-card__option">
+										<input type="checkbox" name="nlf_import_apply_styles" value="1" />
+										<span><?php esc_html_e( 'Apply imported theme and styles to this group', 'next-level-faq' ); ?></span>
+									</label>
+								</div>
+
+								<?php submit_button( __( 'Import', 'next-level-faq' ), 'primary', 'submit', false ); ?>
+							</form>
+						</div>
+					</div>
+
+				</div>
 			</div>
+
+			<!-- ── More Tools Coming Soon ───────────────── -->
+			<div class="nlf-tools-section">
+				<div class="nlf-tools-section__header">
+					<span class="dashicons dashicons-superhero-alt"></span>
+					<div>
+						<h2><?php esc_html_e( 'More Tools', 'next-level-faq' ); ?></h2>
+						<p><?php esc_html_e( 'Powerful utilities coming in future updates.', 'next-level-faq' ); ?></p>
+					</div>
+				</div>
+
+				<div class="nlf-tools-grid">
+					<div class="nlf-tool-card nlf-tool-card--placeholder">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-image-rotate"></span>
+							</div>
+							<div>
+								<h3>
+									<?php esc_html_e( 'Reset', 'next-level-faq' ); ?>
+									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'next-level-faq' ); ?></span>
+								</h3>
+								<p><?php esc_html_e( 'Selectively reset FAQ data, styles, or all plugin settings at once.', 'next-level-faq' ); ?></p>
+							</div>
+						</div>
+					</div>
+
+					<div class="nlf-tool-card nlf-tool-card--placeholder">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons dashicons-chart-bar"></span>
+							</div>
+							<div>
+								<h3>
+									<?php esc_html_e( 'Diagnostics', 'next-level-faq' ); ?>
+									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'next-level-faq' ); ?></span>
+								</h3>
+								<p><?php esc_html_e( 'Analyze your FAQ setup and get optimization suggestions.', 'next-level-faq' ); ?></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
+
+		<script>
+		(function(){
+			/* ── Export: toggle global options vs single-group hint ── */
+			var expScope  = document.getElementById('nlf-faq-export-scope');
+			var expGlobal = document.getElementById('nlf-export-global-opts');
+			var expHint   = document.getElementById('nlf-export-group-hint');
+			if(expScope){
+				expScope.addEventListener('change',function(){
+					var isAll = this.value === 'all';
+					expGlobal.style.display = isAll ? '' : 'none';
+					expHint.style.display   = isAll ? 'none' : '';
+				});
+			}
+
+			/* ── Import: toggle options based on target ── */
+			var impTarget    = document.getElementById('nlf-faq-import-target');
+			var impGroupOps  = document.getElementById('nlf-import-group-opts');
+			var impReplaceOp = document.getElementById('nlf-import-replace-opt');
+			var impDupHint   = document.getElementById('nlf-import-duplicate-hint');
+			if(impTarget){
+				impTarget.addEventListener('change',function(){
+					var v = this.value;
+					var isGroup = v !== 'all' && v !== 'duplicate';
+					var isDup   = v === 'duplicate';
+					impGroupOps.style.display  = isGroup ? '' : 'none';
+					impReplaceOp.style.display = isDup ? 'none' : '';
+					impDupHint.style.display   = isDup ? '' : 'none';
+				});
+			}
+
+			/* ── File upload zone UX ── */
+			var zone     = document.getElementById('nlf-file-zone');
+			var fileInfo = document.getElementById('nlf-file-info');
+			var fileInp  = document.getElementById('nlf-faq-import-file');
+			var fileName = document.getElementById('nlf-file-name');
+			var fileSize = document.getElementById('nlf-file-size');
+			var fileRem  = document.getElementById('nlf-file-remove');
+
+			function formatBytes(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				var k = 1024, sizes = ['Bytes','KB','MB'];
+				var i = Math.floor(Math.log(bytes) / Math.log(k));
+				return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+			}
+
+			function showFileInfo() {
+				if (fileInp.files && fileInp.files.length) {
+					var f = fileInp.files[0];
+					fileName.textContent = f.name;
+					fileSize.textContent = formatBytes(f.size);
+					zone.style.display = 'none';
+					fileInfo.classList.add('is-visible');
+				}
+			}
+
+			function clearFile() {
+				fileInp.value = '';
+				zone.style.display = '';
+				fileInfo.classList.remove('is-visible');
+			}
+
+			if (fileInp) {
+				fileInp.addEventListener('change', showFileInfo);
+			}
+			if (fileRem) {
+				fileRem.addEventListener('click', clearFile);
+			}
+
+			/* Drag & drop visual feedback */
+			if (zone) {
+				['dragenter','dragover'].forEach(function(evt){
+					zone.addEventListener(evt, function(e){
+						e.preventDefault();
+						zone.classList.add('is-dragover');
+					});
+				});
+				['dragleave','drop'].forEach(function(evt){
+					zone.addEventListener(evt, function(e){
+						e.preventDefault();
+						zone.classList.remove('is-dragover');
+					});
+				});
+			}
+		})();
+		</script>
 		<?php
 	}
 
-	/**
-	 * Handle saving questions from repeater UI.
-	 *
-	 * SECURITY:
-	 * - Capability check: current_user_can('manage_options').
-	 * - Nonce verification: wp_verify_nonce().
-	 * - Input sanitization: sanitize_text_field(), wp_kses_post().
-	 */
-public static function handle_save_questions() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have permission to manage FAQs.', 'next-level-faq' ) );
-	}
-
-	if ( ! isset( $_POST['nlf_faq_questions_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nlf_faq_questions_nonce'] ) ), 'nlf_faq_save_questions' ) ) {
-		wp_die( esc_html__( 'Security check failed.', 'next-level-faq' ) );
-	}
-
-	$ids       = isset( $_POST['nlf_faq_id'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['nlf_faq_id'] ) ) : array();
-		$questions = isset( $_POST['nlf_faq_question'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['nlf_faq_question'] ) ) : array();
-		$answers   = isset( $_POST['nlf_faq_answer'] ) ? array_map( 'wp_kses_post', wp_unslash( (array) $_POST['nlf_faq_answer'] ) ) : array();
-		$active    = isset( $_POST['nlf_faq_active'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['nlf_faq_active'] ) ) : array();
-
-		$keep_ids = array();
-
-		$count = max( count( $questions ), count( $answers ), count( $ids ) );
-
-		for ( $i = 0; $i < $count; $i++ ) {
-			$id       = isset( $ids[ $i ] ) ? (int) $ids[ $i ] : 0;
-			$question = isset( $questions[ $i ] ) ? $questions[ $i ] : '';
-			$answer   = isset( $answers[ $i ] ) ? $answers[ $i ] : '';
-
-			if ( '' === trim( $question ) && '' === trim( wp_strip_all_tags( $answer ) ) ) {
-				continue;
-			}
-
-			$status   = isset( $active[ (string) $i ] ) ? 1 : 0;
-
-			$new_id     = Repository::save_item( $id, 0, $question, $answer, $status, $i );
-			$keep_ids[] = $new_id;
-		}
-
-		Repository::delete_all_except( $keep_ids, 0 );
-
-		$redirect = add_query_arg(
-			array(
-				'page'    => self::QUESTIONS_SLUG,
-				'updated' => 'true',
-			),
-			admin_url( 'admin.php' )
-		);
-
-		wp_safe_redirect( $redirect );
-		exit;
-	}
 
 	/**
 	 * Export FAQ data as JSON.
@@ -647,19 +951,46 @@ public static function handle_save_questions() {
 	 *
 	 * @return void
 	 */
-public static function handle_export() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have permission to export FAQs.', 'next-level-faq' ) );
-	}
+	public static function handle_export() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to export FAQs.', 'next-level-faq' ) );
+		}
 
-	check_admin_referer( 'nlf_faq_export', 'nlf_faq_export_nonce' );
+		check_admin_referer( 'nlf_faq_export', 'nlf_faq_export_nonce' );
 
-		$include_styles    = self::get_checkbox_state_from_post( 'nlf_faq_include_styles' );
-		$include_questions = self::get_checkbox_state_from_post( 'nlf_faq_include_questions' );
-		$group_choice      = isset( $_POST['nlf_faq_export_group'] )
+		$group_choice = isset( $_POST['nlf_faq_export_group'] )
 			? sanitize_text_field( wp_unslash( $_POST['nlf_faq_export_group'] ) )
 			: 'all';
-		$group_scope       = self::normalize_group_choice( $group_choice );
+
+		// ── Single-group export ──────────────────────────────
+		if ( 'all' !== $group_choice && is_numeric( $group_choice ) ) {
+			$group_id = absint( $group_choice );
+			$payload  = self::build_group_export_payload( $group_id );
+
+			if ( null === $payload ) {
+				self::store_tools_notice( 'error', __( 'Unable to export this group. It may not exist.', 'next-level-faq' ) );
+				wp_safe_redirect( self::get_tools_page_url() );
+				exit;
+			}
+
+			while ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+
+			$filename = sanitize_file_name( sprintf( 'faq-group-%d-%s.json', $group_id, gmdate( 'Ymd-His' ) ) );
+
+			nocache_headers();
+			header( 'Content-Type: application/json; charset=utf-8' );
+			header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON download, not HTML context.
+			echo wp_json_encode( $payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+			exit;
+		}
+
+		// ── Global export ────────────────────────────────────
+		$include_styles    = self::get_checkbox_state_from_post( 'nlf_faq_include_styles' );
+		$include_questions = self::get_checkbox_state_from_post( 'nlf_faq_include_questions' );
 
 		if ( ! $include_styles && ! $include_questions ) {
 			self::store_tools_notice( 'error', __( 'Select at least one component to export.', 'next-level-faq' ) );
@@ -670,8 +1001,8 @@ public static function handle_export() {
 		$payload = array(
 			'meta' => array(
 				'schema'         => 'nlf-faq-tools.v1',
-				'plugin_version' => NLF_FAQ_VERSION,
-				'db_version'     => get_option( 'nlf_faq_db_version', NLF_FAQ_DB_VERSION ),
+				'plugin_version'  => NLF_FAQ_VERSION,
+				'schema_version'  => Database::get_schema_version(),
 				'site_url'       => home_url(),
 				'generated_at'   => gmdate( 'c' ),
 			),
@@ -682,31 +1013,26 @@ public static function handle_export() {
 		}
 
 		if ( $include_questions ) {
-			$payload['meta']['group_scope']       = null === $group_scope ? 'all' : (int) $group_scope;
-			$payload['meta']['group_scope_label'] = self::get_group_label( $group_scope );
+			$payload['meta']['group_scope']       = 'all';
+			$payload['meta']['group_scope_label'] = __( 'All groups', 'next-level-faq' );
 			$payload['faqs']                      = self::group_faq_export_items(
-				Repository::get_all_items_for_export( $group_scope )
-		);
-	}
+				Repository::get_all_items_for_export( null )
+			);
+		}
 
-	while ( ob_get_level() > 0 ) {
-		ob_end_clean();
-	}
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
+		}
 
-	$filename_parts = array( 'next-level-faq-export' );
-
-	if ( $include_questions && null !== $group_scope ) {
-		$filename_parts[] = 'group-' . (int) $group_scope;
-	}
-
-	$filename = sanitize_file_name( implode( '-', $filename_parts ) . '-' . gmdate( 'Ymd-His' ) . '.json' );
+		$filename = sanitize_file_name( 'next-level-faq-export-' . gmdate( 'Ymd-His' ) . '.json' );
 
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
-	header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
-	header( 'X-Export-Context: nlf-faq' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+		header( 'X-Export-Context: nlf-faq' );
 
-	echo wp_json_encode(
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON download, not HTML context.
+		echo wp_json_encode(
 			$payload,
 			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 		);
@@ -724,36 +1050,40 @@ public static function handle_export() {
 	 *
 	 * @return void
 	 */
-public static function handle_import() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have permission to import FAQs.', 'next-level-faq' ) );
-	}
-
-	check_admin_referer( 'nlf_faq_import', 'nlf_faq_import_nonce' );
-
-	$page_url = self::get_tools_page_url();
-
-	if ( empty( $_FILES['nlf_faq_import_file'] ) ) {
-		self::store_tools_notice( 'error', __( 'Upload an export file before running import.', 'next-level-faq' ) );
-		wp_safe_redirect( $page_url );
-		exit;
-	}
-
-	$file = self::validate_json_file_upload( $_FILES['nlf_faq_import_file'] );
-
-	if ( false === $file ) {
-		if ( isset( $_FILES['nlf_faq_import_file']['error'] ) && (int) $_FILES['nlf_faq_import_file']['error'] !== UPLOAD_ERR_OK ) {
-			self::store_tools_notice( 'error', self::describe_upload_error( (int) $_FILES['nlf_faq_import_file']['error'] ) );
-		} elseif ( isset( $_FILES['nlf_faq_import_file']['size'] ) && (int) $_FILES['nlf_faq_import_file']['size'] > ( defined( 'MB_IN_BYTES' ) ? 2 * MB_IN_BYTES : 2 * 1024 * 1024 ) ) {
-			self::store_tools_notice( 'error', __( 'Import file is too large. Please keep exports under 2MB.', 'next-level-faq' ) );
-		} else {
-			self::store_tools_notice( 'error', __( 'Only JSON files exported by this plugin are allowed.', 'next-level-faq' ) );
+	public static function handle_import() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to import FAQs.', 'next-level-faq' ) );
 		}
-		wp_safe_redirect( $page_url );
-		exit;
-	}
 
-	$data = self::decode_import_file( $file['tmp_name'] );
+		check_admin_referer( 'nlf_faq_import', 'nlf_faq_import_nonce' );
+
+		$page_url     = self::get_tools_page_url();
+		$import_target = isset( $_POST['nlf_faq_import_target'] )
+			? sanitize_text_field( wp_unslash( $_POST['nlf_faq_import_target'] ) )
+			: 'all';
+
+		// ── Common file validation ───────────────────────────
+		if ( empty( $_FILES['nlf_faq_import_file'] ) ) {
+			self::store_tools_notice( 'error', __( 'Upload an export file before running import.', 'next-level-faq' ) );
+			wp_safe_redirect( $page_url );
+			exit;
+		}
+
+		$file = self::validate_json_file_upload( $_FILES['nlf_faq_import_file'] );
+
+		if ( false === $file ) {
+			if ( isset( $_FILES['nlf_faq_import_file']['error'] ) && (int) $_FILES['nlf_faq_import_file']['error'] !== UPLOAD_ERR_OK ) {
+				self::store_tools_notice( 'error', self::describe_upload_error( (int) $_FILES['nlf_faq_import_file']['error'] ) );
+			} elseif ( isset( $_FILES['nlf_faq_import_file']['size'] ) && (int) $_FILES['nlf_faq_import_file']['size'] > ( defined( 'MB_IN_BYTES' ) ? 2 * MB_IN_BYTES : 2 * 1024 * 1024 ) ) {
+				self::store_tools_notice( 'error', __( 'Import file is too large. Please keep exports under 2MB.', 'next-level-faq' ) );
+			} else {
+				self::store_tools_notice( 'error', __( 'Only JSON files exported by this plugin are allowed.', 'next-level-faq' ) );
+			}
+			wp_safe_redirect( $page_url );
+			exit;
+		}
+
+		$data = self::decode_import_file( $file['tmp_name'] );
 
 		if ( null === $data ) {
 			self::store_tools_notice( 'error', __( 'The uploaded file is not a valid export.', 'next-level-faq' ) );
@@ -762,8 +1092,244 @@ public static function handle_import() {
 		}
 
 		$replace_existing = self::get_checkbox_state_from_post( 'nlf_faq_replace_existing' );
-		$imported_count   = 0;
-		$styles_applied   = false;
+
+		// ── Duplicate as new group(s) ────────────────────────
+		if ( 'duplicate' === $import_target ) {
+			$has_single_items = ! empty( $data['items'] ) && is_array( $data['items'] );
+			$has_global_faqs  = ! empty( $data['faqs'] ) && is_array( $data['faqs'] );
+
+			if ( ! $has_single_items && ! $has_global_faqs ) {
+				self::store_tools_notice( 'error', __( 'This file does not contain any FAQ data to duplicate.', 'next-level-faq' ) );
+				wp_safe_redirect( $page_url );
+				exit;
+			}
+
+			$groups_created = 0;
+			$total_imported = 0;
+
+			// ── Single-group export file (has 'items' key) ───
+			if ( $has_single_items ) {
+				$original_title = isset( $data['meta']['title'] ) ? sanitize_text_field( $data['meta']['title'] ) : '';
+
+				$new_title = '' !== $original_title
+					? sprintf( __( '%s (Copy)', 'next-level-faq' ), $original_title )
+					: __( 'Imported Group (Copy)', 'next-level-faq' );
+
+				$new_post_id = wp_insert_post(
+					array(
+						'post_type'   => Group_CPT::POST_TYPE,
+						'post_status' => 'draft',
+						'post_title'  => $new_title,
+					)
+				);
+
+				if ( ! is_wp_error( $new_post_id ) && $new_post_id ) {
+					$groups_created++;
+
+					foreach ( $data['items'] as $index => $item ) {
+						$question = isset( $item['question'] ) ? sanitize_text_field( $item['question'] ) : '';
+						$answer   = isset( $item['answer'] ) ? wp_kses_post( $item['answer'] ) : '';
+
+						if ( '' === trim( wp_strip_all_tags( $question ) ) && '' === trim( wp_strip_all_tags( $answer ) ) ) {
+							continue;
+						}
+
+						Repository::save_item(
+							0,
+							$new_post_id,
+							$question,
+							$answer,
+							isset( $item['status'] ) ? (int) $item['status'] : 1,
+							$index,
+							isset( $item['initial_state'] ) ? (int) $item['initial_state'] : 0,
+							isset( $item['highlight'] ) ? (int) $item['highlight'] : 0
+						);
+
+						$total_imported++;
+					}
+
+					// Apply theme/settings from export.
+					self::apply_group_meta_from_data( $new_post_id, $data );
+					Cache::invalidate_group( $new_post_id );
+				}
+			}
+
+			// ── Global export file (has 'faqs' key) ─────────
+			if ( $has_global_faqs ) {
+				foreach ( $data['faqs'] as $original_group_id => $items ) {
+					if ( ! is_array( $items ) || empty( $items ) ) {
+						continue;
+					}
+
+					// Try to get the original group title.
+					$source_post    = get_post( (int) $original_group_id );
+					$original_title = $source_post ? trim( get_the_title( $source_post ) ) : '';
+
+					$new_title = '' !== $original_title
+						? sprintf( __( '%s (Copy)', 'next-level-faq' ), $original_title )
+						: sprintf( __( 'Group #%d (Copy)', 'next-level-faq' ), (int) $original_group_id );
+
+					$new_post_id = wp_insert_post(
+						array(
+							'post_type'   => Group_CPT::POST_TYPE,
+							'post_status' => 'draft',
+							'post_title'  => $new_title,
+						)
+					);
+
+					if ( is_wp_error( $new_post_id ) || ! $new_post_id ) {
+						continue;
+					}
+
+					$groups_created++;
+
+					// Copy meta from original group if it exists.
+					if ( $source_post && Group_CPT::POST_TYPE === $source_post->post_type ) {
+						$meta_keys = array(
+							'_nlf_faq_group_theme',
+							'_nlf_faq_group_theme_custom',
+							'_nlf_faq_group_settings',
+							'_nlf_faq_group_use_custom_style',
+							'_nlf_faq_group_custom_styles',
+						);
+
+						foreach ( $meta_keys as $key ) {
+							$value = get_post_meta( (int) $original_group_id, $key, true );
+							if ( $value ) {
+								update_post_meta( $new_post_id, $key, $value );
+							}
+						}
+					}
+
+					foreach ( $items as $index => $item ) {
+						if ( ! is_array( $item ) ) {
+							continue;
+						}
+
+						$question = isset( $item['question'] ) ? sanitize_text_field( $item['question'] ) : '';
+						$answer   = isset( $item['answer'] ) ? wp_kses_post( $item['answer'] ) : '';
+
+						if ( '' === trim( wp_strip_all_tags( $question ) ) && '' === trim( wp_strip_all_tags( $answer ) ) ) {
+							continue;
+						}
+
+						Repository::save_item(
+							0,
+							$new_post_id,
+							$question,
+							$answer,
+							isset( $item['status'] ) ? (int) $item['status'] : 1,
+							isset( $item['position'] ) ? (int) $item['position'] : $index,
+							isset( $item['initial_state'] ) ? (int) $item['initial_state'] : 0,
+							isset( $item['highlight'] ) ? (int) $item['highlight'] : 0
+						);
+
+						$total_imported++;
+					}
+
+					Cache::invalidate_group( $new_post_id );
+				}
+			}
+
+			if ( 0 === $groups_created ) {
+				self::store_tools_notice( 'error', __( 'Failed to create any new groups.', 'next-level-faq' ) );
+				wp_safe_redirect( $page_url );
+				exit;
+			}
+
+			$message = sprintf(
+				/* translators: 1: number of groups created, 2: number of items */
+				_n(
+					'%1$d new group created with %2$d FAQ items. Saved as draft.',
+					'%1$d new groups created with %2$d FAQ items. All saved as drafts.',
+					$groups_created,
+					'next-level-faq'
+				),
+				$groups_created,
+				$total_imported
+			);
+
+			self::store_tools_notice( 'success', $message );
+			wp_safe_redirect( $page_url );
+			exit;
+		}
+
+		// ── Single-group import ──────────────────────────────
+		if ( 'all' !== $import_target && is_numeric( $import_target ) ) {
+			$group_id = absint( $import_target );
+
+			$post = get_post( $group_id );
+			if ( ! $post || Group_CPT::POST_TYPE !== $post->post_type ) {
+				self::store_tools_notice( 'error', __( 'The selected group does not exist.', 'next-level-faq' ) );
+				wp_safe_redirect( $page_url );
+				exit;
+			}
+
+			$apply_styles = ! empty( $_POST['nlf_import_apply_styles'] );
+
+			if ( $replace_existing ) {
+				Repository::delete_items_for_group( $group_id );
+			}
+
+			$imported = 0;
+
+			if ( ! empty( $data['items'] ) && is_array( $data['items'] ) ) {
+				foreach ( $data['items'] as $index => $item ) {
+					$question = isset( $item['question'] ) ? sanitize_text_field( $item['question'] ) : '';
+					$answer   = isset( $item['answer'] ) ? wp_kses_post( $item['answer'] ) : '';
+
+					if ( '' === trim( wp_strip_all_tags( $question ) ) && '' === trim( wp_strip_all_tags( $answer ) ) ) {
+						continue;
+					}
+
+					Repository::save_item(
+						0,
+						$group_id,
+						$question,
+						$answer,
+						isset( $item['status'] ) ? (int) $item['status'] : 1,
+						$index,
+						isset( $item['initial_state'] ) ? (int) $item['initial_state'] : 0,
+						isset( $item['highlight'] ) ? (int) $item['highlight'] : 0
+					);
+
+					$imported++;
+				}
+			}
+
+			if ( $apply_styles ) {
+				self::apply_group_meta_from_data( $group_id, $data );
+			}
+
+			Cache::invalidate_group( $group_id );
+
+			$message_bits = array();
+
+			if ( $imported > 0 ) {
+				$message_bits[] = sprintf(
+					/* translators: %d: number of imported FAQs */
+					_n( '%d FAQ item imported into group.', '%d FAQ items imported into group.', $imported, 'next-level-faq' ),
+					$imported
+				);
+			}
+
+			if ( $apply_styles ) {
+				$message_bits[] = __( 'Group theme and styles applied.', 'next-level-faq' );
+			}
+
+			if ( empty( $message_bits ) ) {
+				self::store_tools_notice( 'warning', __( 'No items were imported. The file may be empty or contain no valid entries.', 'next-level-faq' ) );
+			} else {
+				self::store_tools_notice( 'success', implode( ' ', $message_bits ) );
+			}
+
+			wp_safe_redirect( $page_url );
+			exit;
+		}
+
+		// ── Global import ────────────────────────────────────
+		$imported_count = 0;
+		$styles_applied = false;
 
 		$faq_entries = self::normalize_import_faqs( $data['faqs'] ?? array() );
 		if ( ! empty( $faq_entries ) ) {
@@ -772,18 +1338,14 @@ public static function handle_import() {
 			}
 
 			foreach ( $faq_entries as $index => $item ) {
-			if ( ! is_array( $item ) ) {
-				continue;
-			}
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
 
-			// Sanitize inputs to prevent XSS - match normal save_metabox() behavior.
-			$question = isset( $item['question'] ) ? sanitize_text_field( $item['question'] ) : '';
+				$question = isset( $item['question'] ) ? sanitize_text_field( $item['question'] ) : '';
 				$answer   = isset( $item['answer'] ) ? wp_kses_post( $item['answer'] ) : '';
 
-				$trimmed_question = trim( wp_strip_all_tags( $question ) );
-				$trimmed_answer   = trim( wp_strip_all_tags( $answer ) );
-
-				if ( '' === $trimmed_question && '' === $trimmed_answer ) {
+				if ( '' === trim( wp_strip_all_tags( $question ) ) && '' === trim( wp_strip_all_tags( $answer ) ) ) {
 					continue;
 				}
 
@@ -806,11 +1368,11 @@ public static function handle_import() {
 
 				$imported_count++;
 			}
-	}
+		}
 
-	if ( isset( $data['styles'] ) && is_array( $data['styles'] ) ) {
-		$sanitized = Options::sanitize( $data['styles'] );
-			update_option( Options::OPTION_KEY, $sanitized );
+		if ( isset( $data['styles'] ) && is_array( $data['styles'] ) ) {
+			$sanitized = Options::sanitize( $data['styles'] );
+			Settings_Repository::update_setting( Settings_Repository::KEY_GLOBAL_STYLES, $sanitized );
 			$styles_applied = true;
 		}
 
@@ -840,6 +1402,90 @@ public static function handle_import() {
 	}
 
 	/**
+	 * Build export payload for a single group.
+	 *
+	 * @param int $group_id Group post ID.
+	 * @return array|null Payload array or null if group not found.
+	 */
+	private static function build_group_export_payload( $group_id ) {
+		$post = get_post( $group_id );
+
+		if ( ! $post || Group_CPT::POST_TYPE !== $post->post_type ) {
+			return null;
+		}
+
+		$items = Repository::get_items_for_group( $group_id, false );
+
+		return array(
+			'meta'             => array(
+				'id'           => $group_id,
+				'title'        => get_the_title( $post ),
+				'generated_at' => gmdate( 'c' ),
+			),
+			'theme'            => get_post_meta( $group_id, '_nlf_faq_group_theme', true ),
+			'theme_custom'     => get_post_meta( $group_id, '_nlf_faq_group_theme_custom', true ),
+			'settings'         => get_post_meta( $group_id, '_nlf_faq_group_settings', true ),
+			'use_custom_style' => (bool) get_post_meta( $group_id, '_nlf_faq_group_use_custom_style', true ),
+			'custom_styles'    => get_post_meta( $group_id, '_nlf_faq_group_custom_styles', true ),
+			'items'            => array_map(
+				static function ( $item ) {
+					return array(
+						'question'      => $item->question,
+						'answer'        => $item->answer,
+						'status'        => (int) $item->status,
+						'initial_state' => (int) $item->initial_state,
+						'highlight'     => (int) $item->highlight,
+					);
+				},
+				$items ?: array()
+			),
+		);
+	}
+
+	/**
+	 * Apply theme/settings meta from export data to a group post.
+	 *
+	 * Used by both "Duplicate as new group" and "Import into group" with apply styles.
+	 *
+	 * @param int   $post_id Target group post ID.
+	 * @param array $data    Decoded export data.
+	 */
+	private static function apply_group_meta_from_data( $post_id, $data ) {
+		if ( isset( $data['theme'] ) ) {
+			update_post_meta( $post_id, '_nlf_faq_group_theme', sanitize_key( $data['theme'] ) );
+		}
+
+		if ( isset( $data['theme_custom'] ) && is_array( $data['theme_custom'] ) ) {
+			update_post_meta( $post_id, '_nlf_faq_group_theme_custom', array_map( 'sanitize_hex_color', $data['theme_custom'] ) );
+		}
+
+		if ( isset( $data['settings'] ) && is_array( $data['settings'] ) ) {
+			$settings           = $data['settings'];
+			$sanitized_settings = array(
+				'accordion_mode'  => ! empty( $settings['accordion_mode'] ),
+				'initial_state'   => in_array( $settings['initial_state'] ?? '', array( 'all_closed', 'first_open', 'custom' ), true ) ? $settings['initial_state'] : 'all_closed',
+				'animation_speed' => in_array( $settings['animation_speed'] ?? '', array( 'fast', 'normal', 'slow' ), true ) ? $settings['animation_speed'] : 'normal',
+				'show_search'     => ! empty( $settings['show_search'] ),
+				'show_counter'    => ! empty( $settings['show_counter'] ),
+				'smooth_scroll'   => ! empty( $settings['smooth_scroll'] ),
+			);
+			update_post_meta( $post_id, '_nlf_faq_group_settings', $sanitized_settings );
+		}
+
+		if ( isset( $data['use_custom_style'] ) ) {
+			update_post_meta( $post_id, '_nlf_faq_group_use_custom_style', ! empty( $data['use_custom_style'] ) );
+		}
+
+		if ( isset( $data['custom_styles'] ) && is_array( $data['custom_styles'] ) ) {
+			$sanitized_styles = Options::sanitize( $data['custom_styles'] );
+			update_post_meta( $post_id, '_nlf_faq_group_custom_styles', $sanitized_styles );
+			if ( class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
+				Style_Generator::generate_and_save_for_group( $post_id, $sanitized_styles );
+			}
+		}
+	}
+
+	/**
 	 * Persist notice data between redirects.
 	 *
 	 * SECURITY: Message is sanitized via wp_strip_all_tags().
@@ -849,8 +1495,8 @@ public static function handle_import() {
 	 *
 	 * @return void
 	 */
-private static function store_tools_notice( $type, $message ) {
-	$allowed = array( 'success', 'error', 'warning', 'info' );
+	private static function store_tools_notice( $type, $message ) {
+		$allowed = array( 'success', 'error', 'warning', 'info' );
 		$type    = in_array( $type, $allowed, true ) ? $type : 'info';
 
 		set_transient(
@@ -1057,23 +1703,6 @@ private static function store_tools_notice( $type, $message ) {
 		return 'nlf_faq_tools_notice_' . get_current_user_id();
 	}
 
-	/**
-	 * Normalize select value into group scope.
-	 *
-	 * @param string $choice Raw select value.
-	 * @return int|null
-	 */
-	private static function normalize_group_choice( $choice ) {
-		if ( 'all' === $choice || '' === $choice ) {
-			return null;
-		}
-
-		if ( ! is_numeric( $choice ) ) {
-			return null;
-		}
-
-		return max( 0, (int) $choice );
-	}
 
 	/**
 	 * Format FAQ export items grouped by group ID.
@@ -1268,64 +1897,35 @@ private static function store_tools_notice( $type, $message ) {
 		return true;
 	}
 
+
 	/**
-	 * Options for the export group selector.
+	 * Get FAQ group choices from the WordPress CPT posts.
+	 *
+	 * Returns an array of post_id => title for all published/draft nlf_faq_group posts.
 	 *
 	 * @return array
 	 */
-	private static function get_group_choices() {
-		$choices = array(
-			'all' => __( 'All groups', 'next-level-faq' ),
-			'0'   => __( 'Global (legacy questions)', 'next-level-faq' ),
-		);
+	private static function get_cpt_group_choices() {
+		$choices = array();
 
-		$groups = get_posts(
+		$posts = get_posts(
 			array(
 				'post_type'      => Group_CPT::POST_TYPE,
-				'post_status'    => array( 'publish', 'pending', 'draft', 'future' ),
+				'post_status'    => array( 'publish', 'draft', 'private' ),
 				'posts_per_page' => -1,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
-				'no_found_rows'  => true,
 			)
 		);
 
-		foreach ( $groups as $group ) {
-			$title = trim( get_the_title( $group ) );
+		foreach ( $posts as $post ) {
+			$title = trim( get_the_title( $post ) );
 
-			$choices[ (string) $group->ID ] = '' !== $title
+			$choices[ (string) $post->ID ] = '' !== $title
 				? $title
-				: sprintf( __( 'Group #%d', 'next-level-faq' ), (int) $group->ID );
+				: sprintf( __( 'Group #%d', 'next-level-faq' ), (int) $post->ID );
 		}
 
 		return $choices;
-	}
-
-	/**
-	 * Retrieve human label for a group scope.
-	 *
-	 * @param int|null $group_id Group ID.
-	 * @return string
-	 */
-	private static function get_group_label( $group_id ) {
-		if ( null === $group_id ) {
-			return __( 'All groups', 'next-level-faq' );
-		}
-
-		if ( 0 === (int) $group_id ) {
-			return __( 'Global (legacy questions)', 'next-level-faq' );
-		}
-
-		$post = get_post( (int) $group_id );
-
-		if ( $post && Group_CPT::POST_TYPE === $post->post_type ) {
-			$title = trim( get_the_title( $post ) );
-
-			return '' !== $title
-				? $title
-				: sprintf( __( 'Group #%d', 'next-level-faq' ), (int) $group_id );
-		}
-
-		return sprintf( __( 'Group #%d', 'next-level-faq' ), (int) $group_id );
 	}
 }

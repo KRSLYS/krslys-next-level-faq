@@ -39,6 +39,7 @@
 		initHelpTooltips();
 		initEmptyStateHandlers();
 		initQuestionList();
+		initAjaxSave();
 	}
 
 	// Tabs
@@ -305,6 +306,21 @@
 			params.append('group_id', String(groupId));
 			params.append('nonce', nlfGroupData.nonce);
 
+			// Send the currently selected theme so the preview reflects unsaved changes.
+			const selectedTheme = $('input[name="nlf_faq_group_theme"]:checked');
+			if (selectedTheme) {
+				params.append('theme', selectedTheme.value);
+			}
+
+			// Send custom color overrides.
+			$$('.nlf-theme-color').forEach((input) => {
+				const key = input.getAttribute('data-color-key');
+				const val = input.value;
+				if (key && val) {
+					params.append('theme_custom_' + key, val);
+				}
+			});
+
 			fetch(nlfGroupData.ajaxurl, {
 				method: 'POST',
 				credentials: 'same-origin',
@@ -324,10 +340,17 @@
 						if (typeof window.nlfInitFaq === 'function') {
 							window.nlfInitFaq(content);
 						}
-					} else {
-						const message = result.data && result.data.message ? result.data.message : 'Failed to load preview.';
-						loading.innerHTML = `<div class="nlf-preview-error"><span class="dashicons dashicons-warning"></span><p>${message}</p></div>`;
-					}
+				} else {
+					const message = result.data && result.data.message ? result.data.message : 'Failed to load preview.';
+					const errorDiv = document.createElement('div');
+					errorDiv.className = 'nlf-preview-error';
+					errorDiv.innerHTML = '<span class="dashicons dashicons-warning"></span>';
+					const p = document.createElement('p');
+					p.textContent = message;
+					errorDiv.appendChild(p);
+					loading.textContent = '';
+					loading.appendChild(errorDiv);
+				}
 				})
 				.catch(() => {
 					loading.innerHTML = '<div class="nlf-preview-error"><span class="dashicons dashicons-warning"></span><p>Error loading preview. Please save the group and try again.</p></div>';
@@ -658,46 +681,42 @@
 
 			let content = textarea.value;
 
-			// Get content from TinyMCE editor if it exists
+			// Get content from TinyMCE editor if it exists.
 			if (window.tinymce) {
 				const editor = window.tinymce.get(id);
 				if (editor) {
-					// Always save content to textarea, even if editor is hidden
 					try {
-						editor.save();
-						// Get content directly from editor as backup
 						content = editor.getContent() || textarea.value;
 					} catch (e) {
-						// If save fails, try to get content directly
-						try {
-							content = editor.getContent() || textarea.value;
-						} catch (e2) {
-							// Fallback to textarea value
-							content = textarea.value;
-						}
+						content = textarea.value;
 					}
-					// Remove the editor instance
-					editor.remove();
+					try {
+						editor.remove();
+					} catch (e) {
+						// Editor might be in an invalid state, continue.
+					}
 				}
 			}
 
-			// Also remove wp.editor instance if it exists
-			if (window.wp && window.wp.editor && typeof window.wp.editor.remove === 'function') {
-				try {
-					window.wp.editor.remove(id);
-				} catch (e) {
-					// Editor might not exist, ignore error
-				}
+			// Remove QuickTags instance if it exists.
+			if (window.QTags && window.QTags.instances) {
+				delete window.QTags.instances[id];
 			}
 
-			// Ensure content is saved to textarea before storing
+			// Remove the WordPress editor wrapper entirely so that
+			// wp.editor.initialize() can build a fresh one after the drag.
+			// Without this the stale wrapper causes a blank visual editor.
+			const wrap = doc.getElementById('wp-' + id + '-wrap');
+			if (wrap) {
+				wrap.parentNode.insertBefore(textarea, wrap);
+				wrap.remove();
+			}
+
+			// Ensure textarea is visible and holds the saved content.
+			textarea.style.display = '';
 			textarea.value = content;
 
-			// Store editor info with content
-			editors.push({
-				id: id,
-				content: content
-			});
+			editors.push({ id: id, content: content });
 		});
 		return editors;
 	}
@@ -716,64 +735,223 @@
 			return;
 		}
 
-		// Use setTimeout to ensure DOM is stable after drag operation
+		// Small delay to let the DOM settle after drag.
 		setTimeout(() => {
 			editorData.forEach((editorInfo) => {
 				const id = editorInfo.id;
 				const content = editorInfo.content;
-				const textarea = row.querySelector(`#${id}`);
-				
+				const textarea = doc.getElementById(id);
+
 				if (!textarea) {
 					return;
 				}
 
-				// Ensure content is in textarea before reinitializing
-				if (content && textarea.value !== content) {
-					textarea.value = content;
-				}
+				// Put the saved content in the textarea first; TinyMCE reads
+				// the textarea value when it initialises in text (HTML) mode.
+				textarea.value = content;
 
-				// Remove any existing editor instance first
-				if (window.tinymce) {
-					const existingEditor = window.tinymce.get(id);
-					if (existingEditor) {
-						try {
-							existingEditor.remove();
-						} catch (e) {
-							// Editor might be in invalid state, continue anyway
-						}
+				// Clean up any stale TinyMCE instance that might linger.
+				if (window.tinymce && window.tinymce.get(id)) {
+					try {
+						window.tinymce.get(id).remove();
+					} catch (e) {
+						// Ignore – instance may already be invalid.
 					}
 				}
 
-				// Reinitialize the editor
+				// Re-initialize the WordPress editor from scratch.
+				// Do NOT pass a custom `setup` here – WordPress merges
+				// these settings with tinyMCEPreInit.mceInit[id] via
+				// Object.assign and a custom `setup` can get lost or
+				// override WordPress's own handlers.
 				editorAPI.initialize(id, {
-					tinymce: { 
-						wpautop: true
-					},
+					tinymce: { wpautop: true },
 					quicktags: true,
 					mediaButtons: false,
 				});
 
-				// Set content after editor is fully initialized
-				// Use a small delay to ensure editor is ready
-				setTimeout(() => {
-					if (window.tinymce && window.tinymce.get(id)) {
-						const editor = window.tinymce.get(id);
-						if (editor && content) {
-							try {
-								editor.setContent(content);
-							} catch (e) {
-								// If setContent fails, try setting textarea value directly
-								const textarea = row.querySelector(`#${id}`);
-								if (textarea) {
-									textarea.value = content;
-								}
-							}
-						}
+				// Set the content in the Visual (TinyMCE) editor once it
+				// is fully ready.  We attach the listener directly on the
+				// instance so it works regardless of how WP merges config.
+				(function syncVisualContent() {
+					const mce = window.tinymce && window.tinymce.get(id);
+					if (!mce) {
+						// Editor instance not registered yet – retry.
+						setTimeout(syncVisualContent, 50);
+						return;
 					}
-				}, 200);
+					if (mce.initialized) {
+						if (content) {
+							mce.setContent(content);
+						}
+					} else {
+						mce.on('init', function () {
+							if (content) {
+								mce.setContent(content);
+							}
+						});
+					}
+				})();
 			});
 		}, 50);
 	}
 
-	doc.addEventListener('DOMContentLoaded', init);
+	// AJAX Save
+	function initAjaxSave() {
+		const form = $('#post');
+		const publishButton = $('#publish');
+		
+		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		form.addEventListener('submit', function(e) {
+			// Only intercept if clicking the publish/update button
+			if (e.submitter && e.submitter.id === 'publish') {
+				e.preventDefault();
+				handleAjaxSave();
+			}
+		});
+
+		publishButton.addEventListener('click', function(e) {
+			e.preventDefault();
+			handleAjaxSave();
+		});
+	}
+
+	function handleAjaxSave() {
+		const form = $('#post');
+		const publishButton = $('#publish');
+		const spinner = $('.spinner', publishButton.parentElement);
+		
+		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		const originalText = publishButton.value || publishButton.textContent;
+		const savingText = nlfGroupData.i18n.saving || 'Saving…';
+		const savedText = nlfGroupData.i18n.saved || 'Saved!';
+
+		// Update button state
+		publishButton.disabled = true;
+		publishButton.value = savingText;
+		if (spinner) {
+			spinner.classList.add('is-active');
+		}
+
+		// Sync TinyMCE editors back to their textareas before collecting data.
+		// Without this, answers edited in the visual editor are not included in FormData.
+		if (window.tinyMCE) {
+			window.tinyMCE.triggerSave();
+		}
+
+		// Collect form data
+		const formData = new FormData(form);
+		formData.append('action', 'nlf_save_faq_group_ajax');
+		formData.append('nlf_faq_group_nonce', nlfGroupData.saveNonce);
+
+		// Force post_status to "publish" when clicking the Publish/Update button.
+		// The #post_status field is a <select> that only has draft/pending options,
+		// so we override the value directly in FormData.
+		const originalPostStatus = document.getElementById('original_post_status');
+		if (!originalPostStatus || originalPostStatus.value !== 'publish') {
+			formData.set('post_status', 'publish');
+		}
+
+		// Convert FormData to URLSearchParams for fetch
+		const params = new URLSearchParams();
+		for (const [key, value] of formData.entries()) {
+			params.append(key, value);
+		}
+
+		// Send AJAX request
+		fetch(nlfGroupData.ajaxurl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: params.toString(),
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				publishButton.value = savedText;
+
+				// Update UI after successful publish
+				const origStatus = document.getElementById('original_post_status');
+				const newStatus = data.data?.post_status;
+				if (origStatus && newStatus === 'publish' && origStatus.value !== 'publish') {
+					origStatus.value = 'publish';
+					// Hide Save Draft button since the post is now published
+					const saveDraft = document.getElementById('save-post');
+					if (saveDraft) saveDraft.style.display = 'none';
+					// Update the minor-publishing-actions (Save Draft area)
+					const minorActions = document.getElementById('minor-publishing-actions');
+					if (minorActions) minorActions.style.display = 'none';
+				}
+
+				// Reset button after a short delay
+				setTimeout(() => {
+					// Use "Update" text if the post is now published
+					if (origStatus && origStatus.value === 'publish') {
+						publishButton.value = nlfGroupData.i18n.update || 'Update';
+					} else {
+						publishButton.value = originalText;
+					}
+					publishButton.disabled = false;
+				}, 1500);
+			} else {
+				alert(data.data?.message || 'Error saving FAQ group.');
+				publishButton.value = originalText;
+				publishButton.disabled = false;
+			}
+		})
+		.catch(error => {
+			console.error('Save error:', error);
+			alert('An unexpected error occurred while saving.');
+			publishButton.value = originalText;
+			publishButton.disabled = false;
+		})
+		.finally(() => {
+			if (spinner) {
+				spinner.classList.remove('is-active');
+			}
+		});
+	}
+
+	/**
+	 * Copy-to-clipboard for "How To Use" metabox.
+	 * The entire snippet button is the click target.
+	 */
+	function initCopyButtons() {
+		$$('.nlf-htu-snippet').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const text = btn.getAttribute('data-copy-text');
+				if (!text) return;
+
+				const write = navigator.clipboard && navigator.clipboard.writeText
+					? navigator.clipboard.writeText(text)
+					: new Promise(resolve => {
+						const ta = doc.createElement('textarea');
+						ta.value = text;
+						ta.style.cssText = 'position:fixed;opacity:0;';
+						doc.body.appendChild(ta);
+						ta.select();
+						doc.execCommand('copy');
+						doc.body.removeChild(ta);
+						resolve();
+					});
+
+				write.then(() => {
+					btn.classList.add('is-copied');
+					setTimeout(() => btn.classList.remove('is-copied'), 1500);
+				});
+			});
+		});
+	}
+
+	doc.addEventListener('DOMContentLoaded', () => {
+		init();
+		initCopyButtons();
+	});
 })();

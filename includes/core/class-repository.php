@@ -33,59 +33,19 @@ class Repository {
 	}
 
 	/**
-	 * Maybe create or upgrade the custom table.
-	 *
-	 * SECURITY: Uses dbDelta() which is WordPress's safe schema management function.
-	 */
-	public static function maybe_create_table() {
-		$installed_version = get_option( 'nlf_faq_db_version' );
-
-		if ( NLF_FAQ_DB_VERSION === $installed_version ) {
-			return;
-		}
-
-		global $wpdb;
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-		$table_name      = self::get_table_name();
-		$charset_collate = $wpdb->get_charset_collate();
-
-		$sql = "CREATE TABLE {$table_name} (
-			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			post_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
-			group_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
-			position INT(11) UNSIGNED NOT NULL DEFAULT 0,
-			question TEXT NOT NULL,
-			answer LONGTEXT NOT NULL,
-			status TINYINT(1) NOT NULL DEFAULT 0,
-			initial_state TINYINT(1) NOT NULL DEFAULT 0,
-			highlight TINYINT(1) NOT NULL DEFAULT 0,
-			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-			PRIMARY KEY  (id),
-			KEY post_id (post_id),
-			KEY group_id (group_id)
-		) {$charset_collate};";
-
-		dbDelta( $sql );
-		self::maybe_drop_legacy_columns( $table_name );
-
-		update_option( 'nlf_faq_db_version', NLF_FAQ_DB_VERSION );
-	}
-
-	/**
 	 * Get all FAQ items for a given group (any status) ordered by position/created date.
-	 *
-	 * Group ID 0 is used for the legacy global questions UI.
 	 *
 	 * SECURITY: Uses $wpdb->prepare() for group_id parameter.
 	 *
-	 * @param int $group_id Group ID.
+	 * @param int $group_id Group ID (must be > 0).
 	 * @return array
 	 */
-	public static function get_all_items( $group_id = 0 ) {
+	public static function get_all_items( $group_id ) {
 		global $wpdb;
+
+		if ( $group_id <= 0 ) {
+			return array();
+		}
 
 		$table = self::get_table_name();
 
@@ -103,7 +63,7 @@ class Repository {
 	 *
 	 * SECURITY: Uses $wpdb->prepare() for optional group_id filter.
 	 *
-	 * @param int|null $group_id Optional group filter (null = all groups).
+	 * @param int|null $group_id Optional group filter (null = all groups, must be > 0 if specified).
 	 * @return array[]
 	 */
 	public static function get_all_items_for_export( $group_id = null ) {
@@ -114,7 +74,14 @@ class Repository {
 		$where_sql = '';
 
 		if ( null !== $group_id ) {
-			$where_sql = $wpdb->prepare( 'WHERE group_id = %d', (int) $group_id );
+			$group_id = (int) $group_id;
+			if ( $group_id <= 0 ) {
+				return array();
+			}
+			$where_sql = $wpdb->prepare( 'WHERE group_id = %d', $group_id );
+		} else {
+			// Exclude legacy group_id = 0
+			$where_sql = 'WHERE group_id > 0';
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, WHERE clause prepared above.
@@ -146,17 +113,19 @@ class Repository {
 	}
 
 	/**
-	 * Get all published FAQs.
-	 *
-	 * Group ID 0 is used for the legacy global questions UI.
+	 * Get all published FAQs for a group.
 	 *
 	 * SECURITY: Uses $wpdb->prepare() for parameters.
 	 *
-	 * @param int $group_id Group ID.
+	 * @param int $group_id Group ID (must be > 0).
 	 * @return array
 	 */
-	public static function get_all_published_faqs( $group_id = 0 ) {
+	public static function get_all_published_faqs( $group_id ) {
 		global $wpdb;
+
+		if ( $group_id <= 0 ) {
+			return array();
+		}
 
 		$table = self::get_table_name();
 
@@ -231,10 +200,14 @@ class Repository {
 	 * - Uses $wpdb->prepare() with dynamic placeholder count.
 	 *
 	 * @param int[] $keep_ids IDs to keep.
-	 * @param int   $group_id Group ID scope.
+	 * @param int   $group_id Group ID scope (must be > 0).
 	 */
-	public static function delete_all_except( $keep_ids, $group_id = 0 ) {
+	public static function delete_all_except( $keep_ids, $group_id ) {
 		global $wpdb;
+
+		if ( $group_id <= 0 ) {
+			return;
+		}
 
 		$table = self::get_table_name();
 
@@ -245,17 +218,17 @@ class Repository {
 			}
 		);
 
-	if ( empty( $keep_ids ) ) {
-		$wpdb->query(
+		if ( empty( $keep_ids ) ) {
+			$wpdb->query(
 				$wpdb->prepare(
 					"DELETE FROM {$table} WHERE group_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 					(int) $group_id
 				)
 			);
-		return;
-	}
+			return;
+		}
 
-	$placeholders = implode( ',', array_fill( 0, count( $keep_ids ), '%d' ) );
+		$placeholders = implode( ',', array_fill( 0, count( $keep_ids ), '%d' ) );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, placeholders are safe.
 		$wpdb->query(
@@ -323,46 +296,10 @@ class Repository {
 	public static function delete_all_items() {
 		global $wpdb;
 
-	$table = self::get_table_name();
+		$table = self::get_table_name();
 
-	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, no user input.
-	$wpdb->query( "TRUNCATE TABLE {$table}" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, no user input.
+		$wpdb->query( "TRUNCATE TABLE {$table}" );
 	}
 
-	/**
-	 * Drop icon/category columns if they still exist.
-	 *
-	 * SECURITY:
-	 * - Table name from trusted source ($wpdb->prefix).
-	 * - Column names validated against allowlist before dropping.
-	 * - Uses esc_sql() for column names in ALTER statement.
-	 *
-	 * @param string $table Table name.
-	 * @return void
-	 */
-private static function maybe_drop_legacy_columns( $table ) {
-	global $wpdb;
-
-	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
-	$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table}", ARRAY_A );
-
-		if ( empty( $columns ) ) {
-			return;
-		}
-
-	$existing = wp_list_pluck( $columns, 'Field' );
-
-	$drop_allowlist = array(
-			'icon',
-			'category',
-		);
-
-	foreach ( $drop_allowlist as $column ) {
-		if ( in_array( $column, $existing, true ) ) {
-			$safe_column = esc_sql( $column );
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are safe.
-				$wpdb->query( "ALTER TABLE {$table} DROP COLUMN {$safe_column}" );
-			}
-		}
-	}
 }

@@ -1,11 +1,19 @@
 <?php
 /**
  * Plugin Name: Next Level FAQ
+ * Plugin URI:  https://github.com/krslys/next-level-faq
  * Description: Flexible FAQ plugin with customizable styling and live preview.
- * Version: 1.0.0
- * Author: Your Name
+ * Version:     1.0.0
+ * Author:      Krslys
+ * Author URI:  https://github.com/krslys
  * Text Domain: next-level-faq
  * Domain Path: /languages
+ * License:     GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Requires at least: 5.8
+ * Requires PHP: 7.4
+ *
+ * @package Krslys\NextLevelFaq
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,7 +25,6 @@ define( 'NLF_FAQ_VERSION', '1.0.0' );
 define( 'NLF_FAQ_PLUGIN_FILE', __FILE__ );
 define( 'NLF_FAQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NLF_FAQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'NLF_FAQ_DB_VERSION', '1.3.0' );
 
 // Load PSR-4 autoloader.
 require_once NLF_FAQ_PLUGIN_DIR . 'includes/Autoloader.php';
@@ -72,11 +79,12 @@ final class Krslys_NextLevelFaq_Plugin {
 	 * Register hooks.
 	 */
 	private function hooks() {
-		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( '\Krslys\NextLevelFaq\Options', 'activate' ) );
-		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( '\Krslys\NextLevelFaq\Repository', 'maybe_create_table' ) );
+		// Consolidated activation hook.
+		register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( $this, 'activate' ) );
 
+		// Core hooks.
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
-		add_action( 'plugins_loaded', array( '\Krslys\NextLevelFaq\Repository', 'maybe_create_table' ) );
+		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Group_CPT', 'register' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_shortcodes' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_tracking_routes' ) );
@@ -84,10 +92,15 @@ final class Krslys_NextLevelFaq_Plugin {
 		add_action( 'admin_menu', array( '\Krslys\NextLevelFaq\Admin_Settings', 'register_menu' ) );
 		add_action( 'admin_init', array( '\Krslys\NextLevelFaq\Admin_Settings', 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( '\Krslys\NextLevelFaq\Admin_Settings', 'enqueue_assets' ) );
-		add_action( 'admin_post_nlf_faq_save_questions', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_save_questions' ) );
 		add_action( 'admin_post_nlf_faq_export', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_export' ) );
 		add_action( 'admin_post_nlf_faq_import', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_import' ) );
-		add_action( 'update_option_' . \Krslys\NextLevelFaq\Options::OPTION_KEY, array( '\Krslys\NextLevelFaq\Style_Generator', 'generate_and_save' ), 10, 2 );
+		
+		// AJAX handlers for admin settings
+		add_action( 'wp_ajax_nlf_save_settings_ajax', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_ajax_save_settings' ) );
+		add_action( 'wp_ajax_nlf_save_faq_group_ajax', array( '\Krslys\NextLevelFaq\Group_CPT', 'handle_ajax_save_group' ) );
+
+		// Style generation (no longer tied to wp_options update)
+		add_action( 'nlf_faq_settings_updated', array( '\Krslys\NextLevelFaq\Style_Generator', 'generate_and_save' ), 10, 2 );
 
 		// Gutenberg block registration using block.json and dynamic render.
 		if ( function_exists( 'register_block_type' ) ) {
@@ -109,6 +122,16 @@ final class Krslys_NextLevelFaq_Plugin {
 						array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-data' ),
 						NLF_FAQ_VERSION,
 						true
+					);
+
+					wp_localize_script(
+						'nlf-faq-block-editor',
+						'nlfFaqBlockData',
+						array(
+							'presets'       => \Krslys\NextLevelFaq\Options::get_preset_registry(),
+							'activePreset'  => \Krslys\NextLevelFaq\Options::get_active_preset_slug( \Krslys\NextLevelFaq\Options::get_options() ),
+							'defaultPreset' => \Krslys\NextLevelFaq\Options::get_default_preset_slug(),
+						)
 					);
 
 					// Set script translations for the block editor.
@@ -140,8 +163,9 @@ final class Krslys_NextLevelFaq_Plugin {
 							'render_callback' => function( $attributes, $content ) {
 								$group_id = isset( $attributes['groupId'] ) ? (int) $attributes['groupId'] : 0;
 								$title    = isset( $attributes['title'] ) ? (string) $attributes['title'] : '';
+								$preset   = isset( $attributes['preset'] ) ? sanitize_key( $attributes['preset'] ) : '';
 
-								$shortcode = '[nlf_faq';
+								$shortcode = '[krslys_nlf';
 
 								if ( $group_id > 0 ) {
 									$shortcode .= ' group="' . esc_attr( $group_id ) . '"';
@@ -149,6 +173,10 @@ final class Krslys_NextLevelFaq_Plugin {
 
 								if ( '' !== $title ) {
 									$shortcode .= ' title="' . esc_attr( $title ) . '"';
+								}
+
+								if ( '' !== $preset && \Krslys\NextLevelFaq\Options::is_valid_preset_slug( $preset ) ) {
+									$shortcode .= ' preset="' . esc_attr( $preset ) . '"';
 								}
 
 								$shortcode .= ']';
@@ -177,6 +205,37 @@ final class Krslys_NextLevelFaq_Plugin {
 			false,
 			dirname( plugin_basename( NLF_FAQ_PLUGIN_FILE ) ) . '/languages'
 		);
+	}
+
+	/**
+	 * Consolidated activation handler.
+	 *
+	 * Runs all activation tasks in the correct order.
+	 */
+	public function activate() {
+		\Krslys\NextLevelFaq\Database::create_tables();
+		\Krslys\NextLevelFaq\Database::cleanup_legacy_data();
+		\Krslys\NextLevelFaq\Settings_Repository::initialize_defaults();
+		\Krslys\NextLevelFaq\Options::activate();
+	}
+
+	/**
+	 * Update database schema when the version changes.
+	 *
+	 * Database::create_tables() has its own version check internally,
+	 * so we simply delegate to it.
+	 */
+	public function maybe_update_schema() {
+		\Krslys\NextLevelFaq\Database::create_tables();
+
+		// Regenerate CSS if the plugin version changed (CSS structure may have changed).
+		$css_version = get_option( 'nlf_faq_css_version', '' );
+		if ( $css_version !== NLF_FAQ_VERSION ) {
+			if ( class_exists( '\Krslys\NextLevelFaq\Style_Generator' ) ) {
+				\Krslys\NextLevelFaq\Style_Generator::generate_and_save();
+			}
+			update_option( 'nlf_faq_css_version', NLF_FAQ_VERSION );
+		}
 	}
 }
 

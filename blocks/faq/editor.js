@@ -14,10 +14,23 @@
 	registerBlockType( blockName, {
 		edit: function ( props ) {
 			const { attributes, setAttributes } = props;
-			const { title, groupId } = attributes;
+			const { title, groupId, preset } = attributes;
 			const blockProps = useBlockProps( {
 				className: 'nlf-faq-block-wrapper',
 			} );
+
+			const presetRegistry = ( window.nlfFaqBlockData && window.nlfFaqBlockData.presets ) || {};
+			const presetOptions = [
+				{ label: __( 'Use global preset', 'next-level-faq' ), value: '' },
+				...Object.keys( presetRegistry ).map( function ( slug ) {
+					return {
+						label: presetRegistry[ slug ].name || slug,
+						value: slug,
+					};
+				} ),
+			];
+
+			const activePreset = preset || ( window.nlfFaqBlockData && window.nlfFaqBlockData.activePreset ) || '';
 
 			const { groups, isLoading } = useSelect(
 				function ( select ) {
@@ -69,6 +82,15 @@
 								setAttributes( { title: value } );
 							},
 						} ),
+							el( SelectControl, {
+								label: __( 'Preset', 'next-level-faq' ),
+								value: activePreset,
+								options: presetOptions,
+								onChange: function ( value ) {
+									setAttributes( { preset: value || '' } );
+								},
+								help: __( 'Choose which preset to apply to this block. Leave blank to use the global preset.', 'next-level-faq' ),
+							} ),
 						isLoading
 							? el( 'div', { style: { padding: '10px 0' } }, el( Spinner ) )
 							: el( SelectControl, {
@@ -98,6 +120,13 @@
 							groupId
 								? __( 'This block will display the selected FAQ group on the front-end.', 'next-level-faq' )
 								: __( 'No specific group selected. Default FAQs will be shown.', 'next-level-faq' )
+						),
+						el(
+							'p',
+							{ className: 'description' },
+							activePreset
+								? __( 'Preset: ', 'next-level-faq' ) + ( presetRegistry[ activePreset ] ? presetRegistry[ activePreset ].name : activePreset )
+								: __( 'Using global preset', 'next-level-faq' )
 						)
 					)
 				)
