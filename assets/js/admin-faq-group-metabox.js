@@ -1,169 +1,957 @@
-(function ($) {
+(() => {
 	'use strict';
 
-	function renumberGroupCheckboxes() {
-		$('#aio-faq-group-questions-body .aio-faq-question-row').each(function (index) {
-			var $row = $(this);
+	const doc = document;
 
-			$row.find('input[type="checkbox"][name^="aio_faq_group_visible"]').attr('name', 'aio_faq_group_visible[' + index + ']');
-			$row.find('input[type="checkbox"][name^="aio_faq_group_open"]').attr('name', 'aio_faq_group_open[' + index + ']');
-			$row.find('input[type="checkbox"][name^="aio_faq_group_highlight"]').attr('name', 'aio_faq_group_highlight[' + index + ']');
+	const $$ = (selector, context = doc) => Array.from(context.querySelectorAll(selector));
+	const $ = (selector, context = doc) => context.querySelector(selector);
+
+	const hasTabs = () => Boolean($('.nlf-faq-tabs-nav'));
+
+	const previewContexts = {
+		main: () => $$('.nlf-preview-container[data-preview="main"]'),
+		appearance: () => $$('.nlf-preview-container[data-preview="appearance"]'),
+	};
+
+	const previewState = {
+		auto: {
+			main: true,
+			appearance: true,
+		},
+		timers: new Map(),
+		delay: 400,
+	};
+
+	function init() {
+		if (!hasTabs()) {
+			return;
+		}
+
+		initTabs();
+		initThemeSelection();
+		initCustomStyleToggle();
+		initColorPickers();
+		initResetButtons();
+		initUnsavedWarning();
+		initDeviceToggle();
+		initPreviewRefresh();
+		initAutoRefreshToggle();
+		initHelpTooltips();
+		initEmptyStateHandlers();
+		initQuestionList();
+		initAjaxSave();
+	}
+
+	// Tabs
+	function initTabs() {
+		const tabs = $$('.nlf-faq-tab-button');
+		const panels = $$('.nlf-faq-tab-panel');
+
+		const switchToTab = (tabEl) => {
+			if (!tabEl) {
+				return;
+			}
+
+			const target = tabEl.getAttribute('data-tab');
+
+			tabs.forEach((tab) => {
+				tab.classList.toggle('active', tab === tabEl);
+				tab.setAttribute('aria-selected', tab === tabEl ? 'true' : 'false');
+			});
+
+			panels.forEach((panel) => {
+				const isTarget = panel.getAttribute('data-tab') === target;
+				panel.classList.toggle('active', isTarget);
+				if (isTarget) {
+					panel.removeAttribute('hidden');
+					panel.focus();
+				} else {
+					panel.setAttribute('hidden', 'true');
+				}
+			});
+
+			if (target === 'preview') {
+				requestPreview('main', true);
+			}
+
+			if (target === 'appearance') {
+				requestPreview('appearance', true);
+			}
+		};
+
+		tabs.forEach((tab) => {
+			tab.addEventListener('click', (event) => {
+				event.preventDefault();
+				switchToTab(tab);
+			});
+
+			tab.addEventListener('keydown', (event) => {
+				const currentIndex = tabs.indexOf(tab);
+				let nextIndex = null;
+
+				switch (event.key) {
+					case 'ArrowRight':
+					case 'ArrowDown':
+						nextIndex = (currentIndex + 1) % tabs.length;
+						break;
+					case 'ArrowLeft':
+					case 'ArrowUp':
+						nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+						break;
+					case 'Home':
+						nextIndex = 0;
+						break;
+					case 'End':
+						nextIndex = tabs.length - 1;
+						break;
+					default:
+						return;
+				}
+
+				event.preventDefault();
+				switchToTab(tabs[nextIndex]);
+				tabs[nextIndex].focus();
+			});
+		});
+
+		doc.addEventListener('click', (event) => {
+			const trigger = event.target.closest('[data-switch-tab]');
+			if (!trigger) {
+				return;
+			}
+			event.preventDefault();
+			const targetTab = trigger.getAttribute('data-switch-tab');
+			const tabButton = tabs.find((tab) => tab.getAttribute('data-tab') === targetTab);
+			if (tabButton) {
+				switchToTab(tabButton);
+			}
 		});
 	}
 
-	function initNewEditor($row) {
-		var $textarea = $row.find('.aio-faq-group-answer-editor');
-		if (!$textarea.length) {
+	// Theme selector
+	function initThemeSelection() {
+		const options = $$('.nlf-theme-option');
+		if (!options.length) {
 			return;
 		}
 
-		// Check if WordPress editor APIs are available
-		if (!window.wp || !window.wp.editor) {
+		options.forEach((option) => {
+			const input = $('input[type="radio"]', option);
+			if (!input) {
+				return;
+			}
+
+			input.addEventListener('change', () => {
+				options.forEach((opt) => opt.classList.remove('is-active'));
+				option.classList.add('is-active');
+				requestPreview('appearance');
+			});
+		});
+	}
+
+	function initCustomStyleToggle() {
+		const toggle = $('#nlf-use-custom-style-toggle');
+		const fields = $('.nlf-custom-style-fields');
+
+		if (!toggle || !fields) {
 			return;
 		}
 
-		// Ensure textarea has a unique ID before initialization
-		var id = $textarea.attr('id');
-		if (!id) {
-			id = 'aio-faq-group-answer-' + String(Date.now());
-			$textarea.attr('id', id);
+		toggle.addEventListener('change', () => {
+			fields.style.display = toggle.checked ? '' : 'none';
+			requestPreview('appearance');
+		});
+	}
+
+	// Color pickers (WordPress dependency)
+	function initColorPickers() {
+		if (!window.jQuery || typeof window.jQuery.fn.wpColorPicker === 'undefined') {
+			return;
 		}
 
-		// Use wp.oldEditor if available (alias for wp.editor in WordPress 5.x+), otherwise fallback to wp.editor
-		var editorAPI = (window.wp.oldEditor && typeof window.wp.oldEditor.initialize === 'function') 
-			? window.wp.oldEditor 
-			: (window.wp.editor && typeof window.wp.editor.initialize === 'function' ? window.wp.editor : null);
+		window.jQuery('.nlf-color-picker').wpColorPicker({
+			change: () => requestPreview('appearance'),
+			clear: () => requestPreview('appearance'),
+		});
+	}
+
+	function initResetButtons() {
+		doc.addEventListener('click', (event) => {
+			const button = event.target.closest('[data-reset]');
+			if (!button) {
+				return;
+			}
+
+			event.preventDefault();
+
+			if (button.getAttribute('data-reset') === 'theme') {
+				resetThemeSelection();
+			}
+
+			if (button.getAttribute('data-reset') === 'styles') {
+				resetCustomStyles();
+			}
+		});
+	}
+
+	function resetThemeSelection() {
+		const selector = $('.nlf-theme-selector');
+		if (!selector) {
+			return;
+		}
+
+		const defaultTheme = selector.getAttribute('data-default-theme') || 'default';
+		const defaultRadio = doc.getElementById(`theme_${defaultTheme}`);
+
+		if (defaultRadio) {
+			defaultRadio.checked = true;
+			defaultRadio.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+
+		$$('.nlf-theme-option').forEach((option) => {
+			option.classList.toggle('is-active', option.contains(defaultRadio));
+		});
+
+		$$('.nlf-theme-color').forEach((input) => {
+			input.value = '';
+			input.dispatchEvent(new Event('change', { bubbles: true }));
+			if (window.jQuery && window.jQuery(input).data('wpColorPicker')) {
+				window.jQuery(input).wpColorPicker('color', '');
+			}
+		});
+
+		requestPreview('appearance', true);
+	}
+
+	function resetCustomStyles() {
+		const fields = $('.nlf-custom-style-fields');
+		if (!fields) {
+			return;
+		}
+
+		let defaults = fields.getAttribute('data-default-styles');
+		if (!defaults) {
+			return;
+		}
+
+		try {
+			defaults = JSON.parse(defaults);
+		} catch (error) {
+			return;
+		}
+
+		Object.keys(defaults).forEach((key) => {
+			const input = fields.querySelector(`[name="nlf_faq_group_custom_styles[${key}]"]`);
+			if (!input) {
+				return;
+			}
+
+			input.value = defaults[key];
+			if (window.jQuery && window.jQuery(input).data('wpColorPicker')) {
+				window.jQuery(input).wpColorPicker('color', defaults[key]);
+			}
+		});
+
+		requestPreview('appearance', true);
+	}
+
+	function requestPreview(context, immediate = false) {
+		if (!previewContexts[context]) {
+			return;
+		}
+
+		if (!previewState.auto[context] && !immediate) {
+			return;
+		}
+
+		if (previewState.timers.has(context)) {
+			clearTimeout(previewState.timers.get(context));
+		}
+
+		const delay = immediate ? 0 : previewState.delay;
+		const timer = setTimeout(() => {
+			loadLivePreview(previewContexts[context]());
+			previewState.timers.delete(context);
+		}, delay);
+
+		previewState.timers.set(context, timer);
+	}
+
+	// Live preview via fetch
+	function loadLivePreview(targetNodes) {
+		const containers = targetNodes && targetNodes.length ? targetNodes : $$('.nlf-preview-container');
+
+		containers.forEach((container) => {
+			if (!container) {
+				return;
+			}
+
+			const groupId = parseInt(container.getAttribute('data-group-id'), 10);
+			if (!groupId) {
+				return;
+			}
+
+			const loading = $('.nlf-preview-loading', container);
+			const content = $('.nlf-preview-content', container);
+			if (!loading || !content) {
+				return;
+			}
+
+			loading.style.display = '';
+			content.classList.remove('loaded');
+			content.style.display = 'none';
+
+			const params = new URLSearchParams();
+			params.append('action', 'nlf_get_group_preview');
+			params.append('group_id', String(groupId));
+			params.append('nonce', nlfGroupData.nonce);
+
+			// Send the currently selected theme so the preview reflects unsaved changes.
+			const selectedTheme = $('input[name="nlf_faq_group_theme"]:checked');
+			if (selectedTheme) {
+				params.append('theme', selectedTheme.value);
+			}
+
+			// Send custom color overrides.
+			$$('.nlf-theme-color').forEach((input) => {
+				const key = input.getAttribute('data-color-key');
+				const val = input.value;
+				if (key && val) {
+					params.append('theme_custom_' + key, val);
+				}
+			});
+
+			fetch(nlfGroupData.ajaxurl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+				},
+				body: params.toString(),
+			})
+				.then((response) => response.json())
+				.then((result) => {
+					if (result.success && result.data && result.data.html) {
+						content.innerHTML = result.data.html;
+						loading.style.display = 'none';
+						content.style.display = '';
+						content.classList.add('loaded');
+
+						if (typeof window.nlfInitFaq === 'function') {
+							window.nlfInitFaq(content);
+						}
+				} else {
+					const message = result.data && result.data.message ? result.data.message : 'Failed to load preview.';
+					const errorDiv = document.createElement('div');
+					errorDiv.className = 'nlf-preview-error';
+					errorDiv.innerHTML = '<span class="dashicons dashicons-warning"></span>';
+					const p = document.createElement('p');
+					p.textContent = message;
+					errorDiv.appendChild(p);
+					loading.textContent = '';
+					loading.appendChild(errorDiv);
+				}
+				})
+				.catch(() => {
+					loading.innerHTML = '<div class="nlf-preview-error"><span class="dashicons dashicons-warning"></span><p>Error loading preview. Please save the group and try again.</p></div>';
+				});
+		});
+	}
+
+	function renumberGroupCheckboxes() {
+		const rows = $$('#nlf-faq-group-questions-body .nlf-faq-question-row');
+		rows.forEach((row, index) => {
+			setCheckboxName(row, 'nlf_faq_group_visible', index);
+			setCheckboxName(row, 'nlf_faq_group_open', index);
+			setCheckboxName(row, 'nlf_faq_group_highlight', index);
+		});
+	}
+
+	function setCheckboxName(row, name, index) {
+		const input = row.querySelector(`input[name^="${name}"]`);
+		if (!input) {
+			return;
+		}
+		input.setAttribute('name', `${name}[${index}]`);
+	}
+
+	function initNewEditor(row) {
+		const textarea = row.querySelector('.nlf-faq-group-answer-editor');
+		if (!textarea || !window.wp || !window.wp.editor) {
+			return;
+		}
+
+		if (!textarea.id) {
+			textarea.id = `nlf-faq-group-answer-${Date.now()}`;
+		}
+
+		const editorAPI =
+			(window.wp.oldEditor && typeof window.wp.oldEditor.initialize === 'function')
+				? window.wp.oldEditor
+				: (window.wp.editor && typeof window.wp.editor.initialize === 'function' ? window.wp.editor : null);
 
 		if (editorAPI) {
-			// Initialize TinyMCE editor with teeny settings matching wp_editor() PHP call
-			editorAPI.initialize(id, {
-				tinymce: {
-					wpautop: true
-				},
+			editorAPI.initialize(textarea.id, {
+				tinymce: { wpautop: true },
 				quicktags: true,
-				mediaButtons: false
+				mediaButtons: false,
 			});
 		}
 	}
 
-	$(function () {
-		var $body = $('#aio-faq-group-questions-body');
-		if (!$body.length) {
+	function initUnsavedWarning() {
+		const indicator = doc.createElement('div');
+		indicator.className = 'nlf-unsaved-indicator';
+		indicator.innerHTML = '<span class="dashicons dashicons-warning"></span><span>Unsaved changes</span>';
+		doc.body.appendChild(indicator);
+
+		let hasChanges = false;
+
+		const form = $('#post');
+		if (!form) {
 			return;
 		}
 
-		// Initialize sortable for drag-and-drop reordering
-		$body.sortable({
-			handle: '.aio-faq-sort-handle',
-			items: '.aio-faq-question-row',
-			placeholder: 'aio-faq-sort-placeholder',
-			cursor: 'move',
-			opacity: 0.8,
-			tolerance: 'pointer',
-			axis: 'y',
-			start: function (event, ui) {
-				// Save and remove TinyMCE editors before dragging to prevent DOM issues
-				var $row = ui.item;
-				var editorIds = [];
-				
-				// Find all textareas that might have editors (both ID patterns and class-based)
-				$row.find('textarea.aio-faq-group-answer-editor, textarea[id^="aio_faq_group_answer_"], textarea[id^="aio-faq-group-answer-"]').each(function () {
-					var $textarea = $(this);
-					var id = $textarea.attr('id');
-					if (id && window.tinymce) {
-						var editor = window.tinymce.get(id);
-						if (editor) {
-							// Save editor content before removing
-							if (!editor.isHidden()) {
-								editor.save();
-							}
-							// Remove editor to prevent DOM access errors during drag
-							editor.remove();
-							editorIds.push(id);
-						}
-					}
+		const revealIndicator = () => {
+			if (!hasChanges) {
+				hasChanges = true;
+				indicator.classList.add('visible');
+			}
+		};
+
+		form.addEventListener('input', revealIndicator, true);
+		form.addEventListener('change', revealIndicator, true);
+
+		const resetIndicator = () => {
+			hasChanges = false;
+			indicator.classList.remove('visible');
+		};
+
+		const publish = $('#publish');
+		const saveDraft = $('#save-post');
+
+		[publish, saveDraft].forEach((button) => {
+			if (!button) {
+				return;
+			}
+			button.addEventListener('click', resetIndicator);
+		});
+
+		window.addEventListener('beforeunload', (event) => {
+			if (!hasChanges) {
+				return;
+			}
+			const message = 'You have unsaved changes. Are you sure you want to leave?';
+			event.returnValue = message;
+			return message;
+		});
+	}
+
+	function initDeviceToggle() {
+		const buttons = $$('.nlf-device-btn');
+		if (!buttons.length) {
+			return;
+		}
+
+		buttons.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const device = btn.getAttribute('data-device');
+				buttons.forEach((button) => button.classList.toggle('active', button === btn));
+				$$('.nlf-preview-viewport').forEach((viewport) => {
+					viewport.setAttribute('data-device', device);
 				});
-				
-				// Store editor IDs for restoration after drag
-				ui.item.data('editor-ids', editorIds);
-				
-				// Add visual feedback when dragging starts
-				ui.placeholder.height(ui.item.height());
-			},
-			stop: function (event, ui) {
-				// Restore TinyMCE editors after dragging
-				var $row = ui.item;
-				var editorIds = ui.item.data('editor-ids') || [];
-				
-				// Use wp.oldEditor if available, otherwise fallback to wp.editor
-				var editorAPI = (window.wp && window.wp.oldEditor && typeof window.wp.oldEditor.initialize === 'function')
-					? window.wp.oldEditor
-					: (window.wp && window.wp.editor && typeof window.wp.editor.initialize === 'function' ? window.wp.editor : null);
-				
-				if (editorAPI) {
-					editorIds.forEach(function (id) {
-						var $textarea = $row.find('textarea#' + id);
-						if ($textarea.length) {
-							// Reinitialize the editor after drag completes
-							editorAPI.initialize(id, {
-								tinymce: {
-									wpautop: true
-								},
-								quicktags: true,
-								mediaButtons: false
-							});
-						}
-					});
-				}
-				
-				// Clean up stored data
-				ui.item.removeData('editor-ids');
-				
-				// Renumber checkboxes after sorting
-				renumberGroupCheckboxes();
+			});
+		});
+	}
+
+	function initPreviewRefresh() {
+		doc.addEventListener('click', (event) => {
+			const trigger = event.target.closest('[data-refresh-preview]');
+			if (!trigger) {
+				return;
+			}
+			event.preventDefault();
+			const context = trigger.getAttribute('data-refresh-preview') || 'main';
+			requestPreview(context, true);
+		});
+	}
+
+	function initAutoRefreshToggle() {
+		$$('.nlf-preview-auto-toggle').forEach((toggle) => {
+			const context = toggle.getAttribute('data-preview-auto') || 'main';
+			previewState.auto[context] = !!toggle.checked;
+		});
+
+		doc.addEventListener('change', (event) => {
+			const toggle = event.target.closest('.nlf-preview-auto-toggle');
+			if (!toggle) {
+				return;
+			}
+
+			const context = toggle.getAttribute('data-preview-auto') || 'main';
+			previewState.auto[context] = !!toggle.checked;
+
+			if (toggle.checked) {
+				requestPreview(context);
 			}
 		});
+	}
 
-		var rowTemplate = $('#tmpl-aio-faq-group-row').html();
+	function initHelpTooltips() {
+		const triggers = $$('.nlf-help-trigger');
+		const helpTexts = $$('.nlf-help-text');
 
-		$('#aio-faq-group-add-row').on('click', function (e) {
-			e.preventDefault();
+		triggers.forEach((trigger) => {
+			trigger.setAttribute('aria-expanded', 'false');
+			trigger.addEventListener('click', (event) => {
+				event.preventDefault();
+				const help = trigger.closest('tr')?.querySelector('.nlf-help-text');
+				if (!help) {
+					return;
+				}
 
-			var index = $body.find('.aio-faq-question-row').length;
-			var html = rowTemplate.replace(/{{index}}/g, String(index));
+				const isOpen = !help.hasAttribute('hidden');
 
-			var $row = $(html);
-			$body.append($row);
-			initNewEditor($row);
+				helpTexts.forEach((text) => text.setAttribute('hidden', 'true'));
+				triggers.forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
+
+				if (!isOpen) {
+					help.removeAttribute('hidden');
+					trigger.setAttribute('aria-expanded', 'true');
+				}
+			});
+		});
+	}
+
+	function initEmptyStateHandlers() {
+		doc.addEventListener('click', (event) => {
+			if (event.target.closest('.nlf-empty-state .button')) {
+				event.preventDefault();
+				hideEmptyStates();
+			}
+
+			if (event.target.closest('.nlf-onboarding-start')) {
+				event.preventDefault();
+				hideEmptyStates();
+				// Find any "Add Question" button and trigger it
+				const addButton = doc.querySelector('.nlf-faq-group-add-row-btn');
+				if (addButton) {
+					addButton.click();
+				}
+			}
+		});
+	}
+
+	function hideEmptyStates() {
+		$$('.nlf-empty-state, .nlf-onboarding-card').forEach((element) => {
+			element.style.display = 'none';
+		});
+		const table = $('.nlf-faq-group-table');
+		if (table) {
+			table.style.display = '';
+		}
+		requestPreview('main');
+	}
+
+	function initQuestionList() {
+		const body = $('#nlf-faq-group-questions-body');
+		const template = $('#tmpl-nlf-faq-group-row');
+
+		if (!body || !template) {
+			return;
+		}
+
+		const prepareRow = (row) => {
+			row.setAttribute('draggable', 'true');
+			row.addEventListener('dragstart', handleDragStart);
+			row.addEventListener('dragover', handleDragOver);
+			row.addEventListener('drop', handleDrop);
+			row.addEventListener('dragend', handleDragEnd);
+		};
+
+		$$('.nlf-faq-question-row', body).forEach(prepareRow);
+
+		// Use event delegation to handle clicks on any "Add Question" button
+		// This works for both the empty state button and the table footer button
+		doc.addEventListener('click', (event) => {
+			const addButton = event.target.closest('.nlf-faq-group-add-row-btn');
+			if (!addButton) {
+				return;
+			}
+
+			event.preventDefault();
+			
+			// Hide empty state when adding first question
+			hideEmptyStates();
+			
+			const index = $$('.nlf-faq-question-row', body).length;
+			const html = template.innerHTML.replace(/{{index}}/g, String(index)).trim();
+			const tempWrapper = doc.createElement('tbody');
+			tempWrapper.innerHTML = html;
+			const newRow = tempWrapper.firstElementChild;
+			body.appendChild(newRow);
+			prepareRow(newRow);
+			initNewEditor(newRow);
 			renumberGroupCheckboxes();
-			// Refresh sortable to include the new row
-			$body.sortable('refresh');
+			requestPreview('main');
 		});
 
-		$body.on('click', '.aio-faq-remove-row', function (e) {
-			e.preventDefault();
-			var $row = $(this).closest('.aio-faq-question-row');
+		body.addEventListener('click', (event) => {
+			const removeButton = event.target.closest('.nlf-faq-remove-row');
+			if (!removeButton) {
+				return;
+			}
 
-			// Remove TinyMCE editor instance to avoid leaks
-			var $textarea = $row.find('.aio-faq-group-answer-editor');
-			if ($textarea.length) {
-				var id = $textarea.attr('id');
-				if (id && window.wp && window.wp.editor && typeof window.wp.editor.remove === 'function') {
-					window.wp.editor.remove(id);
-				} else if (id && window.tinymce) {
-					var editor = window.tinymce.get(id);
+			event.preventDefault();
+			const row = removeButton.closest('.nlf-faq-question-row');
+			if (!row) {
+				return;
+			}
+
+			const textarea = row.querySelector('.nlf-faq-group-answer-editor');
+			if (textarea && textarea.id) {
+				if (window.wp && window.wp.editor && typeof window.wp.editor.remove === 'function') {
+					window.wp.editor.remove(textarea.id);
+				} else if (window.tinymce) {
+					const editor = window.tinymce.get(textarea.id);
 					if (editor) {
 						editor.remove();
 					}
 				}
 			}
 
-			$row.remove();
+			row.remove();
 			renumberGroupCheckboxes();
-			// Refresh sortable after removing a row
-			$body.sortable('refresh');
+			requestPreview('main');
 		});
+	}
+
+	let dragSource = null;
+	let storedEditors = [];
+
+	function handleDragStart(event) {
+		dragSource = event.currentTarget;
+		dragSource.classList.add('is-dragging');
+		event.dataTransfer.effectAllowed = 'move';
+		event.dataTransfer.setData('text/plain', '');
+		storedEditors = removeEditors(dragSource);
+	}
+
+	function handleDragOver(event) {
+		event.preventDefault();
+		const target = event.currentTarget;
+		if (!dragSource || dragSource === target) {
+			return;
+		}
+
+		const body = target.parentElement;
+		const { top, height } = target.getBoundingClientRect();
+		const shouldInsertBefore = event.clientY < top + height / 2;
+
+		if (shouldInsertBefore) {
+			body.insertBefore(dragSource, target);
+		} else {
+			body.insertBefore(dragSource, target.nextElementSibling);
+		}
+	}
+
+	function handleDrop(event) {
+		event.preventDefault();
+	}
+
+	function handleDragEnd() {
+		if (!dragSource) {
+			return;
+		}
+		dragSource.classList.remove('is-dragging');
+		restoreEditors(dragSource, storedEditors);
+		storedEditors = [];
+		dragSource = null;
+		renumberGroupCheckboxes();
+		requestPreview('main');
+	}
+
+	function removeEditors(row) {
+		const editors = [];
+		$$('textarea.nlf-faq-group-answer-editor', row).forEach((textarea) => {
+			const id = textarea.id;
+			if (!id) {
+				return;
+			}
+
+			let content = textarea.value;
+
+			// Get content from TinyMCE editor if it exists.
+			if (window.tinymce) {
+				const editor = window.tinymce.get(id);
+				if (editor) {
+					try {
+						content = editor.getContent() || textarea.value;
+					} catch (e) {
+						content = textarea.value;
+					}
+					try {
+						editor.remove();
+					} catch (e) {
+						// Editor might be in an invalid state, continue.
+					}
+				}
+			}
+
+			// Remove QuickTags instance if it exists.
+			if (window.QTags && window.QTags.instances) {
+				delete window.QTags.instances[id];
+			}
+
+			// Remove the WordPress editor wrapper entirely so that
+			// wp.editor.initialize() can build a fresh one after the drag.
+			// Without this the stale wrapper causes a blank visual editor.
+			const wrap = doc.getElementById('wp-' + id + '-wrap');
+			if (wrap) {
+				wrap.parentNode.insertBefore(textarea, wrap);
+				wrap.remove();
+			}
+
+			// Ensure textarea is visible and holds the saved content.
+			textarea.style.display = '';
+			textarea.value = content;
+
+			editors.push({ id: id, content: content });
+		});
+		return editors;
+	}
+
+	function restoreEditors(row, editorData) {
+		if (!editorData || !editorData.length) {
+			return;
+		}
+
+		const editorAPI =
+			(window.wp && window.wp.oldEditor && typeof window.wp.oldEditor.initialize === 'function')
+				? window.wp.oldEditor
+				: (window.wp && window.wp.editor && typeof window.wp.editor.initialize === 'function' ? window.wp.editor : null);
+
+		if (!editorAPI) {
+			return;
+		}
+
+		// Small delay to let the DOM settle after drag.
+		setTimeout(() => {
+			editorData.forEach((editorInfo) => {
+				const id = editorInfo.id;
+				const content = editorInfo.content;
+				const textarea = doc.getElementById(id);
+
+				if (!textarea) {
+					return;
+				}
+
+				// Put the saved content in the textarea first; TinyMCE reads
+				// the textarea value when it initialises in text (HTML) mode.
+				textarea.value = content;
+
+				// Clean up any stale TinyMCE instance that might linger.
+				if (window.tinymce && window.tinymce.get(id)) {
+					try {
+						window.tinymce.get(id).remove();
+					} catch (e) {
+						// Ignore – instance may already be invalid.
+					}
+				}
+
+				// Re-initialize the WordPress editor from scratch.
+				// Do NOT pass a custom `setup` here – WordPress merges
+				// these settings with tinyMCEPreInit.mceInit[id] via
+				// Object.assign and a custom `setup` can get lost or
+				// override WordPress's own handlers.
+				editorAPI.initialize(id, {
+					tinymce: { wpautop: true },
+					quicktags: true,
+					mediaButtons: false,
+				});
+
+				// Set the content in the Visual (TinyMCE) editor once it
+				// is fully ready.  We attach the listener directly on the
+				// instance so it works regardless of how WP merges config.
+				(function syncVisualContent() {
+					const mce = window.tinymce && window.tinymce.get(id);
+					if (!mce) {
+						// Editor instance not registered yet – retry.
+						setTimeout(syncVisualContent, 50);
+						return;
+					}
+					if (mce.initialized) {
+						if (content) {
+							mce.setContent(content);
+						}
+					} else {
+						mce.on('init', function () {
+							if (content) {
+								mce.setContent(content);
+							}
+						});
+					}
+				})();
+			});
+		}, 50);
+	}
+
+	// AJAX Save
+	function initAjaxSave() {
+		const form = $('#post');
+		const publishButton = $('#publish');
+		
+		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		form.addEventListener('submit', function(e) {
+			// Only intercept if clicking the publish/update button
+			if (e.submitter && e.submitter.id === 'publish') {
+				e.preventDefault();
+				handleAjaxSave();
+			}
+		});
+
+		publishButton.addEventListener('click', function(e) {
+			e.preventDefault();
+			handleAjaxSave();
+		});
+	}
+
+	function handleAjaxSave() {
+		const form = $('#post');
+		const publishButton = $('#publish');
+		const spinner = $('.spinner', publishButton.parentElement);
+		
+		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		const originalText = publishButton.value || publishButton.textContent;
+		const savingText = nlfGroupData.i18n.saving || 'Saving…';
+		const savedText = nlfGroupData.i18n.saved || 'Saved!';
+
+		// Update button state
+		publishButton.disabled = true;
+		publishButton.value = savingText;
+		if (spinner) {
+			spinner.classList.add('is-active');
+		}
+
+		// Sync TinyMCE editors back to their textareas before collecting data.
+		// Without this, answers edited in the visual editor are not included in FormData.
+		if (window.tinyMCE) {
+			window.tinyMCE.triggerSave();
+		}
+
+		// Collect form data
+		const formData = new FormData(form);
+		formData.append('action', 'nlf_save_faq_group_ajax');
+		formData.append('nlf_faq_group_nonce', nlfGroupData.saveNonce);
+
+		// Force post_status to "publish" when clicking the Publish/Update button.
+		// The #post_status field is a <select> that only has draft/pending options,
+		// so we override the value directly in FormData.
+		const originalPostStatus = document.getElementById('original_post_status');
+		if (!originalPostStatus || originalPostStatus.value !== 'publish') {
+			formData.set('post_status', 'publish');
+		}
+
+		// Convert FormData to URLSearchParams for fetch
+		const params = new URLSearchParams();
+		for (const [key, value] of formData.entries()) {
+			params.append(key, value);
+		}
+
+		// Send AJAX request
+		fetch(nlfGroupData.ajaxurl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: params.toString(),
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				publishButton.value = savedText;
+
+				// Update UI after successful publish
+				const origStatus = document.getElementById('original_post_status');
+				const newStatus = data.data?.post_status;
+				if (origStatus && newStatus === 'publish' && origStatus.value !== 'publish') {
+					origStatus.value = 'publish';
+					// Hide Save Draft button since the post is now published
+					const saveDraft = document.getElementById('save-post');
+					if (saveDraft) saveDraft.style.display = 'none';
+					// Update the minor-publishing-actions (Save Draft area)
+					const minorActions = document.getElementById('minor-publishing-actions');
+					if (minorActions) minorActions.style.display = 'none';
+				}
+
+				// Reset button after a short delay
+				setTimeout(() => {
+					// Use "Update" text if the post is now published
+					if (origStatus && origStatus.value === 'publish') {
+						publishButton.value = nlfGroupData.i18n.update || 'Update';
+					} else {
+						publishButton.value = originalText;
+					}
+					publishButton.disabled = false;
+				}, 1500);
+			} else {
+				alert(data.data?.message || 'Error saving FAQ group.');
+				publishButton.value = originalText;
+				publishButton.disabled = false;
+			}
+		})
+		.catch(error => {
+			console.error('Save error:', error);
+			alert('An unexpected error occurred while saving.');
+			publishButton.value = originalText;
+			publishButton.disabled = false;
+		})
+		.finally(() => {
+			if (spinner) {
+				spinner.classList.remove('is-active');
+			}
+		});
+	}
+
+	/**
+	 * Copy-to-clipboard for "How To Use" metabox.
+	 * The entire snippet button is the click target.
+	 */
+	function initCopyButtons() {
+		$$('.nlf-htu-snippet').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const text = btn.getAttribute('data-copy-text');
+				if (!text) return;
+
+				const write = navigator.clipboard && navigator.clipboard.writeText
+					? navigator.clipboard.writeText(text)
+					: new Promise(resolve => {
+						const ta = doc.createElement('textarea');
+						ta.value = text;
+						ta.style.cssText = 'position:fixed;opacity:0;';
+						doc.body.appendChild(ta);
+						ta.select();
+						doc.execCommand('copy');
+						doc.body.removeChild(ta);
+						resolve();
+					});
+
+				write.then(() => {
+					btn.classList.add('is-copied');
+					setTimeout(() => btn.classList.remove('is-copied'), 1500);
+				});
+			});
+		});
+	}
+
+	doc.addEventListener('DOMContentLoaded', () => {
+		init();
+		initCopyButtons();
 	});
-})(jQuery);
-
-
+})();

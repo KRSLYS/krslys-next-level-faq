@@ -1,99 +1,214 @@
 (function ($) {
 	'use strict';
 
+	var presetRegistry = (window.nlfFaqAdmin && nlfFaqAdmin.presets) || {};
+	var activePreset = (window.nlfFaqAdmin && nlfFaqAdmin.activePreset) || null;
+	var optionKey = (window.nlfFaqAdmin && nlfFaqAdmin.optionKey) || 'nlf_faq_style_options';
+
 	function applyPreviewFromData() {
-		var root = $('#aio-faq-preview-root');
+		var root = $('#nlf-faq-preview-root');
 		if (!root.length) {
 			return;
 		}
 
-		var container = root.find('.aio-faq');
+		var container = root.find('.nlf-faq');
+		var icons = container.find('.nlf-faq__icon');
+		var iconStyle = root.data('icon-style') || 'plus_minus';
+		var layout = root.data('layout') || 'flat';
 
+		// Shadow mapping
+		var shadowVal = root.data('shadow');
+		var shadowMap = {
+			'sm': '0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1)',
+			'md': '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
+			'lg': '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+			'xl': '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+			'colored': '0 4px 14px -3px rgba(99,102,241,0.25)'
+		};
+		var shadowCss = 'none';
+		if (typeof shadowVal === 'string' && shadowMap[shadowVal]) {
+			shadowCss = shadowMap[shadowVal];
+		} else if (shadowVal === 1 || shadowVal === '1' || shadowVal === true) {
+			shadowCss = shadowMap['md'];
+		}
+
+		// Container styles
+		var isCards = layout === 'cards';
 		container.css({
-			backgroundColor: root.data('container-background'),
-			borderColor: root.data('container-border-color'),
+			backgroundColor: isCards ? 'transparent' : root.data('container-background'),
+			borderColor: isCards ? 'transparent' : root.data('container-border-color'),
 			borderRadius: root.data('container-border-radius') + 'px',
-			padding: root.data('container-padding') + 'px',
-			boxShadow: root.data('shadow') === 1 || root.data('shadow') === '1'
-				? '0 10px 25px rgba(15,23,42,0.08)'
-				: 'none'
+			padding: isCards ? '0' : root.data('container-padding') + 'px',
+			boxShadow: isCards ? 'none' : shadowCss
 		});
 
-		container.find('.aio-faq__item + .aio-faq__item').css('margin-top', root.data('gap-between-items') + 'px');
+		// Layout classes
+		container.removeClass('nlf-faq--layout-cards nlf-faq--layout-bordered nlf-faq--layout-clean nlf-faq--layout-striped');
+		if (layout !== 'flat') {
+			container.addClass('nlf-faq--layout-' + layout);
+		}
 
-		container.find('.aio-faq__question').css({
+		// Icon style classes
+		container.removeClass('nlf-faq--icon-chevron nlf-faq--icon-arrow');
+		if (iconStyle === 'chevron') {
+			container.addClass('nlf-faq--icon-chevron');
+		} else if (iconStyle === 'arrow') {
+			container.addClass('nlf-faq--icon-arrow');
+		}
+
+		// Item spacing
+		container.find('.nlf-faq__item + .nlf-faq__item').css('margin-top', root.data('gap-between-items') + 'px');
+
+		// Question styles
+		container.find('.nlf-faq__question').css({
 			color: root.data('question-color'),
 			fontSize: root.data('question-font-size') + 'px',
 			fontWeight: root.data('question-font-weight')
 		});
 
-		container.find('.aio-faq__answer').css({
+		// Answer styles
+		container.find('.nlf-faq__answer').css({
 			color: root.data('answer-color'),
 			fontSize: root.data('answer-font-size') + 'px'
 		});
 
-		container.find('.aio-faq__icon').css('color', root.data('accent-color'));
+		// Icon color
+		icons.css('color', root.data('accent-color'));
 	}
 
 	function updateDataProp(prop, value) {
-		var root = $('#aio-faq-preview-root');
+		var root = $('#nlf-faq-preview-root');
 		if (!root.length) {
 			return;
 		}
 
-		switch (prop) {
-			case 'container_background':
-				root.data('container-background', value);
-				break;
-			case 'container_border_color':
-				root.data('container-border-color', value);
-				break;
-			case 'container_border_radius':
-				root.data('container-border-radius', parseInt(value, 10) || 0);
-				break;
-			case 'container_padding':
-				root.data('container-padding', parseInt(value, 10) || 0);
-				break;
-			case 'question_color':
-				root.data('question-color', value);
-				break;
-			case 'question_font_size':
-				root.data('question-font-size', parseInt(value, 10) || 16);
-				break;
-			case 'question_font_weight':
-				root.data('question-font-weight', parseInt(value, 10) || 600);
-				break;
-			case 'answer_color':
-				root.data('answer-color', value);
-				break;
-			case 'answer_font_size':
-				root.data('answer-font-size', parseInt(value, 10) || 14);
-				break;
-			case 'accent_color':
-				root.data('accent-color', value);
-				break;
-			case 'gap_between_items':
-				root.data('gap-between-items', parseInt(value, 10) || 12);
-				break;
-			case 'shadow':
-				root.data('shadow', value ? 1 : 0);
-				break;
-			case 'animation':
-				root.data('animation', value);
-				break;
-			case 'icon_style':
-				root.data('icon-style', value);
-				break;
+		// Map property names to data attributes
+		var propMap = {
+			'container_background': 'container-background',
+			'container_border_color': 'container-border-color',
+			'container_border_radius': 'container-border-radius',
+			'container_padding': 'container-padding',
+			'question_color': 'question-color',
+			'question_font_size': 'question-font-size',
+			'question_font_weight': 'question-font-weight',
+			'answer_color': 'answer-color',
+			'answer_font_size': 'answer-font-size',
+			'accent_color': 'accent-color',
+			'gap_between_items': 'gap-between-items',
+			'shadow': 'shadow',
+			'animation': 'animation',
+			'icon_style': 'icon-style',
+			'layout': 'layout',
+			'preset': 'preset'
+		};
+
+		var dataKey = propMap[prop];
+		if (!dataKey) {
+			return;
 		}
 
+		// Parse numeric values
+		var numericProps = ['container_border_radius', 'container_padding', 'question_font_size', 
+			'question_font_weight', 'answer_font_size', 'gap_between_items'];
+		if (numericProps.indexOf(prop) !== -1) {
+			value = parseInt(value, 10) || (prop === 'question_font_weight' ? 600 : 
+				prop === 'question_font_size' ? 16 : prop === 'answer_font_size' ? 14 : 
+				prop === 'gap_between_items' ? 12 : 0);
+		} else if (prop === 'shadow') {
+			value = value ? 1 : 0;
+		}
+
+		root.data(dataKey, value);
 		applyPreviewFromData();
 	}
 
+	function getPresetValues(slug) {
+		if (!slug || !presetRegistry[slug]) {
+			return null;
+		}
+		return presetRegistry[slug].values || null;
+	}
+
+	function setActivePresetCard(slug) {
+		activePreset = slug;
+		$('.nlf-preset-card').removeClass('active');
+		$('.nlf-preset-card input[data-preset-choice]').each(function () {
+			if ($(this).val() === slug) {
+				$(this).closest('.nlf-preset-card').addClass('active');
+			}
+		});
+	}
+
+	function applyPreset(slug) {
+		var values = getPresetValues(slug);
+		if (!values) {
+			return;
+		}
+
+		var optionPrefix = optionKey + '[';
+
+		Object.keys(values).forEach(function (key) {
+			var selector = '[name="' + optionPrefix + key + '"]';
+			var $field = $(selector);
+			var val = values[key];
+
+			if (!$field.length) {
+				return;
+			}
+
+			if ($field.is(':checkbox')) {
+				$field.prop('checked', !!val);
+			} else {
+				$field.val(val);
+			}
+
+			if ($field.hasClass('nlf-color-field') && typeof $field.wpColorPicker === 'function' && $field.data('wpWpColorPicker')) {
+				$field.wpColorPicker('color', val);
+			}
+
+			updateDataProp(key, val);
+		});
+
+		// Set preset radios.
+		$('input[data-preset-choice]').prop('checked', false);
+		$('input[data-preset-choice][value="' + slug + '"]').prop('checked', true);
+
+		// IMPORTANT: Update the hidden preset field inside the form
+		// The radio buttons are outside the form, so we need to sync this hidden field
+		$('#nlf-faq-hidden-preset').val(slug);
+
+		updateDataProp('preset', slug);
+		setActivePresetCard(slug);
+	}
+
 	$(function () {
+		// Initialize WordPress color picker for all color fields.
+		if (typeof $.fn.wpColorPicker !== 'undefined') {
+			$('.nlf-color-field').wpColorPicker({
+				change: function (event, ui) {
+					var $el = $(this);
+					var prop = $el.data('preview-prop');
+					var val = ui.color.toString();
+					updateDataProp(prop, val);
+				},
+				clear: function () {
+					var $el = $(this);
+					var prop = $el.data('preview-prop');
+					updateDataProp(prop, '');
+				}
+			});
+		}
+
 		applyPreviewFromData();
 
-		$('#aio-faq-style-form').on('input change', '[data-preview-prop]', function () {
+		$('#nlf-faq-style-form').on('input change', '[data-preview-prop]', function () {
 			var $el = $(this);
+			
+			// Skip color fields as they're handled by color picker callbacks.
+			if ($el.hasClass('nlf-color-field')) {
+				return;
+			}
+
 			var prop = $el.data('preview-prop');
 			var val;
 
@@ -106,37 +221,126 @@
 			updateDataProp(prop, val);
 		});
 
-		// Simple saved indicator using WordPress submit button.
-		var $form = $('#aio-faq-style-form');
-		var $submit = $form.find('input[type="submit"], button[type="submit"]');
+		// Preset selection.
+		$(document).on('change', 'input[data-preset-choice]', function () {
+			var slug = $(this).val();
+			applyPreset(slug);
+		});
 
-		$form.on('submit', function () {
-			if (!$submit.length || typeof aioFaqAdmin === 'undefined') {
+		// Initialize active preset highlighting.
+		if (activePreset) {
+			setActivePresetCard(activePreset);
+		}
+
+		// AJAX form submission for instant save.
+		var $form = $('#nlf-faq-style-form');
+		var $submit = $form.find('input[type="submit"], button[type="submit"]');
+		var originalText = $submit.val() || $submit.text();
+
+		$form.on('submit', function (e) {
+			e.preventDefault();
+
+			if (!$submit.length || typeof nlfFaqAdmin === 'undefined') {
 				return;
 			}
-			var originalText = $submit.val() || $submit.text();
 
+			// Update button state
+			$submit.prop('disabled', true);
 			if ($submit.is('input')) {
-				$submit.val(aioFaqAdmin.i18n.saving);
+				$submit.val(nlfFaqAdmin.i18n.saving);
 			} else {
-				$submit.text(aioFaqAdmin.i18n.saving);
+				$submit.text(nlfFaqAdmin.i18n.saving);
 			}
 
-			setTimeout(function () {
-				if ($submit.is('input')) {
-					$submit.val(aioFaqAdmin.i18n.saved);
-				} else {
-					$submit.text(aioFaqAdmin.i18n.saved);
-				}
+			// Remove any previous notices
+			$('.nlf-ajax-notice').remove();
 
-				setTimeout(function () {
+			// Serialize form data
+			var formData = $form.serialize();
+			formData += '&action=nlf_save_settings_ajax';
+			formData += '&nonce=' + (nlfFaqAdmin.saveNonce || '');
+
+			// Send AJAX request
+			$.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				data: formData,
+				success: function (response) {
+					if (response.success) {
+						// Show success message
+						if ($submit.is('input')) {
+							$submit.val(nlfFaqAdmin.i18n.saved);
+						} else {
+							$submit.text(nlfFaqAdmin.i18n.saved);
+						}
+
+					// Show success notice (escape server message to prevent XSS).
+					var safeSuccessMsg = $('<span>').text(response.data.message || 'Settings saved successfully!').html();
+					$('<div class="notice notice-success is-dismissible nlf-ajax-notice" role="status" aria-live="polite"><p>' + 
+						safeSuccessMsg + 
+						'</p></div>')
+						.insertAfter('.wrap h1')
+						.hide()
+						.fadeIn();
+
+						// Restore button after delay
+						setTimeout(function () {
+							$submit.prop('disabled', false);
+							if ($submit.is('input')) {
+								$submit.val(originalText);
+							} else {
+								$submit.text(originalText);
+							}
+						}, 1500);
+
+						// Auto-hide notice after 3 seconds
+						setTimeout(function () {
+							$('.nlf-ajax-notice').fadeOut(function () {
+								$(this).remove();
+							});
+						}, 3000);
+					} else {
+						// Show error message
+					var errorMsg = response.data && response.data.message 
+						? response.data.message 
+						: 'Failed to save settings. Please try again.';
+
+					// Escape server message to prevent XSS.
+					var safeErrorMsg = $('<span>').text(errorMsg).html();
+					$('<div class="notice notice-error is-dismissible nlf-ajax-notice" role="alert" aria-live="assertive"><p>' + 
+						safeErrorMsg + 
+						'</p></div>')
+						.insertAfter('.wrap h1')
+						.hide()
+						.fadeIn();
+
+						// Restore button
+						$submit.prop('disabled', false);
+						if ($submit.is('input')) {
+							$submit.val(originalText);
+						} else {
+							$submit.text(originalText);
+						}
+					}
+				},
+				error: function (xhr, status, error) {
+					// Show error message.
+					$('<div class="notice notice-error is-dismissible nlf-ajax-notice" role="alert" aria-live="assertive"><p>' + 
+						'Network error: Failed to save settings. Please check your connection and try again.' + 
+						'</p></div>')
+						.insertAfter('.wrap h1')
+						.hide()
+						.fadeIn();
+
+					// Restore button
+					$submit.prop('disabled', false);
 					if ($submit.is('input')) {
 						$submit.val(originalText);
 					} else {
 						$submit.text(originalText);
 					}
-				}, 1200);
-			}, 400);
+				}
+			});
 		});
 	});
 })(jQuery);

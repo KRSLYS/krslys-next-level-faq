@@ -1,11 +1,13 @@
 {
+  "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 2,
-  "name": "all-in-one-faq/faq",
-  "title": "All-in-One FAQ",
+  "name": "next-level-faq/faq",
+  "title": "Next Level FAQ",
   "category": "widgets",
   "icon": "editor-help",
-  "description": "Display a styled FAQ section using the All-in-One FAQ styles.",
+  "description": "Display a styled FAQ section using the Next Level FAQ styles.",
   "keywords": ["faq", "accordion", "help"],
+  "textdomain": "next-level-faq",
   "supports": {
     "html": false,
     "align": true,
@@ -19,10 +21,14 @@
     "groupId": {
       "type": "number",
       "default": 0
+    },
+    "preset": {
+      "type": "string",
+      "default": ""
     }
   },
-  "editorScript": "aio-faq-block-editor",
-  "style": "aio-faq-generated"
+  "editorScript": "nlf-faq-block-editor",
+  "style": "nlf-faq-generated"
 }
 
 
