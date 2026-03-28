@@ -40,7 +40,6 @@
 		initEmptyStateHandlers();
 		initQuestionList();
 		initAjaxSave();
-		initJsonDebugPanel();
 	}
 
 	// Tabs
@@ -594,6 +593,7 @@
 			prepareRow(newRow);
 			initNewEditor(newRow);
 			renumberGroupCheckboxes();
+			doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
 			requestPreview('main');
 		});
 
@@ -623,6 +623,7 @@
 
 			row.remove();
 			renumberGroupCheckboxes();
+			doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
 			requestPreview('main');
 		});
 	}
@@ -669,6 +670,7 @@
 		storedEditors = [];
 		dragSource = null;
 		renumberGroupCheckboxes();
+		doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
 		requestPreview('main');
 	}
 
@@ -867,8 +869,8 @@
 					return;
 				}
 
-				// Update JSON debug panel if visible.
-				updateJsonDebugPanel();
+				// Notify state collector (debug panel + future consumers).
+				doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
 
 				setTimeout(() => {
 					publishButton.value = nlfGroupData.i18n.update || 'Update';
@@ -886,40 +888,6 @@
 			publishButton.value = originalText;
 			publishButton.disabled = false;
 		});
-	}
-
-	// JSON Debug Panel
-	function initJsonDebugPanel() {
-		const toggle = $('#nlf-show-json-state');
-		const output = $('#nlf-json-state-output');
-		const copyBtn = $('#nlf-copy-json');
-
-		if (!toggle || !output) {
-			return;
-		}
-
-		toggle.addEventListener('change', function() {
-			const show = this.checked;
-			output.style.display = show ? 'block' : 'none';
-			if (copyBtn) {
-				copyBtn.style.display = show ? 'inline-block' : 'none';
-			}
-		});
-
-		if (copyBtn) {
-			copyBtn.addEventListener('click', function() {
-				output.select();
-				navigator.clipboard.writeText(output.value);
-			});
-		}
-	}
-
-	function updateJsonDebugPanel() {
-		const output = $('#nlf-json-state-output');
-		if (!output || !nlfGroupData.groupState) {
-			return;
-		}
-		output.value = JSON.stringify(nlfGroupData.groupState, null, 2);
 	}
 
 	/**

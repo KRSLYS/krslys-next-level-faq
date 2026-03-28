@@ -420,7 +420,15 @@ class Groups_Repository {
 			'title'            => '',
 			'slug'             => '',
 			'description'      => '',
-			'theme_settings'   => array(),
+			'theme_settings'   => array(
+				'theme'         => 'default',
+				'custom_colors' => array(
+					'primary'    => '',
+					'secondary'  => '',
+					'accent'     => '',
+					'background' => '',
+				),
+			),
 			'display_settings' => array(
 				'accordion_mode'  => false,
 				'initial_state'   => 'all_closed',
@@ -429,7 +437,7 @@ class Groups_Repository {
 				'show_counter'    => false,
 				'smooth_scroll'   => true,
 			),
-			'custom_styles'    => array(),
+			'custom_styles'    => Options::get_defaults(),
 			'use_custom_style' => false,
 			'status'           => 'active',
 			'items'            => array(),
@@ -460,14 +468,24 @@ class Groups_Repository {
 			);
 		}
 
+		$theme_settings = wp_parse_args(
+			is_array( $group->theme_settings ) ? $group->theme_settings : array(),
+			$defaults['theme_settings']
+		);
+		if ( ! isset( $theme_settings['custom_colors'] ) || ! is_array( $theme_settings['custom_colors'] ) ) {
+			$theme_settings['custom_colors'] = $defaults['theme_settings']['custom_colors'];
+		} else {
+			$theme_settings['custom_colors'] = wp_parse_args( $theme_settings['custom_colors'], $defaults['theme_settings']['custom_colors'] );
+		}
+
 		return array(
 			'id'               => (int) $group->id,
 			'title'            => $group->title,
 			'slug'             => $group->slug,
 			'description'      => $group->description ?? '',
-			'theme_settings'   => $group->theme_settings,
+			'theme_settings'   => $theme_settings,
 			'display_settings' => ! empty( $group->display_settings ) ? $group->display_settings : $defaults['display_settings'],
-			'custom_styles'    => $group->custom_styles,
+			'custom_styles'    => ! empty( $group->custom_styles ) ? wp_parse_args( $group->custom_styles, $defaults['custom_styles'] ) : $defaults['custom_styles'],
 			'use_custom_style' => $group->use_custom_style,
 			'status'           => $group->status,
 			'items'            => $items,

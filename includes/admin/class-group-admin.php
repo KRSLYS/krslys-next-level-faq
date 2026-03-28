@@ -263,15 +263,7 @@ class Group_Admin {
 	public static function render_edit_page() {
 		$group_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
-		$state           = Groups_Repository::get_full_group_state( $group_id );
-		$items           = Repository::get_items_for_group( $group_id, false );
-		$current_theme   = $state['theme_settings']['theme'] ?? 'default';
-		$theme_custom    = $state['theme_settings']['custom_colors'] ?? array();
-		$settings        = $state['display_settings'];
-		$use_custom_style = $state['use_custom_style'];
-		$custom_styles   = ! empty( $state['custom_styles'] ) ? $state['custom_styles'] : Options::get_defaults();
-
-		$title    = $state['title'] ?? '';
+		$state      = Groups_Repository::get_full_group_state( $group_id );
 		$page_title = $group_id ? __( 'Edit FAQ Group', 'next-level-faq' ) : __( 'Add New FAQ Group', 'next-level-faq' );
 		$list_url = admin_url( 'admin.php?page=nlf-faq-groups' );
 
@@ -337,7 +329,7 @@ class Group_Admin {
 				<div id="titlediv" style="margin-bottom: 20px;">
 					<div id="titlewrap">
 						<label class="screen-reader-text" for="nlf_group_title"><?php esc_html_e( 'Group title', 'next-level-faq' ); ?></label>
-						<input type="text" name="nlf_group_title" id="nlf_group_title" value="<?php echo esc_attr( $title ); ?>" placeholder="<?php esc_attr_e( 'Enter group title here', 'next-level-faq' ); ?>" autocomplete="off" required style="width:100%;font-size:1.7em;padding:3px 8px;line-height:1.4;" />
+						<input type="text" name="nlf_group_title" id="nlf_group_title" value="" placeholder="<?php esc_attr_e( 'Enter group title here', 'next-level-faq' ); ?>" autocomplete="off" required style="width:100%;font-size:1.7em;padding:3px 8px;line-height:1.4;" />
 					</div>
 				</div>
 
@@ -348,7 +340,7 @@ class Group_Admin {
 						<div id="post-body-content">
 							<div id="nlf_faq_group_tabs" class="postbox">
 								<div class="inside">
-									<?php self::render_metabox_content( $group_id, $items, $current_theme, $theme_custom, $settings, $use_custom_style, $custom_styles ); ?>
+									<?php self::render_metabox_content( $group_id ); ?>
 								</div>
 							</div>
 						</div>
@@ -387,18 +379,18 @@ class Group_Admin {
 
 					</div><!-- #post-body -->
 				</div><!-- #poststuff -->
-			</form>
 
-			<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) : ?>
-			<div class="nlf-json-debug" style="margin-top:20px;">
-				<label>
-					<input type="checkbox" id="nlf-show-json-state" />
-					<strong><?php esc_html_e( 'Show JSON State', 'next-level-faq' ); ?></strong>
-				</label>
-				<textarea id="nlf-json-state-output" readonly rows="20" style="width:100%;display:none;font-family:monospace;font-size:12px;"><?php echo esc_textarea( wp_json_encode( $state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) ); ?></textarea>
-				<button type="button" class="button button-small" id="nlf-copy-json" style="display:none;"><?php esc_html_e( 'Copy JSON', 'next-level-faq' ); ?></button>
-			</div>
-			<?php endif; ?>
+				<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) : ?>
+				<div class="nlf-json-debug" style="margin-top:20px;clear:both;">
+					<label>
+						<input type="checkbox" id="nlf-show-json-state" />
+						<strong><?php esc_html_e( 'Show JSON State', 'next-level-faq' ); ?></strong>
+					</label>
+					<textarea id="nlf-json-state-output" readonly rows="20" style="width:100%;display:none;font-family:monospace;font-size:12px;"><?php echo esc_textarea( wp_json_encode( $state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) ); ?></textarea>
+					<button type="button" class="button button-small" id="nlf-copy-json" style="display:none;"><?php esc_html_e( 'Copy JSON', 'next-level-faq' ); ?></button>
+				</div>
+				<?php endif; ?>
+			</form>
 
 		</div><!-- .wrap -->
 		<?php
@@ -406,16 +398,12 @@ class Group_Admin {
 
 	/**
 	 * Render the tabbed metabox content (reusable from edit page).
+	 * Form fields are rendered empty — JS populates them from nlfGroupData.groupState.
 	 *
-	 * @param int    $group_id         Group ID.
-	 * @param array  $items            FAQ items.
-	 * @param string $current_theme    Current theme slug.
-	 * @param array  $theme_custom     Custom theme colors.
-	 * @param array  $settings         Display settings.
-	 * @param bool   $use_custom_style Whether custom styles are enabled.
-	 * @param array  $custom_styles    Custom style values.
+	 * @param int $group_id Group ID.
 	 */
-	private static function render_metabox_content( $group_id, $items, $current_theme, $theme_custom, $settings, $use_custom_style, $custom_styles ) {
+	private static function render_metabox_content( $group_id ) {
+		$items = Repository::get_items_for_group( $group_id, false );
 		?>
 		<div class="nlf-faq-group-tabs-wrapper">
 			<!-- Tab Navigation with ARIA -->
@@ -468,7 +456,7 @@ class Group_Admin {
 					role="tabpanel"
 					aria-labelledby="tab-content"
 					tabindex="0">
-					<?php self::render_content_tab( $group_id, $items, $settings ); ?>
+					<?php self::render_content_tab( $group_id, $items ); ?>
 				</div>
 
 				<!-- Appearance Tab (Themes + Style) -->
@@ -480,7 +468,7 @@ class Group_Admin {
 					aria-labelledby="tab-appearance"
 					tabindex="0"
 					hidden>
-					<?php self::render_appearance_tab( $group_id, $items, $current_theme, $theme_custom, $use_custom_style, $custom_styles ); ?>
+					<?php self::render_appearance_tab( $group_id, $items ); ?>
 				</div>
 
 				<!-- Preview Tab -->
@@ -589,6 +577,14 @@ class Group_Admin {
 			'nlf-faq-group-metabox',
 			NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-group-metabox.js',
 			array( 'wp-editor', 'wp-color-picker', 'nlf-faq-frontend' ),
+			NLF_FAQ_VERSION,
+			true
+		);
+
+		wp_enqueue_script(
+			'nlf-admin-state-collector',
+			NLF_FAQ_PLUGIN_URL . 'assets/js/admin-state-collector.js',
+			array( 'nlf-faq-group-metabox' ),
 			NLF_FAQ_VERSION,
 			true
 		);
@@ -1139,7 +1135,7 @@ class Group_Admin {
 	 * @param array $items    FAQ items.
 	 * @param array $settings Group settings.
 	 */
-	private static function render_content_tab( $group_id, $items, $settings ) {
+	private static function render_content_tab( $group_id, $items ) {
 		?>
 		<?php if ( empty( $items ) ) : ?>
 			<?php Admin_UI_Components::onboarding_card(); ?>
@@ -1164,7 +1160,7 @@ class Group_Admin {
 					<?php esc_html_e( 'Control how users interact with your FAQs.', 'next-level-faq' ); ?>
 				</p>
 			</div>
-			<?php self::render_settings_fields( $settings ); ?>
+			<?php self::render_settings_fields(); ?>
 		</div>
 
 		<?php
@@ -1316,15 +1312,12 @@ class Group_Admin {
 
 	/**
 	 * Render Appearance tab (Themes + Style consolidated).
+	 * Fields are rendered empty — JS populates from state.
 	 *
-	 * @param int    $group_id         Group ID.
-	 * @param array  $items            FAQ items.
-	 * @param string $current_theme    Selected theme.
-	 * @param array  $theme_custom     Custom theme colors.
-	 * @param bool   $use_custom_style Whether to use custom styles.
-	 * @param array  $custom_styles    Custom style values.
+	 * @param int   $group_id Group ID.
+	 * @param array $items    FAQ items (for preview).
 	 */
-	private static function render_appearance_tab( $group_id, $items, $current_theme, $theme_custom, $use_custom_style, $custom_styles ) {
+	private static function render_appearance_tab( $group_id, $items ) {
 		?>
 		<div class="nlf-appearance-wrapper">
 			<div class="nlf-appearance-layout">
@@ -1337,7 +1330,7 @@ class Group_Admin {
 								<?php esc_html_e( 'Choose a pre-designed theme to quickly style your FAQs.', 'next-level-faq' ); ?>
 							</p>
 						</div>
-						<?php self::render_theme_selector( $current_theme, $theme_custom ); ?>
+						<?php self::render_theme_selector(); ?>
 					</div>
 
 					<!-- Advanced Styles Section -->
@@ -1348,7 +1341,7 @@ class Group_Admin {
 								<?php esc_html_e( 'Fine-tune every detail or override global styles for this group.', 'next-level-faq' ); ?>
 							</p>
 						</div>
-						<?php self::render_custom_styles( $use_custom_style, $custom_styles ); ?>
+						<?php self::render_custom_styles(); ?>
 					</div>
 
 					<div class="nlf-reset-row">
@@ -1398,7 +1391,7 @@ class Group_Admin {
 	 * @param string $current_theme Selected theme.
 	 * @param array  $theme_custom  Custom theme colors.
 	 */
-	private static function render_theme_selector( $current_theme, $theme_custom ) {
+	private static function render_theme_selector() {
 		$themes = self::get_theme_presets();
 
 		$layout_labels = array(
@@ -1417,8 +1410,8 @@ class Group_Admin {
 				$has_shadow = ! empty( $theme_data['values']['shadow'] ) && false !== $theme_data['values']['shadow'];
 				$preview_shadow = $has_shadow ? '0 2px 8px rgba(0,0,0,0.08)' : 'none';
 			?>
-				<div class="nlf-theme-option <?php echo ( $current_theme === $theme_id ) ? 'is-active' : ''; ?>" data-theme="<?php echo esc_attr( $theme_id ); ?>">
-					<input type="radio" name="nlf_faq_group_theme" value="<?php echo esc_attr( $theme_id ); ?>" <?php checked( $current_theme, $theme_id ); ?> id="theme_<?php echo esc_attr( $theme_id ); ?>" />
+				<div class="nlf-theme-option" data-theme="<?php echo esc_attr( $theme_id ); ?>">
+					<input type="radio" name="nlf_faq_group_theme" value="<?php echo esc_attr( $theme_id ); ?>" id="theme_<?php echo esc_attr( $theme_id ); ?>" />
 					<label for="theme_<?php echo esc_attr( $theme_id ); ?>">
 						<div class="nlf-theme-preview nlf-theme-preview--<?php echo esc_attr( $layout ); ?>" style="
 							background: <?php echo $is_cards ? 'transparent' : esc_attr( $theme_data['background'] ); ?>;
@@ -1459,7 +1452,7 @@ class Group_Admin {
 							<p><?php echo esc_html( $theme_data['description'] ); ?></p>
 							<span class="nlf-theme-layout-tag"><?php echo esc_html( $layout_labels[ $layout ] ?? $layout ); ?></span>
 						</div>
-						<span class="nlf-theme-badge" aria-hidden="<?php echo ( $current_theme === $theme_id ) ? 'false' : 'true'; ?>">
+						<span class="nlf-theme-badge" aria-hidden="true">
 							<?php esc_html_e( 'Applied', 'next-level-faq' ); ?>
 						</span>
 					</label>
@@ -1478,7 +1471,7 @@ class Group_Admin {
 						<label for="theme_custom_primary"><?php esc_html_e( 'Primary Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_primary" name="nlf_faq_group_theme_custom[primary]" value="<?php echo esc_attr( $theme_custom['primary'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="primary" />
+						<input type="text" id="theme_custom_primary" name="nlf_faq_group_theme_custom[primary]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="primary" />
 					</td>
 				</tr>
 				<tr>
@@ -1486,7 +1479,7 @@ class Group_Admin {
 						<label for="theme_custom_secondary"><?php esc_html_e( 'Secondary Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_secondary" name="nlf_faq_group_theme_custom[secondary]" value="<?php echo esc_attr( $theme_custom['secondary'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="secondary" />
+						<input type="text" id="theme_custom_secondary" name="nlf_faq_group_theme_custom[secondary]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="secondary" />
 					</td>
 				</tr>
 				<tr>
@@ -1494,7 +1487,7 @@ class Group_Admin {
 						<label for="theme_custom_accent"><?php esc_html_e( 'Accent Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_accent" name="nlf_faq_group_theme_custom[accent]" value="<?php echo esc_attr( $theme_custom['accent'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="accent" />
+						<input type="text" id="theme_custom_accent" name="nlf_faq_group_theme_custom[accent]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="accent" />
 					</td>
 				</tr>
 				<tr>
@@ -1502,7 +1495,7 @@ class Group_Admin {
 						<label for="theme_custom_background"><?php esc_html_e( 'Background Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_background" name="nlf_faq_group_theme_custom[background]" value="<?php echo esc_attr( $theme_custom['background'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="background" />
+						<input type="text" id="theme_custom_background" name="nlf_faq_group_theme_custom[background]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="background" />
 					</td>
 				</tr>
 			</table>
@@ -1515,7 +1508,7 @@ class Group_Admin {
 	 *
 	 * @param array $settings Group settings.
 	 */
-	private static function render_settings_fields( $settings ) {
+	private static function render_settings_fields() {
 		?>
 		<div class="nlf-settings-wrapper">
 			<h4 class="nlf-subsection-title"><?php esc_html_e( 'How should users interact?', 'next-level-faq' ); ?></h4>
@@ -1531,7 +1524,7 @@ class Group_Admin {
 					</th>
 					<td>
 						<label>
-							<input type="checkbox" id="setting_accordion_mode" name="nlf_faq_group_settings[accordion_mode]" value="1" <?php checked( ! empty( $settings['accordion_mode'] ) ); ?> />
+							<input type="checkbox" id="setting_accordion_mode" name="nlf_faq_group_settings[accordion_mode]" value="1" />
 							<?php esc_html_e( 'Only allow one item to be open at a time', 'next-level-faq' ); ?>
 						</label>
 					<p class="nlf-help-text" id="accordion-help" hidden>
@@ -1550,9 +1543,9 @@ class Group_Admin {
 					</th>
 					<td>
 						<select id="setting_initial_state" name="nlf_faq_group_settings[initial_state]">
-							<option value="all_closed" <?php selected( $settings['initial_state'] ?? 'all_closed', 'all_closed' ); ?>><?php esc_html_e( 'All Closed', 'next-level-faq' ); ?></option>
-							<option value="first_open" <?php selected( $settings['initial_state'] ?? '', 'first_open' ); ?>><?php esc_html_e( 'First Item Open', 'next-level-faq' ); ?></option>
-							<option value="custom" <?php selected( $settings['initial_state'] ?? '', 'custom' ); ?>><?php esc_html_e( 'Custom (Use item settings)', 'next-level-faq' ); ?></option>
+							<option value="all_closed"><?php esc_html_e( 'All Closed', 'next-level-faq' ); ?></option>
+							<option value="first_open"><?php esc_html_e( 'First Item Open', 'next-level-faq' ); ?></option>
+							<option value="custom"><?php esc_html_e( 'Custom (Use item settings)', 'next-level-faq' ); ?></option>
 						</select>
 					<p class="nlf-help-text" id="initial-help" hidden>
 							<?php esc_html_e( 'Choose how items should appear when the page loads. "Custom" uses the "Open by default" setting for each item.', 'next-level-faq' ); ?>
@@ -1570,9 +1563,9 @@ class Group_Admin {
 					</th>
 					<td>
 						<select id="setting_animation_speed" name="nlf_faq_group_settings[animation_speed]">
-							<option value="fast" <?php selected( $settings['animation_speed'] ?? 'normal', 'fast' ); ?>><?php esc_html_e( 'Fast (150ms)', 'next-level-faq' ); ?></option>
-							<option value="normal" <?php selected( $settings['animation_speed'] ?? 'normal', 'normal' ); ?>><?php esc_html_e( 'Normal (300ms)', 'next-level-faq' ); ?></option>
-							<option value="slow" <?php selected( $settings['animation_speed'] ?? '', 'slow' ); ?>><?php esc_html_e( 'Slow (500ms)', 'next-level-faq' ); ?></option>
+							<option value="fast"><?php esc_html_e( 'Fast (150ms)', 'next-level-faq' ); ?></option>
+							<option value="normal"><?php esc_html_e( 'Normal (300ms)', 'next-level-faq' ); ?></option>
+							<option value="slow"><?php esc_html_e( 'Slow (500ms)', 'next-level-faq' ); ?></option>
 						</select>
 					<p class="nlf-help-text" id="animation-help" hidden>
 							<?php esc_html_e( 'Controls how quickly items expand and collapse. Normal works well for most sites.', 'next-level-faq' ); ?>
@@ -1594,7 +1587,7 @@ class Group_Admin {
 					</th>
 					<td>
 						<label>
-							<input type="checkbox" id="setting_show_search" name="nlf_faq_group_settings[show_search]" value="1" <?php checked( ! empty( $settings['show_search'] ) ); ?> />
+							<input type="checkbox" id="setting_show_search" name="nlf_faq_group_settings[show_search]" value="1" />
 							<?php esc_html_e( 'Show search box above FAQ items', 'next-level-faq' ); ?>
 						</label>
 					<p class="nlf-help-text" id="search-help" hidden>
@@ -1613,7 +1606,7 @@ class Group_Admin {
 					</th>
 					<td>
 						<label>
-							<input type="checkbox" id="setting_show_counter" name="nlf_faq_group_settings[show_counter]" value="1" <?php checked( ! empty( $settings['show_counter'] ) ); ?> />
+							<input type="checkbox" id="setting_show_counter" name="nlf_faq_group_settings[show_counter]" value="1" />
 							<?php esc_html_e( 'Display item numbers (e.g., 1., 2., 3.)', 'next-level-faq' ); ?>
 						</label>
 					<p class="nlf-help-text" id="counter-help" hidden>
@@ -1632,7 +1625,7 @@ class Group_Admin {
 					</th>
 					<td>
 						<label>
-							<input type="checkbox" id="setting_smooth_scroll" name="nlf_faq_group_settings[smooth_scroll]" value="1" <?php checked( ! empty( $settings['smooth_scroll'] ) ); ?> />
+							<input type="checkbox" id="setting_smooth_scroll" name="nlf_faq_group_settings[smooth_scroll]" value="1" />
 							<?php esc_html_e( 'Scroll to item when opened via URL hash', 'next-level-faq' ); ?>
 						</label>
 					<p class="nlf-help-text" id="scroll-help" hidden>
@@ -1651,14 +1644,14 @@ class Group_Admin {
 	 * @param bool  $use_custom_style Whether to use custom styles.
 	 * @param array $custom_styles    Custom style values.
 	 */
-	private static function render_custom_styles( $use_custom_style, $custom_styles ) {
+	private static function render_custom_styles() {
 		$default_styles = Options::get_defaults();
 		unset( $default_styles['preset'] );
 		?>
 		<div class="nlf-style-wrapper">
 			<div class="nlf-style-toggle">
 				<label>
-					<input type="checkbox" name="nlf_faq_group_use_custom_style" value="1" <?php checked( ! empty( $use_custom_style ) ); ?> id="nlf-use-custom-style-toggle" />
+					<input type="checkbox" name="nlf_faq_group_use_custom_style" value="1" id="nlf-use-custom-style-toggle" />
 					<strong><?php esc_html_e( 'Use custom styles for this group', 'next-level-faq' ); ?></strong>
 				</label>
 				<p class="description">
@@ -1666,7 +1659,7 @@ class Group_Admin {
 				</p>
 			</div>
 
-			<div class="nlf-custom-style-fields" style="<?php echo empty( $use_custom_style ) ? 'display: none;' : ''; ?>" data-default-styles="<?php echo esc_attr( wp_json_encode( $default_styles ) ); ?>">
+			<div class="nlf-custom-style-fields" style="display: none;" data-default-styles="<?php echo esc_attr( wp_json_encode( $default_styles ) ); ?>">
 				<h3><?php esc_html_e( 'Container', 'next-level-faq' ); ?></h3>
 				<table class="form-table">
 					<tr>
@@ -1674,7 +1667,7 @@ class Group_Admin {
 							<label for="custom_container_background"><?php esc_html_e( 'Background', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="text" id="custom_container_background" name="nlf_faq_group_custom_styles[container_background]" value="<?php echo esc_attr( $custom_styles['container_background'] ?? '#ffffff' ); ?>" class="nlf-color-picker" />
+							<input type="text" id="custom_container_background" name="nlf_faq_group_custom_styles[container_background]" value="" class="nlf-color-picker" />
 						</td>
 					</tr>
 					<tr>
@@ -1682,7 +1675,7 @@ class Group_Admin {
 							<label for="custom_container_border_color"><?php esc_html_e( 'Border Color', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="text" id="custom_container_border_color" name="nlf_faq_group_custom_styles[container_border_color]" value="<?php echo esc_attr( $custom_styles['container_border_color'] ?? '#e2e8f0' ); ?>" class="nlf-color-picker" />
+							<input type="text" id="custom_container_border_color" name="nlf_faq_group_custom_styles[container_border_color]" value="" class="nlf-color-picker" />
 						</td>
 					</tr>
 					<tr>
@@ -1690,7 +1683,7 @@ class Group_Admin {
 							<label for="custom_container_border_radius"><?php esc_html_e( 'Border Radius (px)', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="number" min="0" id="custom_container_border_radius" name="nlf_faq_group_custom_styles[container_border_radius]" value="<?php echo esc_attr( $custom_styles['container_border_radius'] ?? 8 ); ?>" />
+							<input type="number" min="0" id="custom_container_border_radius" name="nlf_faq_group_custom_styles[container_border_radius]" value="" />
 						</td>
 					</tr>
 					<tr>
@@ -1698,7 +1691,7 @@ class Group_Admin {
 							<label for="custom_container_padding"><?php esc_html_e( 'Padding (px)', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="number" min="0" id="custom_container_padding" name="nlf_faq_group_custom_styles[container_padding]" value="<?php echo esc_attr( $custom_styles['container_padding'] ?? 24 ); ?>" />
+							<input type="number" min="0" id="custom_container_padding" name="nlf_faq_group_custom_styles[container_padding]" value="" />
 						</td>
 					</tr>
 				</table>
@@ -1710,7 +1703,7 @@ class Group_Admin {
 							<label for="custom_question_color"><?php esc_html_e( 'Color', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="text" id="custom_question_color" name="nlf_faq_group_custom_styles[question_color]" value="<?php echo esc_attr( $custom_styles['question_color'] ?? '#0f172a' ); ?>" class="nlf-color-picker" />
+							<input type="text" id="custom_question_color" name="nlf_faq_group_custom_styles[question_color]" value="" class="nlf-color-picker" />
 						</td>
 					</tr>
 					<tr>
@@ -1718,7 +1711,7 @@ class Group_Admin {
 							<label for="custom_question_font_size"><?php esc_html_e( 'Font Size (px)', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="number" min="10" id="custom_question_font_size" name="nlf_faq_group_custom_styles[question_font_size]" value="<?php echo esc_attr( $custom_styles['question_font_size'] ?? 18 ); ?>" />
+							<input type="number" min="10" id="custom_question_font_size" name="nlf_faq_group_custom_styles[question_font_size]" value="" />
 						</td>
 					</tr>
 				</table>
@@ -1730,7 +1723,7 @@ class Group_Admin {
 							<label for="custom_answer_color"><?php esc_html_e( 'Color', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="text" id="custom_answer_color" name="nlf_faq_group_custom_styles[answer_color]" value="<?php echo esc_attr( $custom_styles['answer_color'] ?? '#4b5563' ); ?>" class="nlf-color-picker" />
+							<input type="text" id="custom_answer_color" name="nlf_faq_group_custom_styles[answer_color]" value="" class="nlf-color-picker" />
 						</td>
 					</tr>
 					<tr>
@@ -1738,7 +1731,7 @@ class Group_Admin {
 							<label for="custom_answer_font_size"><?php esc_html_e( 'Font Size (px)', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="number" min="10" id="custom_answer_font_size" name="nlf_faq_group_custom_styles[answer_font_size]" value="<?php echo esc_attr( $custom_styles['answer_font_size'] ?? 16 ); ?>" />
+							<input type="number" min="10" id="custom_answer_font_size" name="nlf_faq_group_custom_styles[answer_font_size]" value="" />
 						</td>
 					</tr>
 				</table>
@@ -1750,7 +1743,7 @@ class Group_Admin {
 							<label for="custom_accent_color"><?php esc_html_e( 'Accent Color', 'next-level-faq' ); ?></label>
 						</th>
 						<td>
-							<input type="text" id="custom_accent_color" name="nlf_faq_group_custom_styles[accent_color]" value="<?php echo esc_attr( $custom_styles['accent_color'] ?? '#3b82f6' ); ?>" class="nlf-color-picker" />
+							<input type="text" id="custom_accent_color" name="nlf_faq_group_custom_styles[accent_color]" value="" class="nlf-color-picker" />
 						</td>
 					</tr>
 					<tr>
@@ -1759,8 +1752,8 @@ class Group_Admin {
 						</th>
 						<td>
 							<select id="custom_icon_style" name="nlf_faq_group_custom_styles[icon_style]">
-								<option value="plus_minus" <?php selected( $custom_styles['icon_style'] ?? 'plus_minus', 'plus_minus' ); ?>><?php esc_html_e( 'Plus / Minus', 'next-level-faq' ); ?></option>
-								<option value="chevron" <?php selected( $custom_styles['icon_style'] ?? '', 'chevron' ); ?>><?php esc_html_e( 'Chevron', 'next-level-faq' ); ?></option>
+								<option value="plus_minus"><?php esc_html_e( 'Plus / Minus', 'next-level-faq' ); ?></option>
+								<option value="chevron"><?php esc_html_e( 'Chevron', 'next-level-faq' ); ?></option>
 							</select>
 						</td>
 					</tr>
@@ -1770,9 +1763,9 @@ class Group_Admin {
 						</th>
 						<td>
 							<select id="custom_animation" name="nlf_faq_group_custom_styles[animation]">
-								<option value="slide" <?php selected( $custom_styles['animation'] ?? 'slide', 'slide' ); ?>><?php esc_html_e( 'Slide', 'next-level-faq' ); ?></option>
-								<option value="fade" <?php selected( $custom_styles['animation'] ?? '', 'fade' ); ?>><?php esc_html_e( 'Fade', 'next-level-faq' ); ?></option>
-								<option value="none" <?php selected( $custom_styles['animation'] ?? '', 'none' ); ?>><?php esc_html_e( 'None', 'next-level-faq' ); ?></option>
+								<option value="slide"><?php esc_html_e( 'Slide', 'next-level-faq' ); ?></option>
+								<option value="fade"><?php esc_html_e( 'Fade', 'next-level-faq' ); ?></option>
+								<option value="none"><?php esc_html_e( 'None', 'next-level-faq' ); ?></option>
 							</select>
 						</td>
 					</tr>
