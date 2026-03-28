@@ -868,10 +868,11 @@
 			return;
 		}
 
+		const icon = type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning';
 		const notice = doc.createElement('div');
 		notice.className = 'nlf-inline-notice nlf-inline-notice--' + type;
 		notice.setAttribute('role', 'alert');
-		notice.innerHTML = '<span class="dashicons dashicons-warning" aria-hidden="true"></span><p>' + message + '</p>';
+		notice.innerHTML = '<span class="dashicons ' + icon + '" aria-hidden="true"></span><p>' + message + '</p>';
 		form.insertBefore(notice, form.firstChild);
 
 		// Scroll into view.
@@ -936,10 +937,32 @@
 			if (data.success) {
 				publishButton.value = savedText;
 
-				// If this was a new group, redirect to the edit page with the new ID.
-				if (data.data?.redirect_url && (!nlfGroupData.groupId || nlfGroupData.groupId === 0)) {
-					window.location.href = data.data.redirect_url + '&nlf_group_notice=created';
-					return;
+				// New group: transition "Add New" → "Edit" in-place (no redirect).
+				if (data.data?.group_id && !parseInt(nlfGroupData.groupId, 10)) {
+					const newId = data.data.group_id;
+
+					// Update JS state.
+					nlfGroupData.groupId = newId;
+
+					// Update hidden form input.
+					const hiddenId = form.querySelector('[name="group_id"]');
+					if (hiddenId) {
+						hiddenId.value = newId;
+					}
+
+					// Update URL without reload.
+					const newUrl = nlfGroupData.editUrl + '&id=' + newId;
+					history.replaceState(null, '', newUrl);
+
+					// Update page heading.
+					const heading = doc.querySelector('.wrap > h1.wp-heading-inline');
+					if (heading) {
+						heading.textContent = nlfGroupData.i18n.edit_title || 'Edit FAQ Group';
+					}
+					doc.title = doc.title.replace(/Add New FAQ Group/, 'Edit FAQ Group');
+
+					// Show success notice.
+					showInlineNotice(nlfGroupData.i18n.created || 'FAQ group created.', 'success');
 				}
 
 				// Notify state collector (debug panel + future consumers).

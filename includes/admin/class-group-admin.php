@@ -280,7 +280,10 @@ class Group_Admin {
 			'i18n'       => array(
 				'saving'         => __( 'Saving...', 'next-level-faq' ),
 				'saved'          => __( 'Saved!', 'next-level-faq' ),
+				'update'         => __( 'Update', 'next-level-faq' ),
 				'title_required' => __( 'Please enter a title for this FAQ group.', 'next-level-faq' ),
+				'edit_title'     => __( 'Edit FAQ Group', 'next-level-faq' ),
+				'created'        => __( 'FAQ group created.', 'next-level-faq' ),
 			),
 		) );
 

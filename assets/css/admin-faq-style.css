@@ -2065,6 +2065,19 @@
 	font-weight: var(--font-weight-medium);
 }
 
+.nlf-inline-notice--success {
+	border-left-color: var(--color-primary-500);
+	background: var(--color-primary-50, #eff6ff);
+}
+
+.nlf-inline-notice--success .dashicons {
+	color: var(--color-primary-600);
+}
+
+.nlf-inline-notice--success p {
+	color: var(--color-primary-700, #1d4ed8);
+}
+
 .nlf-faq-tabs-nav {
 	display: flex;
 	gap: 0;
