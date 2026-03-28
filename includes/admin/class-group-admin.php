@@ -369,16 +369,14 @@ class Group_Admin {
 							</div>
 
 							<!-- How To Use Sidebar -->
-							<?php if ( $group_id ) : ?>
-								<div class="postbox">
-									<div class="postbox-header">
-										<h2 class="hndle"><?php esc_html_e( 'How To Use', 'next-level-faq' ); ?></h2>
-									</div>
-									<div class="inside">
-										<?php self::render_how_to_use_sidebar( $group_id ); ?>
-									</div>
+							<div class="postbox" id="nlf-how-to-use-box"<?php if ( ! $group_id ) : ?> style="display:none;"<?php endif; ?>>
+								<div class="postbox-header">
+									<h2 class="hndle"><?php esc_html_e( 'How To Use', 'next-level-faq' ); ?></h2>
 								</div>
-							<?php endif; ?>
+								<div class="inside">
+									<?php self::render_how_to_use_sidebar( $group_id ); ?>
+								</div>
+							</div>
 						</div>
 
 					</div><!-- #post-body -->
@@ -577,11 +575,14 @@ class Group_Admin {
 			true
 		);
 
+		$js_metabox_path   = NLF_FAQ_PLUGIN_DIR . 'assets/js/admin-faq-group-metabox.js';
+		$js_collector_path = NLF_FAQ_PLUGIN_DIR . 'assets/js/admin-state-collector.js';
+
 		wp_enqueue_script(
 			'nlf-faq-group-metabox',
 			NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-group-metabox.js',
 			array( 'wp-editor', 'wp-color-picker', 'nlf-faq-frontend' ),
-			NLF_FAQ_VERSION,
+			file_exists( $js_metabox_path ) ? filemtime( $js_metabox_path ) : NLF_FAQ_VERSION,
 			true
 		);
 
@@ -589,7 +590,7 @@ class Group_Admin {
 			'nlf-admin-state-collector',
 			NLF_FAQ_PLUGIN_URL . 'assets/js/admin-state-collector.js',
 			array( 'nlf-faq-group-metabox' ),
-			NLF_FAQ_VERSION,
+			file_exists( $js_collector_path ) ? filemtime( $js_collector_path ) : NLF_FAQ_VERSION,
 			true
 		);
 	}

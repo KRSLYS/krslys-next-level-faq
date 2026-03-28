@@ -888,6 +888,36 @@
 		}, 6000);
 	}
 
+	function showHowToUseSidebar(groupId) {
+		const box = $('#nlf-how-to-use-box');
+		if (!box) {
+			return;
+		}
+
+		const shortcode = '[krslys_nlf group="' + groupId + '"]';
+		const phpCode   = "<?php echo do_shortcode( '" + shortcode + "' ); ?>";
+
+		// Update data-copy-text and visible code for each snippet.
+		const snippets = $$('.nlf-htu-snippet', box);
+		if (snippets[0]) {
+			snippets[0].setAttribute('data-copy-text', shortcode);
+			const code = snippets[0].querySelector('.nlf-htu-snippet__code');
+			if (code) {
+				code.textContent = shortcode;
+			}
+		}
+		if (snippets[1]) {
+			snippets[1].setAttribute('data-copy-text', phpCode);
+			const code = snippets[1].querySelector('.nlf-htu-snippet__code');
+			if (code) {
+				code.textContent = phpCode;
+			}
+		}
+
+		// Reveal the sidebar box.
+		box.style.display = '';
+	}
+
 	function handleAjaxSave() {
 		const form = $('#nlf-group-edit-form') || $('#post');
 		const publishButton = $('#publish');
@@ -960,6 +990,9 @@
 						heading.textContent = nlfGroupData.i18n.edit_title || 'Edit FAQ Group';
 					}
 					doc.title = doc.title.replace(/Add New FAQ Group/, 'Edit FAQ Group');
+
+					// Reveal and populate "How To Use" sidebar.
+					showHowToUseSidebar(newId);
 
 					// Show success notice.
 					showInlineNotice(nlfGroupData.i18n.created || 'FAQ group created.', 'success');
