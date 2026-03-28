@@ -409,6 +409,72 @@ class Groups_Repository {
 	}
 
 	/**
+	 * Get full group state including items — used for JSON state in admin editor.
+	 *
+	 * @param int $id Group ID.
+	 * @return array Full state array ready for JSON encoding, or defaults for new group.
+	 */
+	public static function get_full_group_state( $id = 0 ) {
+		$defaults = array(
+			'id'               => 0,
+			'title'            => '',
+			'slug'             => '',
+			'description'      => '',
+			'theme_settings'   => array(),
+			'display_settings' => array(
+				'accordion_mode'  => false,
+				'initial_state'   => 'all_closed',
+				'animation_speed' => 'normal',
+				'show_search'     => false,
+				'show_counter'    => false,
+				'smooth_scroll'   => true,
+			),
+			'custom_styles'    => array(),
+			'use_custom_style' => false,
+			'status'           => 'active',
+			'items'            => array(),
+		);
+
+		if ( $id <= 0 ) {
+			return $defaults;
+		}
+
+		$group = self::get_group_by_id( $id );
+
+		if ( ! $group ) {
+			return $defaults;
+		}
+
+		$items_raw = Repository::get_items_for_group( $id, false );
+		$items     = array();
+
+		foreach ( $items_raw as $item ) {
+			$items[] = array(
+				'id'            => (int) $item->id,
+				'question'      => $item->question,
+				'answer'        => $item->answer,
+				'status'        => (int) $item->status,
+				'position'      => (int) $item->position,
+				'initial_state' => (int) $item->initial_state,
+				'highlight'     => (int) $item->highlight,
+			);
+		}
+
+		return array(
+			'id'               => (int) $group->id,
+			'title'            => $group->title,
+			'slug'             => $group->slug,
+			'description'      => $group->description ?? '',
+			'theme_settings'   => $group->theme_settings,
+			'display_settings' => ! empty( $group->display_settings ) ? $group->display_settings : $defaults['display_settings'],
+			'custom_styles'    => $group->custom_styles,
+			'use_custom_style' => $group->use_custom_style,
+			'status'           => $group->status,
+			'items'            => $items,
+		);
+	}
+
+	/**
 	 * Count total groups.
 	 *
 	 * @param string|null $status Optional status filter.

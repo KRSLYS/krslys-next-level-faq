@@ -85,11 +85,12 @@ final class Krslys_NextLevelFaq_Plugin {
 		// Core hooks.
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ) );
-		add_action( 'init', array( '\Krslys\NextLevelFaq\Group_CPT', 'register' ) );
+		add_action( 'init', array( '\Krslys\NextLevelFaq\Group_Admin', 'register' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_shortcodes' ) );
 		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_tracking_routes' ) );
 		add_action( 'wp_enqueue_scripts', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'enqueue_styles' ) );
 		add_action( 'admin_menu', array( '\Krslys\NextLevelFaq\Admin_Settings', 'register_menu' ) );
+		add_action( 'admin_menu', array( '\Krslys\NextLevelFaq\Group_Admin', 'register_admin_pages' ), 20 );
 		add_action( 'admin_init', array( '\Krslys\NextLevelFaq\Admin_Settings', 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( '\Krslys\NextLevelFaq\Admin_Settings', 'enqueue_assets' ) );
 		add_action( 'admin_post_nlf_faq_export', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_export' ) );
@@ -97,7 +98,6 @@ final class Krslys_NextLevelFaq_Plugin {
 		
 		// AJAX handlers for admin settings
 		add_action( 'wp_ajax_nlf_save_settings_ajax', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_ajax_save_settings' ) );
-		add_action( 'wp_ajax_nlf_save_faq_group_ajax', array( '\Krslys\NextLevelFaq\Group_CPT', 'handle_ajax_save_group' ) );
 
 		// Style generation (no longer tied to wp_options update)
 		add_action( 'nlf_faq_settings_updated', array( '\Krslys\NextLevelFaq\Style_Generator', 'generate_and_save' ), 10, 2 );
@@ -217,7 +217,6 @@ final class Krslys_NextLevelFaq_Plugin {
 		\Krslys\NextLevelFaq\Database::cleanup_legacy_data();
 		\Krslys\NextLevelFaq\Settings_Repository::initialize_defaults();
 		\Krslys\NextLevelFaq\Options::activate();
-		\Krslys\NextLevelFaq\Group_CPT::grant_caps();
 	}
 
 	/**

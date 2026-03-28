@@ -122,8 +122,12 @@ class Autoloader {
 	 * @return string The subdirectory name (without trailing slash) or empty string.
 	 */
 	private function get_subdirectory_for_class( $class_name ) {
-		// Admin classes: Admin_* or *_CPT.
-		if ( strpos( $class_name, 'Admin_' ) === 0 || strpos( $class_name, '_CPT' ) !== false ) {
+		// Admin classes: Admin_*, Group_*, *_CPT, *_List_Table.
+		if ( strpos( $class_name, 'Admin_' ) === 0
+			|| strpos( $class_name, 'Group_' ) === 0
+			|| strpos( $class_name, '_CPT' ) !== false
+			|| strpos( $class_name, '_List_Table' ) !== false
+		) {
 			return 'admin';
 		}
 

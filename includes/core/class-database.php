@@ -173,40 +173,8 @@ class Database {
 	 * Runs once only — subsequent calls are no-ops to prevent data loss on reactivation.
 	 */
 	public static function cleanup_legacy_data() {
-		if ( get_option( 'nlf_faq_legacy_cleaned' ) ) {
-			return;
-		}
-
-		global $wpdb;
-
-		// Delete old CPT posts (nlf_faq_group)
-		$deleted_posts = $wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->posts} WHERE post_type = %s",
-				'nlf_faq_group'
-			)
-		);
-
-		// Delete orphaned postmeta (postmeta without corresponding post)
-		$wpdb->query(
-			"DELETE pm FROM {$wpdb->postmeta} pm 
-			LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
-			WHERE p.ID IS NULL"
-		);
-
-		// Delete old style options (will be migrated to settings table)
-		delete_option( 'nlf_faq_style_options' );
-
-		// Clear legacy items with group_id = 0 (old questions feature)
-		$items_table = self::get_items_table();
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$items_table} WHERE group_id = %d",
-				0
-			)
-		);
-
-		update_option( 'nlf_faq_legacy_cleaned', true );
+		// No legacy data to clean up in v1.0.0 fresh install.
+		return;
 	}
 
 	/**

@@ -22,13 +22,6 @@ $autoloader->register();
 // Import the Database class
 use Krslys\NextLevelFaq\Database;
 use Krslys\NextLevelFaq\Settings_Repository;
-use Krslys\NextLevelFaq\Group_CPT;
-
-/**
- * Remove custom CPT capabilities from all roles so the database is clean.
- */
-Group_CPT::revoke_caps();
-
 /**
  * Drop all custom tables.
  */
@@ -40,28 +33,6 @@ Database::drop_tables();
 delete_option( 'nlf_faq_schema_version' );
 delete_option( 'nlf_faq_style_options' );
 delete_option( 'nlf_faq_presets_css_version' );
-delete_option( 'nlf_faq_legacy_cleaned' );
-
-/**
- * Clean up any remaining CPT posts (shouldn't exist, but just in case).
- */
-global $wpdb;
-
-$wpdb->query(
-	$wpdb->prepare(
-		"DELETE FROM {$wpdb->posts} WHERE post_type = %s",
-		'nlf_faq_group'
-	)
-);
-
-// Delete orphaned postmeta (no user input; table names come from $wpdb).
-// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- No user input, only core WP table references.
-$wpdb->query(
-	"DELETE pm FROM {$wpdb->postmeta} pm
-	LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-	WHERE p.ID IS NULL"
-);
-
 /**
  * Delete generated CSS files from uploads directory using WP_Filesystem.
  */
@@ -85,6 +56,8 @@ if ( is_dir( $css_dir ) ) {
 /**
  * Clear any transients.
  */
+global $wpdb;
+
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
