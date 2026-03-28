@@ -165,9 +165,11 @@ class Groups_Repository {
 			return false;
 		}
 
-		Cache::invalidate_group( $wpdb->insert_id );
+		$new_id = (int) $wpdb->insert_id;
 
-		return (int) $wpdb->insert_id;
+		Cache::invalidate_group( $new_id );
+
+		return $new_id;
 	}
 
 	/**
