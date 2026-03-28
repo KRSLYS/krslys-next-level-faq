@@ -170,9 +170,13 @@ class Database {
 	 * Clean up legacy data from WordPress core tables.
 	 *
 	 * Removes old Custom Post Type posts, postmeta, and legacy options.
-	 * This is safe to run - it only removes plugin-specific data.
+	 * Runs once only — subsequent calls are no-ops to prevent data loss on reactivation.
 	 */
 	public static function cleanup_legacy_data() {
+		if ( get_option( 'nlf_faq_legacy_cleaned' ) ) {
+			return;
+		}
+
 		global $wpdb;
 
 		// Delete old CPT posts (nlf_faq_group)
@@ -202,6 +206,7 @@ class Database {
 			)
 		);
 
+		update_option( 'nlf_faq_legacy_cleaned', true );
 	}
 
 	/**

@@ -22,6 +22,12 @@ $autoloader->register();
 // Import the Database class
 use Krslys\NextLevelFaq\Database;
 use Krslys\NextLevelFaq\Settings_Repository;
+use Krslys\NextLevelFaq\Group_CPT;
+
+/**
+ * Remove custom CPT capabilities from all roles so the database is clean.
+ */
+Group_CPT::revoke_caps();
 
 /**
  * Drop all custom tables.
@@ -34,6 +40,7 @@ Database::drop_tables();
 delete_option( 'nlf_faq_schema_version' );
 delete_option( 'nlf_faq_style_options' );
 delete_option( 'nlf_faq_presets_css_version' );
+delete_option( 'nlf_faq_legacy_cleaned' );
 
 /**
  * Clean up any remaining CPT posts (shouldn't exist, but just in case).
@@ -59,7 +66,7 @@ $wpdb->query(
  * Delete generated CSS files from uploads directory using WP_Filesystem.
  */
 $uploads = wp_upload_dir();
-$css_dir = trailingslashit( $uploads['basedir'] ) . 'nlf-faq-styles';
+$css_dir = trailingslashit( $uploads['basedir'] ) . 'nlf-faq';
 
 if ( is_dir( $css_dir ) ) {
 	if ( ! function_exists( 'WP_Filesystem' ) ) {

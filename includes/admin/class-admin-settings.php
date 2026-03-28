@@ -158,10 +158,9 @@ class Admin_Settings {
 				wp_send_json_error(
 					array( 
 						'message' => __( 'Database tables could not be created. Please check database permissions.', 'next-level-faq' ),
-						'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? array(
-							'last_error' => $wpdb->last_error,
-							'prefix'     => $wpdb->prefix,
-						) : null,
+						'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG )
+						? array( 'last_error' => $wpdb->last_error )
+						: null,
 					),
 					500
 				);
@@ -179,11 +178,9 @@ class Admin_Settings {
 			wp_send_json_error(
 				array( 
 					'message' => __( 'Failed to save settings. Please try again.', 'next-level-faq' ),
-					'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? array(
-						'db_error' => $db_error,
-						'table'    => Database::get_settings_table(),
-						'key'      => Settings_Repository::KEY_GLOBAL_STYLES,
-					) : null,
+					'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG )
+					? array( 'db_error' => $db_error )
+					: null,
 				),
 				500
 			);

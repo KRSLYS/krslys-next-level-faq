@@ -23,13 +23,80 @@ use WP_Post;
  *
  * SECURITY FEATURES:
  * - All metabox saves protected with nonce verification.
- * - Capability checks for edit_post permission.
+	 * - Capability checks via custom capability_type (nlf_faq_group/nlf_faq_groups).
  * - Input sanitization via sanitize_text_field() and wp_kses_post().
  * - Output escaping via esc_attr(), esc_html().
  */
 class Group_CPT {
 
 	const POST_TYPE = 'nlf_faq_group';
+
+	/**
+	 * Return the primitive capabilities introduced by this CPT.
+	 *
+	 * These are the plural-form caps that WordPress generates from the
+	 * custom capability_type. Keeping them in one place makes granting
+	 * and revoking them across files straightforward and future-proof.
+	 *
+	 * @return string[]
+	 */
+	public static function get_primitive_caps() {
+		return array(
+			'edit_nlf_faq_groups',
+			'edit_others_nlf_faq_groups',
+			'publish_nlf_faq_groups',
+			'read_private_nlf_faq_groups',
+			'delete_nlf_faq_groups',
+			'delete_private_nlf_faq_groups',
+			'delete_published_nlf_faq_groups',
+			'delete_others_nlf_faq_groups',
+			'edit_private_nlf_faq_groups',
+			'edit_published_nlf_faq_groups',
+		);
+	}
+
+	/**
+	 * Grant CPT capabilities to administrator and editor roles.
+	 *
+	 * Called on plugin activation so that those roles can manage FAQ Groups
+	 * immediately. Idempotent — safe to call on every activation/upgrade.
+	 */
+	public static function grant_caps() {
+		$roles = array( 'administrator', 'editor' );
+
+		foreach ( $roles as $role_name ) {
+			$role = get_role( $role_name );
+
+			if ( ! $role ) {
+				continue;
+			}
+
+			foreach ( self::get_primitive_caps() as $cap ) {
+				$role->add_cap( $cap );
+			}
+		}
+	}
+
+	/**
+	 * Revoke CPT capabilities from all roles.
+	 *
+	 * Called on plugin uninstall to leave the database in a clean state.
+	 */
+	public static function revoke_caps() {
+		global $wp_roles;
+
+		foreach ( array_keys( $wp_roles->roles ) as $role_name ) {
+			$role = get_role( $role_name );
+
+			if ( ! $role ) {
+				continue;
+			}
+
+			foreach ( self::get_primitive_caps() as $cap ) {
+				$role->remove_cap( $cap );
+			}
+		}
+	}
 
 	/**
 	 * Register CPT.
@@ -61,7 +128,8 @@ class Group_CPT {
 			'show_in_admin_bar'  => false,
 			'show_in_menu'       => 'nlf-faq',
 			'supports'           => array( 'title' ),
-			'capability_type'    => 'post',
+			'capability_type'    => array( 'nlf_faq_group', 'nlf_faq_groups' ),
+			'map_meta_cap'       => true,
 			'has_archive'        => false,
 		);
 
@@ -1569,7 +1637,7 @@ class Group_CPT {
 	 *
 	 * SECURITY:
 	 * - Nonce verification via wp_verify_nonce().
-	 * - Capability check via current_user_can('edit_post').
+	 * - Capability check via current_user_can('edit_post') — resolved to edit_page by WP meta-cap mapping.
 	 * - Autosave and post type validation.
 	 * - Input sanitization via sanitize_text_field() and wp_kses_post().
 	 *
@@ -1701,7 +1769,7 @@ class Group_CPT {
 		}
 
 		// Check capability
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! current_user_can( 'edit_nlf_faq_groups' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'next-level-faq' ) ) );
 		}
 
@@ -1995,7 +2063,7 @@ class Group_CPT {
 			$allowed    = array( 'publish', 'draft', 'pending', 'private' );
 
 			if ( in_array( $new_status, $allowed, true ) ) {
-				if ( 'publish' === $new_status && ! current_user_can( 'publish_posts' ) ) {
+				if ( 'publish' === $new_status && ! current_user_can( 'publish_nlf_faq_groups' ) ) {
 					$new_status = 'pending';
 				}
 				$update_args['post_status'] = $new_status;

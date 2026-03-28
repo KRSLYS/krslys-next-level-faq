@@ -217,6 +217,7 @@ final class Krslys_NextLevelFaq_Plugin {
 		\Krslys\NextLevelFaq\Database::cleanup_legacy_data();
 		\Krslys\NextLevelFaq\Settings_Repository::initialize_defaults();
 		\Krslys\NextLevelFaq\Options::activate();
+		\Krslys\NextLevelFaq\Group_CPT::grant_caps();
 	}
 
 	/**
