@@ -1984,7 +1984,7 @@
 }
 
 /* ============================================
-   Success Banner
+   Notice Banners
    ============================================ */
 
 .nlf-success-banner {
@@ -1996,6 +1996,73 @@
 
 .nlf-success-banner .dashicons {
 	color: var(--color-primary-600);
+}
+
+/* ============================================
+   Inline Field Validation
+   ============================================ */
+
+#titlediv .nlf-field-error {
+	color: var(--color-error-600);
+	font-size: var(--font-size-sm);
+	margin-top: var(--spacing-2);
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-1);
+	animation: nlf-fadeIn 200ms ease;
+}
+
+#titlediv .nlf-field-error .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+#nlf_group_title.nlf-has-error {
+	border-color: var(--color-error-500);
+	box-shadow: 0 0 0 1px var(--color-error-500);
+}
+
+@keyframes nlf-shake {
+	0%, 100% { transform: translateX(0); }
+	15%, 45%, 75% { transform: translateX(-4px); }
+	30%, 60%, 90% { transform: translateX(4px); }
+}
+
+@keyframes nlf-fadeIn {
+	from { opacity: 0; transform: translateY(-4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+#nlf_group_title.nlf-shake {
+	animation: nlf-shake 400ms ease;
+}
+
+.nlf-inline-notice {
+	margin: var(--spacing-4) 0;
+	padding: var(--spacing-3) var(--spacing-4);
+	border-left: 4px solid var(--color-error-500);
+	background: var(--color-error-50);
+	border-radius: var(--radius-sm);
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-2);
+	animation: nlf-fadeIn 200ms ease;
+}
+
+.nlf-inline-notice .dashicons {
+	color: var(--color-error-600);
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+.nlf-inline-notice p {
+	margin: 0;
+	color: var(--color-error-700);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
 }
 
 .nlf-faq-tabs-nav {

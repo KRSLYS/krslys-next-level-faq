@@ -278,8 +278,9 @@ class Group_Admin {
 			'listUrl'    => $list_url,
 			'isDebug'    => defined( 'WP_DEBUG' ) && WP_DEBUG,
 			'i18n'       => array(
-				'saving' => __( 'Saving...', 'next-level-faq' ),
-				'saved'  => __( 'Saved!', 'next-level-faq' ),
+				'saving'         => __( 'Saving...', 'next-level-faq' ),
+				'saved'          => __( 'Saved!', 'next-level-faq' ),
+				'title_required' => __( 'Please enter a title for this FAQ group.', 'next-level-faq' ),
 			),
 		) );
 

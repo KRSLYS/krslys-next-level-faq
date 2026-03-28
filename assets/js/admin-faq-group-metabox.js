@@ -821,11 +821,84 @@
 		});
 	}
 
+	function showTitleError() {
+		const titleInput = $('#nlf_group_title');
+		if (!titleInput) {
+			return;
+		}
+
+		titleInput.classList.add('nlf-has-error', 'nlf-shake');
+		titleInput.addEventListener('animationend', () => titleInput.classList.remove('nlf-shake'), { once: true });
+		titleInput.focus();
+
+		// Add error message if not already shown.
+		const wrap = titleInput.closest('#titlediv') || titleInput.parentElement;
+		if (!wrap.querySelector('.nlf-field-error')) {
+			const msg = doc.createElement('div');
+			msg.className = 'nlf-field-error';
+			msg.innerHTML = '<span class="dashicons dashicons-warning" aria-hidden="true"></span><span>' +
+				(nlfGroupData.i18n?.title_required || 'Please enter a title for this FAQ group.') + '</span>';
+			wrap.appendChild(msg);
+		}
+
+		// Clear error on input.
+		const clearError = () => {
+			if (titleInput.value.trim()) {
+				titleInput.classList.remove('nlf-has-error');
+				const err = wrap.querySelector('.nlf-field-error');
+				if (err) {
+					err.remove();
+				}
+				titleInput.removeEventListener('input', clearError);
+			}
+		};
+		titleInput.addEventListener('input', clearError);
+	}
+
+	function showInlineNotice(message, type) {
+		type = type || 'error';
+		// Remove any existing inline notice.
+		const existing = $('.nlf-inline-notice');
+		if (existing) {
+			existing.remove();
+		}
+
+		const form = $('#nlf-group-edit-form') || $('#post');
+		if (!form) {
+			return;
+		}
+
+		const notice = doc.createElement('div');
+		notice.className = 'nlf-inline-notice nlf-inline-notice--' + type;
+		notice.setAttribute('role', 'alert');
+		notice.innerHTML = '<span class="dashicons dashicons-warning" aria-hidden="true"></span><p>' + message + '</p>';
+		form.insertBefore(notice, form.firstChild);
+
+		// Scroll into view.
+		notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+		// Auto-dismiss after 6 seconds.
+		setTimeout(() => {
+			if (notice.parentNode) {
+				notice.style.opacity = '0';
+				notice.style.transition = 'opacity 300ms ease';
+				setTimeout(() => notice.remove(), 300);
+			}
+		}, 6000);
+	}
+
 	function handleAjaxSave() {
 		const form = $('#nlf-group-edit-form') || $('#post');
 		const publishButton = $('#publish');
 
 		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		// Client-side title validation.
+		const titleInput = $('#nlf_group_title');
+		if (titleInput && !titleInput.value.trim()) {
+			showTitleError();
 			return;
 		}
 
@@ -877,14 +950,14 @@
 					publishButton.disabled = false;
 				}, 1500);
 			} else {
-				alert(data.data?.message || 'Error saving FAQ group.');
+				showInlineNotice(data.data?.message || 'Error saving FAQ group.');
 				publishButton.value = originalText;
 				publishButton.disabled = false;
 			}
 		})
 		.catch(error => {
 			console.error('Save error:', error);
-			alert('An unexpected error occurred while saving.');
+			showInlineNotice('An unexpected error occurred while saving.');
 			publishButton.value = originalText;
 			publishButton.disabled = false;
 		});
