@@ -41,7 +41,6 @@ class Group_Admin {
 		}
 
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_pages' ), 20 );
-		add_action( 'wp_ajax_nlf_get_group_preview', array( __CLASS__, 'ajax_get_group_preview' ) );
 		add_action( 'wp_ajax_nlf_save_faq_group_ajax', array( __CLASS__, 'handle_ajax_save_group' ) );
 	}
 
@@ -259,10 +258,10 @@ class Group_Admin {
 		// Localize script data.
 		wp_localize_script( 'nlf-faq-group-metabox', 'nlfGroupData', array(
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-			'nonce'      => wp_create_nonce( 'nlf_group_preview' ),
 			'saveNonce'  => wp_create_nonce( 'nlf_faq_group_save' ),
 			'groupId'    => $group_id,
 			'groupState' => $state,
+			'themes'     => self::get_presets_for_js(),
 			'editUrl'    => admin_url( 'admin.php?page=nlf-faq-group-edit' ),
 			'listUrl'    => $list_url,
 			'isDebug'    => defined( 'WP_DEBUG' ) && WP_DEBUG,
@@ -389,7 +388,6 @@ class Group_Admin {
 
 	/**
 	 * Render the tabbed metabox content (reusable from edit page).
-	 * Form fields are rendered empty — JS populates them from nlfGroupData.groupState.
 	 *
 	 * @param int $group_id Group ID.
 	 */
@@ -874,165 +872,6 @@ class Group_Admin {
 		) );
 	}
 
-	/* ─────────────────────────────────────────────
-	 * 8. ajax_get_group_preview() — AJAX preview
-	 * ───────────────────────────────────────────── */
-
-	/**
-	 * AJAX handler for live preview.
-	 *
-	 * SECURITY: Nonce verification and capability check.
-	 */
-	public static function ajax_get_group_preview() {
-		// Verify nonce.
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'nlf_group_preview' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'next-level-faq' ) ) );
-		}
-
-		// Check capability.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'next-level-faq' ) ) );
-		}
-
-		$group_id = isset( $_POST['group_id'] ) ? absint( $_POST['group_id'] ) : 0;
-
-		if ( ! $group_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid group ID.', 'next-level-faq' ) ) );
-		}
-
-		// Get group items.
-		$items = Repository::get_items_for_group( $group_id );
-
-		if ( empty( $items ) ) {
-			wp_send_json_success(
-				array(
-					'html' => '<div class="nlf-live-view-empty"><p>' . esc_html__( 'No FAQ items found. Add some items in the FAQ Items tab.', 'next-level-faq' ) . '</p></div>',
-				)
-			);
-		}
-
-		// Get settings from Groups_Repository.
-		$group            = Groups_Repository::get_group_by_id( $group_id );
-		$settings         = ! empty( $group->display_settings ) ? $group->display_settings : self::get_default_settings();
-		$use_custom_style = ! empty( $group->use_custom_style );
-
-		// Resolve theme styles for the preview.
-		// Accept unsaved theme from AJAX request for live preview.
-		$preview_theme  = isset( $_POST['theme'] ) ? sanitize_key( wp_unslash( $_POST['theme'] ) ) : '';
-		$preview_custom = array();
-		$color_keys     = array( 'primary', 'secondary', 'accent', 'background' );
-		foreach ( $color_keys as $key ) {
-			$post_key = 'theme_custom_' . $key;
-			if ( ! empty( $_POST[ $post_key ] ) ) {
-				$preview_custom[ $key ] = sanitize_hex_color( wp_unslash( $_POST[ $post_key ] ) );
-			}
-		}
-
-		$inline_style    = '';
-		$icon_style      = 'plus_minus';
-		$preview_options = null;
-		$faq_classes     = array( 'nlf-faq', 'nlf-faq--preview' );
-
-		if ( empty( $use_custom_style ) ) {
-
-			if ( $preview_theme ) {
-				// Use the theme slug sent from the UI (may not be saved yet).
-				$themes          = self::get_theme_presets();
-				$theme           = isset( $themes[ $preview_theme ] ) ? $themes[ $preview_theme ] : $themes['default'];
-				$values          = isset( $theme['values'] ) ? $theme['values'] : array();
-				$defaults        = Presets::get_default_values();
-				$preview_options = wp_parse_args( $values, $defaults );
-
-				// Apply preview custom colors.
-				$color_map = array(
-					'primary'    => 'question_color',
-					'secondary'  => 'answer_color',
-					'accent'     => 'accent_color',
-					'background' => 'container_background',
-				);
-				foreach ( $color_map as $custom_key => $option_key ) {
-					if ( ! empty( $preview_custom[ $custom_key ] ) ) {
-						$preview_options[ $option_key ] = $preview_custom[ $custom_key ];
-					}
-				}
-			} else {
-				$preview_options = self::resolve_group_theme_options( $group_id );
-			}
-
-			if ( is_array( $preview_options ) ) {
-				$inline_style = Style_Generator::build_inline_style( $preview_options );
-				$icon_style   = isset( $preview_options['icon_style'] ) ? $preview_options['icon_style'] : 'plus_minus';
-			} else {
-				// Fall back to global preset.
-				$global_options = Options::get_resolved_options();
-				$inline_style   = Style_Generator::build_inline_style( $global_options );
-				$icon_style     = isset( $global_options['icon_style'] ) ? $global_options['icon_style'] : 'plus_minus';
-			}
-		}
-
-		if ( 'chevron' === $icon_style ) {
-			$faq_classes[] = 'nlf-faq--icon-chevron';
-		} elseif ( 'arrow' === $icon_style ) {
-			$faq_classes[] = 'nlf-faq--icon-arrow';
-		}
-
-		// Determine layout class from preview options.
-		$preview_layout = 'flat';
-		if ( is_array( $preview_options ) && isset( $preview_options['layout'] ) ) {
-			$preview_layout = $preview_options['layout'];
-		} elseif ( $preview_theme ) {
-			$themes_for_layout = self::get_theme_presets();
-			$t = isset( $themes_for_layout[ $preview_theme ] ) ? $themes_for_layout[ $preview_theme ] : null;
-			if ( $t && isset( $t['values']['layout'] ) ) {
-				$preview_layout = $t['values']['layout'];
-			}
-		}
-		if ( 'flat' !== $preview_layout ) {
-			$faq_classes[] = 'nlf-faq--layout-' . sanitize_html_class( $preview_layout );
-		}
-
-		// Build FAQ HTML.
-		ob_start();
-		?>
-		<div class="<?php echo esc_attr( implode( ' ', $faq_classes ) ); ?>"
-			data-group-id="<?php echo esc_attr( $group_id ); ?>"
-			data-accordion="<?php echo ! empty( $settings['accordion_mode'] ) ? '1' : '0'; ?>"
-			data-animation-speed="<?php echo esc_attr( $settings['animation_speed'] ?? 'normal' ); ?>"
-			data-smooth-scroll="<?php echo ! empty( $settings['smooth_scroll'] ) ? '1' : '0'; ?>"
-			<?php if ( $inline_style ) : ?>
-				style="<?php echo esc_attr( $inline_style ); ?>"
-			<?php endif; ?>>
-			<?php if ( ! empty( $settings['show_search'] ) ) : ?>
-				<div class="nlf-faq-search">
-					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'next-level-faq' ); ?>" />
-				</div>
-			<?php endif; ?>
-
-			<?php foreach ( $items as $index => $item ) : ?>
-				<?php
-				$is_open      = ! empty( $item->initial_state ) && 'custom' === ( $settings['initial_state'] ?? 'all_closed' );
-				$is_first     = 0 === $index && 'first_open' === ( $settings['initial_state'] ?? 'all_closed' );
-				$is_highlight = ! empty( $item->highlight );
-				?>
-				<div class="nlf-faq__item <?php echo esc_attr( ( $is_open || $is_first ) ? 'is-open' : '' ); ?> <?php echo esc_attr( $is_highlight ? 'nlf-faq__item--highlight' : '' ); ?>" data-faq-id="<?php echo esc_attr( $item->id ); ?>">
-					<div class="nlf-faq__question">
-						<?php if ( ! empty( $settings['show_counter'] ) ) : ?>
-							<span class="nlf-faq__counter"><?php echo esc_html( $index + 1 ); ?>.</span>
-						<?php endif; ?>
-						<span><?php echo esc_html( $item->question ); ?></span>
-						<span class="nlf-faq__icon" aria-hidden="true"></span>
-					</div>
-					<div class="nlf-faq__answer">
-						<?php echo wp_kses_post( $item->answer ); ?>
-					</div>
-				</div>
-			<?php endforeach; ?>
-		</div>
-		<?php
-		$html = ob_get_clean();
-
-		wp_send_json_success( array( 'html' => $html ) );
-	}
 
 	/* ─────────────────────────────────────────────
 	 * 9. resolve_group_theme_options()
@@ -1306,12 +1145,14 @@ class Group_Admin {
 
 	/**
 	 * Render Appearance tab (Themes + Style consolidated).
-	 * Fields are rendered empty — JS populates from state.
 	 *
 	 * @param int   $group_id Group ID.
 	 * @param array $items    FAQ items (for preview).
 	 */
 	private static function render_appearance_tab( $group_id, $items ) {
+		$group         = $group_id ? Groups_Repository::get_group_by_id( $group_id ) : null;
+		$theme_slug    = $group->theme_settings['theme'] ?? 'default';
+		$theme_custom  = $group->theme_settings['custom_colors'] ?? array();
 		?>
 		<div class="nlf-appearance-wrapper">
 			<div class="nlf-appearance-layout">
@@ -1324,7 +1165,7 @@ class Group_Admin {
 								<?php esc_html_e( 'Choose a pre-designed theme to quickly style your FAQs.', 'next-level-faq' ); ?>
 							</p>
 						</div>
-						<?php self::render_theme_selector(); ?>
+						<?php self::render_theme_selector( $theme_slug, $theme_custom ); ?>
 					</div>
 
 					<!-- Advanced Styles Section -->
@@ -1382,11 +1223,15 @@ class Group_Admin {
 	/**
 	 * Render theme selector.
 	 *
-	 * @param string $current_theme Selected theme.
-	 * @param array  $theme_custom  Custom theme colors.
+	 * @param string $current_theme Selected theme slug.
+	 * @param array  $theme_custom  Custom color overrides keyed by primary/secondary/accent/background.
 	 */
-	private static function render_theme_selector() {
+	private static function render_theme_selector( $current_theme = 'default', $theme_custom = array() ) {
 		$themes = self::get_theme_presets();
+
+		if ( empty( $current_theme ) || ! isset( $themes[ $current_theme ] ) ) {
+			$current_theme = 'default';
+		}
 
 		$layout_labels = array(
 			'flat'     => __( 'Flat', 'next-level-faq' ),
@@ -1398,14 +1243,15 @@ class Group_Admin {
 		?>
 		<div class="nlf-theme-selector" role="radiogroup" aria-label="<?php esc_attr_e( 'Choose a theme preset', 'next-level-faq' ); ?>" data-default-theme="default">
 			<?php foreach ( $themes as $theme_id => $theme_data ) :
+				$is_active = ( $theme_id === $current_theme );
 				$layout = $theme_data['values']['layout'] ?? 'flat';
 				$is_cards = 'cards' === $layout;
 				$radius = ( $theme_data['values']['container_border_radius'] ?? 8 ) . 'px';
 				$has_shadow = ! empty( $theme_data['values']['shadow'] ) && false !== $theme_data['values']['shadow'];
 				$preview_shadow = $has_shadow ? '0 2px 8px rgba(0,0,0,0.08)' : 'none';
 			?>
-				<div class="nlf-theme-option" data-theme="<?php echo esc_attr( $theme_id ); ?>">
-					<input type="radio" name="nlf_faq_group_theme" value="<?php echo esc_attr( $theme_id ); ?>" id="theme_<?php echo esc_attr( $theme_id ); ?>" />
+				<div class="nlf-theme-option <?php echo $is_active ? 'is-active' : ''; ?>" data-theme="<?php echo esc_attr( $theme_id ); ?>">
+					<input type="radio" name="nlf_faq_group_theme" value="<?php echo esc_attr( $theme_id ); ?>" id="theme_<?php echo esc_attr( $theme_id ); ?>" <?php checked( $theme_id, $current_theme ); ?> />
 					<label for="theme_<?php echo esc_attr( $theme_id ); ?>">
 						<div class="nlf-theme-preview nlf-theme-preview--<?php echo esc_attr( $layout ); ?>" style="
 							background: <?php echo $is_cards ? 'transparent' : esc_attr( $theme_data['background'] ); ?>;
@@ -1465,7 +1311,7 @@ class Group_Admin {
 						<label for="theme_custom_primary"><?php esc_html_e( 'Primary Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_primary" name="nlf_faq_group_theme_custom[primary]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="primary" />
+						<input type="text" id="theme_custom_primary" name="nlf_faq_group_theme_custom[primary]" value="<?php echo esc_attr( $theme_custom['primary'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="primary" />
 					</td>
 				</tr>
 				<tr>
@@ -1473,7 +1319,7 @@ class Group_Admin {
 						<label for="theme_custom_secondary"><?php esc_html_e( 'Secondary Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_secondary" name="nlf_faq_group_theme_custom[secondary]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="secondary" />
+						<input type="text" id="theme_custom_secondary" name="nlf_faq_group_theme_custom[secondary]" value="<?php echo esc_attr( $theme_custom['secondary'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="secondary" />
 					</td>
 				</tr>
 				<tr>
@@ -1481,7 +1327,7 @@ class Group_Admin {
 						<label for="theme_custom_accent"><?php esc_html_e( 'Accent Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_accent" name="nlf_faq_group_theme_custom[accent]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="accent" />
+						<input type="text" id="theme_custom_accent" name="nlf_faq_group_theme_custom[accent]" value="<?php echo esc_attr( $theme_custom['accent'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="accent" />
 					</td>
 				</tr>
 				<tr>
@@ -1489,7 +1335,7 @@ class Group_Admin {
 						<label for="theme_custom_background"><?php esc_html_e( 'Background Color', 'next-level-faq' ); ?></label>
 					</th>
 					<td>
-						<input type="text" id="theme_custom_background" name="nlf_faq_group_theme_custom[background]" value="" class="nlf-color-picker nlf-theme-color" data-color-key="background" />
+						<input type="text" id="theme_custom_background" name="nlf_faq_group_theme_custom[background]" value="<?php echo esc_attr( $theme_custom['background'] ?? '' ); ?>" class="nlf-color-picker nlf-theme-color" data-color-key="background" />
 					</td>
 				</tr>
 			</table>
@@ -1826,6 +1672,29 @@ class Group_Admin {
 			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Build a JS-ready presets map with pre-computed inline styles.
+	 *
+	 * Each entry contains the CSS custom-property string, layout slug, and
+	 * icon style so the client can render a preview without an AJAX round-trip.
+	 *
+	 * @return array<string, array{inlineStyle: string, layout: string, iconStyle: string}>
+	 */
+	private static function get_presets_for_js() {
+		$result = array();
+
+		foreach ( self::get_theme_presets() as $slug => $data ) {
+			$values          = isset( $data['values'] ) ? $data['values'] : array();
+			$result[ $slug ] = array(
+				'inlineStyle' => Style_Generator::build_inline_style( $values ),
+				'layout'      => $values['layout'] ?? 'flat',
+				'iconStyle'   => $values['icon_style'] ?? 'plus_minus',
+			);
+		}
+
+		return $result;
 	}
 
 	/**

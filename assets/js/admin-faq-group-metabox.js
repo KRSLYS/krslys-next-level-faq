@@ -277,85 +277,168 @@
 		previewState.timers.set(context, timer);
 	}
 
-	// Live preview via fetch
+	// Read FAQ items from the live DOM (Content tab rows).
+	function getItemsFromDom() {
+		const rows = $$('#nlf-faq-group-questions-body .nlf-faq-question-row');
+		return rows.map((row) => {
+			const questionInput      = row.querySelector('input[name="nlf_faq_group_question[]"]');
+			const idInput            = row.querySelector('input[name="nlf_faq_group_item_id[]"]');
+			const textarea           = row.querySelector('.nlf-faq-group-answer-editor');
+			const visibleCheckbox    = row.querySelector('input[name^="nlf_faq_group_visible"]');
+			const openCheckbox       = row.querySelector('input[name^="nlf_faq_group_open"]');
+			const highlightCheckbox  = row.querySelector('input[name^="nlf_faq_group_highlight"]');
+
+			let answer = '';
+			if (textarea) {
+				const editor = window.tinymce && window.tinymce.get(textarea.id);
+				if (editor) {
+					try { answer = editor.getContent() || textarea.value; } catch (e) { answer = textarea.value; }
+				} else {
+					answer = textarea.value;
+				}
+			}
+
+			return {
+				id:            idInput ? (parseInt(idInput.value, 10) || 0) : 0,
+				question:      questionInput ? questionInput.value.trim() : '',
+				answer:        answer,
+				status:        visibleCheckbox ? (visibleCheckbox.checked ? 1 : 0) : 1,
+				initial_state: openCheckbox ? (openCheckbox.checked ? 1 : 0) : 0,
+				highlight:     highlightCheckbox ? (highlightCheckbox.checked ? 1 : 0) : 0,
+			};
+		});
+	}
+
+	// Build preview client-side from live DOM state — no AJAX needed.
 	function loadLivePreview(targetNodes) {
 		const containers = targetNodes && targetNodes.length ? targetNodes : $$('.nlf-preview-container');
 
 		containers.forEach((container) => {
-			if (!container) {
-				return;
-			}
-
-			const groupId = parseInt(container.getAttribute('data-group-id'), 10);
-			if (!groupId) {
-				return;
-			}
-
 			const loading = $('.nlf-preview-loading', container);
 			const content = $('.nlf-preview-content', container);
 			if (!loading || !content) {
 				return;
 			}
 
-			loading.style.display = '';
-			content.classList.remove('loaded');
-			content.style.display = 'none';
+			const state    = (nlfGroupData && nlfGroupData.groupState) || {};
+			const items    = getItemsFromDom().filter((item) => item.status);
+			const settings = state.display_settings || {};
 
-			const params = new URLSearchParams();
-			params.append('action', 'nlf_get_group_preview');
-			params.append('group_id', String(groupId));
-			params.append('nonce', nlfGroupData.nonce);
-
-			// Send the currently selected theme so the preview reflects unsaved changes.
-			const selectedTheme = $('input[name="nlf_faq_group_theme"]:checked');
-			if (selectedTheme) {
-				params.append('theme', selectedTheme.value);
+			if (!items.length) {
+				loading.style.display = 'none';
+				content.style.display = '';
+				content.classList.add('loaded');
+				content.innerHTML = '<div class="nlf-live-view-empty"><p>' +
+					'No FAQ items found. Add some items in the FAQ Items tab.' +
+					'</p></div>';
+				return;
 			}
 
-			// Send custom color overrides.
+			// Resolve theme slug from the current UI selection.
+			const selectedThemeInput = $('input[name="nlf_faq_group_theme"]:checked');
+			const themeSlug = selectedThemeInput
+				? selectedThemeInput.value
+				: ((state.theme_settings && state.theme_settings.theme) || 'default');
+
+			const themes    = (nlfGroupData && nlfGroupData.themes) || {};
+			const themeData = themes[themeSlug] || themes['default'] || {};
+
+			// Start with pre-computed theme CSS vars; skip if custom style override is active.
+			const useCustomToggle = $('#nlf-use-custom-style-toggle');
+			let inlineStyle = (useCustomToggle && useCustomToggle.checked) ? '' : (themeData.inlineStyle || '');
+
+			// Overlay any custom color picker values.
+			const colorMap = {
+				primary:    '--nlf-faq-question-color',
+				secondary:  '--nlf-faq-answer-color',
+				accent:     '--nlf-faq-accent-color',
+				background: '--nlf-faq-container-bg',
+			};
 			$$('.nlf-theme-color').forEach((input) => {
 				const key = input.getAttribute('data-color-key');
-				const val = input.value;
-				if (key && val) {
-					params.append('theme_custom_' + key, val);
+				const val = input.value.trim();
+				if (key && val && colorMap[key]) {
+					inlineStyle += ';' + colorMap[key] + ':' + val;
 				}
 			});
 
-			fetch(nlfGroupData.ajaxurl, {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				},
-				body: params.toString(),
-			})
-				.then((response) => response.json())
-				.then((result) => {
-					if (result.success && result.data && result.data.html) {
-						content.innerHTML = result.data.html;
-						loading.style.display = 'none';
-						content.style.display = '';
-						content.classList.add('loaded');
+			// Determine layout and icon classes.
+			const layout    = themeData.layout || 'flat';
+			const iconStyle = themeData.iconStyle || 'plus_minus';
+			const classes   = ['nlf-faq', 'nlf-faq--preview'];
+			if ('flat' !== layout) {
+				classes.push('nlf-faq--layout-' + layout);
+			}
+			if ('chevron' === iconStyle) {
+				classes.push('nlf-faq--icon-chevron');
+			} else if ('arrow' === iconStyle) {
+				classes.push('nlf-faq--icon-arrow');
+			}
 
-						if (typeof window.nlfInitFaq === 'function') {
-							window.nlfInitFaq(content);
-						}
-				} else {
-					const message = result.data && result.data.message ? result.data.message : 'Failed to load preview.';
-					const errorDiv = document.createElement('div');
-					errorDiv.className = 'nlf-preview-error';
-					errorDiv.innerHTML = '<span class="dashicons dashicons-warning"></span>';
-					const p = document.createElement('p');
-					p.textContent = message;
-					errorDiv.appendChild(p);
-					loading.textContent = '';
-					loading.appendChild(errorDiv);
+			const accordionMode  = settings.accordion_mode ? '1' : '0';
+			const animationSpeed = settings.animation_speed || 'normal';
+			const smoothScroll   = settings.smooth_scroll ? '1' : '0';
+			const initialState   = settings.initial_state || 'all_closed';
+			const showCounter    = settings.show_counter;
+			const showSearch     = settings.show_search;
+
+			let html = '<div class="' + classes.join(' ') + '"'
+				+ ' data-accordion="' + accordionMode + '"'
+				+ ' data-animation-speed="' + escapeAttr(animationSpeed) + '"'
+				+ ' data-smooth-scroll="' + smoothScroll + '"'
+				+ (inlineStyle ? ' style="' + escapeAttr(inlineStyle) + '"' : '')
+				+ '>';
+
+			if (showSearch) {
+				html += '<div class="nlf-faq-search">'
+					+ '<input type="text" class="nlf-faq-search-input" placeholder="Search FAQs..." />'
+					+ '</div>';
+			}
+
+			items.forEach((item, index) => {
+				const isOpen      = item.initial_state && 'custom' === initialState;
+				const isFirst     = 0 === index && 'first_open' === initialState;
+				const isHighlight = item.highlight;
+				const itemClasses = ['nlf-faq__item'];
+				if (isOpen || isFirst) {
+					itemClasses.push('is-open');
 				}
-				})
-				.catch(() => {
-					loading.innerHTML = '<div class="nlf-preview-error"><span class="dashicons dashicons-warning"></span><p>Error loading preview. Please save the group and try again.</p></div>';
-				});
+				if (isHighlight) {
+					itemClasses.push('nlf-faq__item--highlight');
+				}
+				html += '<div class="' + itemClasses.join(' ') + '" data-faq-id="' + item.id + '">'
+					+ '<div class="nlf-faq__question">'
+					+ (showCounter ? '<span class="nlf-faq__counter">' + (index + 1) + '.</span>' : '')
+					+ '<span>' + escapeHtml(item.question) + '</span>'
+					+ '<span class="nlf-faq__icon" aria-hidden="true"></span>'
+					+ '</div>'
+					+ '<div class="nlf-faq__answer">' + item.answer + '</div>'
+					+ '</div>';
+			});
+
+			html += '</div>';
+
+			content.innerHTML = html;
+			loading.style.display = 'none';
+			content.style.display = '';
+			content.classList.add('loaded');
+
+			if (typeof window.nlfInitFaq === 'function') {
+				window.nlfInitFaq(content);
+			}
 		});
+	}
+
+	function escapeHtml(str) {
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function escapeAttr(str) {
+		return String(str).replace(/"/g, '&quot;');
 	}
 
 	function renumberGroupCheckboxes() {
