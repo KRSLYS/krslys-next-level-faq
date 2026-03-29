@@ -248,7 +248,7 @@ class Options {
 		// Generate CSS for all presets
 		if ( class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
 			Style_Generator::generate_all_presets();
-			Settings_Repository::update_setting( 'presets_css_version', NLF_FAQ_VERSION );
+			Settings_Repository::update_setting( 'presets_css_version', NLF_FAQ_CSS_VERSION );
 		}
 	}
 }

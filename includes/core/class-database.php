@@ -25,6 +25,13 @@ class Database {
 	const SCHEMA_VERSION = '1.0.0';
 
 	/**
+	 * Register database-related hooks.
+	 */
+	public static function init() {
+		add_action( 'admin_init', array( __CLASS__, 'create_tables' ) );
+	}
+
+	/**
 	 * Get the groups table name with prefix.
 	 *
 	 * @return string

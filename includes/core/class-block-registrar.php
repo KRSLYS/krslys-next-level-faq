@@ -83,7 +83,7 @@ class Block_Registrar {
 			return;
 		}
 
-		$version = file_exists( $css_path ) ? filemtime( $css_path ) : NLF_FAQ_VERSION;
+		$version = file_exists( $css_path ) ? filemtime( $css_path ) : NLF_FAQ_CSS_VERSION;
 
 		wp_register_style(
 			'nlf-faq-generated',

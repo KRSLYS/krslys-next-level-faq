@@ -248,7 +248,7 @@ class Admin_Settings {
 			'nlf-faq-admin',
 			nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 			array(),
-			NLF_FAQ_VERSION
+			NLF_FAQ_CSS_VERSION
 		);
 
 		// Enqueue generated CSS for style page preview.

@@ -101,9 +101,9 @@ class Frontend_Renderer {
 			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'next-level-faq' ) ), 400 );
 		}
 
-		// Verify the group post exists and is the correct type.
-		$group_post = get_post( $group_id );
-		if ( ! $group_post || 'nlf_faq_group' !== $group_post->post_type ) {
+		// Verify the group exists in the custom table.
+		$group = \Krslys\NextLevelFaq\Groups_Repository::get_group_by_id( $group_id );
+		if ( ! $group ) {
 			wp_send_json_error( array( 'message' => __( 'Group not found.', 'next-level-faq' ) ), 404 );
 		}
 

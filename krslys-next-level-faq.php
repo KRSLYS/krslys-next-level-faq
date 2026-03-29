@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Plugin constants.
 define( 'NLF_FAQ_VERSION', '1.0.0' );
+define( 'NLF_FAQ_CSS_VERSION', '1.0.0' );
 define( 'NLF_FAQ_PLUGIN_FILE', __FILE__ );
 define( 'NLF_FAQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NLF_FAQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -72,9 +73,8 @@ final class Krslys_NextLevelFaq_Plugin {
 	 * Register hooks and initialize subsystems.
 	 */
 	private function hooks() {
-		add_action( 'admin_init', array( $this, 'maybe_update_schema' ) );
-		
 		// Each subsystem registers its own hooks internally.
+		\Krslys\NextLevelFaq\Database::init();
 		\Krslys\NextLevelFaq\Frontend_Renderer::init();
 		\Krslys\NextLevelFaq\Admin_Settings::init();
 		\Krslys\NextLevelFaq\Group_Admin::init();
@@ -92,23 +92,6 @@ final class Krslys_NextLevelFaq_Plugin {
 		\Krslys\NextLevelFaq\Database::cleanup_legacy_data();
 		\Krslys\NextLevelFaq\Settings_Repository::initialize_defaults();
 		\Krslys\NextLevelFaq\Options::activate();
-	}
-
-	/**
-	 * Update database schema when the version changes.
-	 *
-	 * Database::create_tables() has its own version check internally,
-	 * so we simply delegate to it.
-	 */
-	public function maybe_update_schema() {
-		\Krslys\NextLevelFaq\Database::create_tables();
-
-		// Regenerate CSS if the plugin version changed (CSS structure may have changed).
-		$css_version = get_option( 'nlf_faq_css_version', '' );
-		if ( NLF_FAQ_VERSION !== $css_version ) {
-			\Krslys\NextLevelFaq\Style_Generator::generate_and_save();
-			update_option( 'nlf_faq_css_version', NLF_FAQ_VERSION );
-		}
 	}
 }
 
