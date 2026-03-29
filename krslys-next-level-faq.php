@@ -89,7 +89,6 @@ final class Krslys_NextLevelFaq_Plugin {
 	 */
 	public static function activate() {
 		\Krslys\NextLevelFaq\Database::create_tables();
-		\Krslys\NextLevelFaq\Database::cleanup_legacy_data();
 		\Krslys\NextLevelFaq\Settings_Repository::initialize_defaults();
 		\Krslys\NextLevelFaq\Options::activate();
 	}

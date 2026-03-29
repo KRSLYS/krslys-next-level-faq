@@ -174,17 +174,6 @@ class Database {
 	}
 
 	/**
-	 * Clean up legacy data from WordPress core tables.
-	 *
-	 * Removes old Custom Post Type posts, postmeta, and legacy options.
-	 * Runs once only — subsequent calls are no-ops to prevent data loss on reactivation.
-	 */
-	public static function cleanup_legacy_data() {
-		// No legacy data to clean up in v1.0.0 fresh install.
-		return;
-	}
-
-	/**
 	 * Drop all custom tables.
 	 *
 	 * Only called on plugin uninstall.

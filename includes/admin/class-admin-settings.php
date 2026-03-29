@@ -653,7 +653,7 @@ class Admin_Settings {
 			return;
 		}
 
-		$cpt_groups = self::get_cpt_group_choices();
+		$groups = self::get_group_choices();
 		?>
 		<div class="wrap nlf-faq-admin nlf-faq-tools">
 
@@ -705,7 +705,7 @@ class Admin_Settings {
 									</label>
 									<select id="nlf-faq-export-scope" name="nlf_faq_export_group" class="nlf-tool-card__select">
 										<option value="all"><?php esc_html_e( 'All groups (full backup)', 'next-level-faq' ); ?></option>
-										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+										<?php foreach ( $groups as $value => $label ) : ?>
 											<option value="<?php echo esc_attr( $value ); ?>">
 												<?php echo esc_html( $label ); ?>
 											</option>
@@ -757,7 +757,7 @@ class Admin_Settings {
 									<select id="nlf-faq-import-target" name="nlf_faq_import_target" class="nlf-tool-card__select">
 										<option value="all"><?php esc_html_e( 'Global (all FAQ data)', 'next-level-faq' ); ?></option>
 										<option value="duplicate"><?php esc_html_e( 'Duplicate as new group', 'next-level-faq' ); ?></option>
-										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+										<?php foreach ( $groups as $value => $label ) : ?>
 											<option value="<?php echo esc_attr( $value ); ?>">
 												<?php echo esc_html( $label ); ?>
 											</option>
@@ -1918,7 +1918,7 @@ class Admin_Settings {
 	 *
 	 * @return array
 	 */
-	private static function get_cpt_group_choices() {
+	private static function get_group_choices() {
 		$choices = array();
 
 		$groups = Groups_Repository::get_all_groups( null, 'title', 'ASC' );

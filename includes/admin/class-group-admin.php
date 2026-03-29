@@ -88,10 +88,7 @@ class Group_Admin {
 	}
 
 	/**
-	 * Add body class for CSS compatibility.
-	 *
-	 * The admin CSS targets .post-type-nlf_faq_group (the old CPT body class).
-	 * We re-add it on our custom pages so styles keep working without changes.
+	 * Add body class to our admin pages for CSS scoping.
 	 *
 	 * @param string $classes Space-separated body classes.
 	 * @return string
@@ -100,7 +97,7 @@ class Group_Admin {
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
 		if ( in_array( $page, array( 'nlf-faq-groups', 'nlf-faq-group-edit' ), true ) ) {
-			$classes .= ' post-type-nlf_faq_group';
+			$classes .= ' nlf-faq-admin-page';
 		}
 
 		return $classes;
