@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Next Level FAQ
- * Plugin URI:  https://github.com/krslys/next-level-faq
+ * Plugin URI:  https://krslys.com/plugins/next-level-faq/
  * Description: Flexible FAQ plugin with customizable styling and live preview.
  * Version:     1.0.0
  * Author:      Krslys
- * Author URI:  https://github.com/krslys
+ * Author URI:  https://krslys.com
  * Text Domain: next-level-faq
  * Domain Path: /languages
  * License:     GPL-2.0-or-later
