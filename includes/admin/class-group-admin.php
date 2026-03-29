@@ -32,16 +32,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Group_Admin {
 
-	/* ─────────────────────────────────────────────
-	 * 1. register() — AJAX handlers (called on init)
-	 * ───────────────────────────────────────────── */
-
 	/**
-	 * Register AJAX handlers.
-	 *
-	 * Called from the main plugin file on `init`.
+	 * Bootstrap all group-admin hooks.
 	 */
-	public static function register() {
+	public static function init() {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		add_action( 'admin_menu', array( __CLASS__, 'register_admin_pages' ), 20 );
 		add_action( 'wp_ajax_nlf_get_group_preview', array( __CLASS__, 'ajax_get_group_preview' ) );
 		add_action( 'wp_ajax_nlf_save_faq_group_ajax', array( __CLASS__, 'handle_ajax_save_group' ) );
 	}

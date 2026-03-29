@@ -17,6 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Block_Registrar {
 
 	/**
+	 * Bootstrap block registration hooks.
+	 */
+	public static function init() {
+		add_action( 'init', array( __CLASS__, 'register' ), 20 );
+	}
+
+	/**
 	 * Register the FAQ block.
 	 *
 	 * Hooked to `init` at priority 20.

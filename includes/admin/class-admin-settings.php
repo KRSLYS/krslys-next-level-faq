@@ -44,6 +44,22 @@ class Admin_Settings {
 	const TOOLS_SLUG = 'nlf-faq-tools';
 
 	/**
+	 * Bootstrap all admin-settings hooks.
+	 */
+	public static function init() {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'admin_post_nlf_faq_export', array( __CLASS__, 'handle_export' ) );
+		add_action( 'admin_post_nlf_faq_import', array( __CLASS__, 'handle_import' ) );
+		add_action( 'wp_ajax_nlf_save_settings_ajax', array( __CLASS__, 'handle_ajax_save_settings' ) );
+	}
+
+	/**
 	 * Register admin menu.
 	 */
 	public static function register_menu() {

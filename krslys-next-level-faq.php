@@ -69,30 +69,18 @@ final class Krslys_NextLevelFaq_Plugin {
 	}
 
 	/**
-	 * Register hooks.
+	 * Register hooks and initialize subsystems.
 	 */
 	private function hooks() {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'admin_init', array( $this, 'maybe_update_schema' ) );
-		add_action( 'init', array( '\Krslys\NextLevelFaq\Group_Admin', 'register' ) );
-		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_shortcodes' ) );
-		add_action( 'init', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'register_tracking_routes' ) );
-		add_action( 'wp_enqueue_scripts', array( '\Krslys\NextLevelFaq\Frontend_Renderer', 'enqueue_styles' ) );
-		add_action( 'admin_menu', array( '\Krslys\NextLevelFaq\Admin_Settings', 'register_menu' ) );
-		add_action( 'admin_menu', array( '\Krslys\NextLevelFaq\Group_Admin', 'register_admin_pages' ), 20 );
-		add_action( 'admin_init', array( '\Krslys\NextLevelFaq\Admin_Settings', 'register_settings' ) );
-		add_action( 'admin_enqueue_scripts', array( '\Krslys\NextLevelFaq\Admin_Settings', 'enqueue_assets' ) );
-		add_action( 'admin_post_nlf_faq_export', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_export' ) );
-		add_action( 'admin_post_nlf_faq_import', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_import' ) );
 
-		// AJAX handlers for admin settings.
-		add_action( 'wp_ajax_nlf_save_settings_ajax', array( '\Krslys\NextLevelFaq\Admin_Settings', 'handle_ajax_save_settings' ) );
-
-		// Style generation (no longer tied to wp_options update)
-		add_action( 'nlf_faq_settings_updated', array( '\Krslys\NextLevelFaq\Style_Generator', 'generate_and_save' ), 10, 2 );
-
-		// Gutenberg block registration.
-		add_action( 'init', array( '\Krslys\NextLevelFaq\Block_Registrar', 'register' ), 20 );
+		// Each subsystem registers its own hooks internally.
+		\Krslys\NextLevelFaq\Frontend_Renderer::init();
+		\Krslys\NextLevelFaq\Admin_Settings::init();
+		\Krslys\NextLevelFaq\Group_Admin::init();
+		\Krslys\NextLevelFaq\Block_Registrar::init();
+		\Krslys\NextLevelFaq\Style_Generator::init();
 	}
 
 	/**

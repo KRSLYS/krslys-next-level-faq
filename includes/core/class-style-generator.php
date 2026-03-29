@@ -22,6 +22,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Style_Generator {
 
 	/**
+	 * Bootstrap style generation hooks.
+	 */
+	public static function init() {
+		add_action( 'nlf_faq_settings_updated', array( __CLASS__, 'generate_and_save' ), 10, 2 );
+	}
+
+	/**
 	 * Get path to generated CSS file.
 	 *
 	 * @return string

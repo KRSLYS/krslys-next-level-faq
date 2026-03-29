@@ -23,6 +23,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Frontend_Renderer {
 
 	/**
+	 * Bootstrap all frontend hooks.
+	 */
+	public static function init() {
+		add_action( 'init', array( __CLASS__, 'register_shortcodes' ) );
+		add_action( 'init', array( __CLASS__, 'register_tracking_routes' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_styles' ) );
+	}
+
+	/**
 	 * Register shortcodes.
 	 */
 	public static function register_shortcodes() {
