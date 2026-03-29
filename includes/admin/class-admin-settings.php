@@ -230,7 +230,7 @@ class Admin_Settings {
 
 		wp_enqueue_style(
 			'nlf-faq-admin',
-			NLF_FAQ_PLUGIN_URL . 'assets/css/admin-faq-style.css',
+			nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 			array(),
 			NLF_FAQ_VERSION
 		);
@@ -254,7 +254,7 @@ class Admin_Settings {
 			wp_enqueue_style( 'wp-color-picker' );
 			wp_enqueue_script(
 				'nlf-faq-admin',
-				NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-style.js',
+				nlf_asset_url( 'assets/js/admin-faq-style.js' ),
 				array( 'jquery', 'wp-color-picker' ),
 				NLF_FAQ_VERSION,
 				true
@@ -262,7 +262,7 @@ class Admin_Settings {
 		} else {
 			wp_enqueue_script(
 				'nlf-faq-admin',
-				NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-style.js',
+				nlf_asset_url( 'assets/js/admin-faq-style.js' ),
 				array( 'jquery' ),
 				NLF_FAQ_VERSION,
 				true

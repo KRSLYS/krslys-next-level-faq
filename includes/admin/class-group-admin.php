@@ -505,7 +505,7 @@ class Group_Admin {
 		if ( 'nlf-faq-groups' === $page ) {
 			wp_enqueue_style(
 				'nlf-faq-admin',
-				NLF_FAQ_PLUGIN_URL . 'assets/css/admin-faq-style.css',
+				nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 				array(),
 				NLF_FAQ_VERSION
 			);
@@ -549,7 +549,7 @@ class Group_Admin {
 
 		wp_enqueue_style(
 			'nlf-faq-admin',
-			NLF_FAQ_PLUGIN_URL . 'assets/css/admin-faq-style.css',
+			nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 			array( 'wp-color-picker' ),
 			NLF_FAQ_VERSION
 		);
@@ -569,18 +569,18 @@ class Group_Admin {
 		// Enqueue frontend FAQ script for preview toggle functionality.
 		wp_enqueue_script(
 			'nlf-faq-frontend',
-			NLF_FAQ_PLUGIN_URL . 'assets/js/frontend-faq.js',
+			nlf_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true
 		);
 
-		$js_metabox_path   = NLF_FAQ_PLUGIN_DIR . 'assets/js/admin-faq-group-metabox.js';
-		$js_collector_path = NLF_FAQ_PLUGIN_DIR . 'assets/js/admin-state-collector.js';
+		$js_metabox_path   = nlf_asset_path( 'assets/js/admin-faq-group-metabox.js' );
+		$js_collector_path = nlf_asset_path( 'assets/js/admin-state-collector.js' );
 
 		wp_enqueue_script(
 			'nlf-faq-group-metabox',
-			NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-group-metabox.js',
+			nlf_asset_url( 'assets/js/admin-faq-group-metabox.js' ),
 			array( 'wp-editor', 'wp-color-picker', 'nlf-faq-frontend' ),
 			file_exists( $js_metabox_path ) ? filemtime( $js_metabox_path ) : NLF_FAQ_VERSION,
 			true
@@ -588,7 +588,7 @@ class Group_Admin {
 
 		wp_enqueue_script(
 			'nlf-admin-state-collector',
-			NLF_FAQ_PLUGIN_URL . 'assets/js/admin-state-collector.js',
+			nlf_asset_url( 'assets/js/admin-state-collector.js' ),
 			array( 'nlf-faq-group-metabox' ),
 			file_exists( $js_collector_path ) ? filemtime( $js_collector_path ) : NLF_FAQ_VERSION,
 			true

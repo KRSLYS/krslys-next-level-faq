@@ -29,6 +29,9 @@ define( 'NLF_FAQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 // Load PSR-4 autoloader.
 require_once NLF_FAQ_PLUGIN_DIR . 'includes/Autoloader.php';
 
+// Load global helper functions.
+require_once NLF_FAQ_PLUGIN_DIR . 'includes/core/functions.php';
+
 // Initialize autoloader.
 $autoloader = new \Krslys\NextLevelFaq\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
 $autoloader->register();
@@ -116,9 +119,9 @@ final class Krslys_NextLevelFaq_Plugin {
 
 					// Register editor script BEFORE block registration.
 					// The handle must match the editorScript in block.json.
-					wp_register_script(
-						'nlf-faq-block-editor',
-						NLF_FAQ_PLUGIN_URL . 'blocks/faq/editor.js',
+				wp_register_script(
+					'nlf-faq-block-editor',
+					nlf_asset_url( 'blocks/faq/editor.js' ),
 						array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-data' ),
 						NLF_FAQ_VERSION,
 						true

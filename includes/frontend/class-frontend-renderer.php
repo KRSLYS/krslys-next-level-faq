@@ -54,7 +54,7 @@ class Frontend_Renderer {
 		// Enqueue group-specific CSS if needed (will be done per group in shortcode)
 		wp_enqueue_script(
 			'nlf-faq-frontend',
-			NLF_FAQ_PLUGIN_URL . 'assets/js/frontend-faq.js',
+			nlf_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true

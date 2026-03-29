@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build & publish GitHub Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # required to create a GitHub Release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production assets
+        run: npm run build
+
+      - name: Prepare release package
+        run: |
+          SLUG="krslys-next-level-faq"
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          mkdir -p "dist/$SLUG/assets/js"
+          mkdir -p "dist/$SLUG/assets/css"
+          mkdir -p "dist/$SLUG/blocks/faq"
+
+          # PHP entry points
+          cp "$SLUG.php"   "dist/$SLUG/"
+          cp uninstall.php "dist/$SLUG/"
+
+          # PHP class library
+          cp -r includes "dist/$SLUG/"
+
+          # Minified JS + asset manifests (no source files, no .map)
+          cp assets/js/*.min.js         "dist/$SLUG/assets/js/"
+          cp assets/js/*.min.asset.php  "dist/$SLUG/assets/js/"
+
+          # Minified CSS only
+          cp assets/css/*.min.css "dist/$SLUG/assets/css/"
+
+          # Gutenberg block
+          cp blocks/faq/block.json           "dist/$SLUG/blocks/faq/"
+          cp blocks/faq/editor.min.js        "dist/$SLUG/blocks/faq/"
+          cp blocks/faq/editor.min.asset.php "dist/$SLUG/blocks/faq/"
+
+          # Create ZIP — extracts to krslys-next-level-faq/
+          cd dist
+          zip -r "../${SLUG}-v${VERSION}.zip" "$SLUG"
+          cd ..
+
+          echo "ZIP_NAME=${SLUG}-v${VERSION}.zip" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_NAME }}
+          generate_release_notes: true

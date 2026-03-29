@@ -242,7 +242,7 @@ class Group_CPT {
 		if ( 'edit.php' === $hook_suffix ) {
 			wp_enqueue_style(
 				'nlf-faq-admin',
-				NLF_FAQ_PLUGIN_URL . 'assets/css/admin-faq-style.css',
+				nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 				array(),
 				NLF_FAQ_VERSION
 			);
@@ -285,7 +285,7 @@ class Group_CPT {
 
 		wp_enqueue_style(
 			'nlf-faq-admin',
-			NLF_FAQ_PLUGIN_URL . 'assets/css/admin-faq-style.css',
+			nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 			array( 'wp-color-picker' ),
 			NLF_FAQ_VERSION
 		);
@@ -305,7 +305,7 @@ class Group_CPT {
 		// Enqueue frontend FAQ script for preview toggle functionality.
 		wp_enqueue_script(
 			'nlf-faq-frontend',
-			NLF_FAQ_PLUGIN_URL . 'assets/js/frontend-faq.js',
+			nlf_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true
@@ -313,7 +313,7 @@ class Group_CPT {
 
 		wp_enqueue_script(
 			'nlf-faq-group-metabox',
-			NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-group-metabox.js',
+			nlf_asset_url( 'assets/js/admin-faq-group-metabox.js' ),
 			array( 'wp-editor', 'wp-color-picker', 'nlf-faq-frontend' ),
 			NLF_FAQ_VERSION,
 			true
