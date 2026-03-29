@@ -1179,6 +1179,7 @@ class Admin_Settings {
 
 					$new_title = '' !== $original_title
 						? sprintf( __( '%s (Copy)', 'next-level-faq' ), $original_title )
+						/* translators: %d: FAQ group ID */
 						: sprintf( __( 'Group #%d (Copy)', 'next-level-faq' ), (int) $original_group_id );
 
 					// Build creation data, copying settings from original group if it exists.
@@ -1927,6 +1928,7 @@ class Admin_Settings {
 
 			$choices[ (string) $group->id ] = '' !== $title
 				? $title
+				/* translators: %d: FAQ group ID */
 				: sprintf( __( 'Group #%d', 'next-level-faq' ), (int) $group->id );
 		}
 

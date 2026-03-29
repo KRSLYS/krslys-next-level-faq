@@ -72,26 +72,14 @@ final class Krslys_NextLevelFaq_Plugin {
 	 * Register hooks and initialize subsystems.
 	 */
 	private function hooks() {
-		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'admin_init', array( $this, 'maybe_update_schema' ) );
-
+		
 		// Each subsystem registers its own hooks internally.
 		\Krslys\NextLevelFaq\Frontend_Renderer::init();
 		\Krslys\NextLevelFaq\Admin_Settings::init();
 		\Krslys\NextLevelFaq\Group_Admin::init();
 		\Krslys\NextLevelFaq\Block_Registrar::init();
 		\Krslys\NextLevelFaq\Style_Generator::init();
-	}
-
-	/**
-	 * Load plugin textdomain.
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain(
-			'next-level-faq',
-			false,
-			dirname( plugin_basename( NLF_FAQ_PLUGIN_FILE ) ) . '/languages'
-		);
 	}
 
 	/**
@@ -117,7 +105,7 @@ final class Krslys_NextLevelFaq_Plugin {
 
 		// Regenerate CSS if the plugin version changed (CSS structure may have changed).
 		$css_version = get_option( 'nlf_faq_css_version', '' );
-		if ( $css_version !== NLF_FAQ_VERSION ) {
+		if ( NLF_FAQ_VERSION !== $css_version ) {
 			\Krslys\NextLevelFaq\Style_Generator::generate_and_save();
 			update_option( 'nlf_faq_css_version', NLF_FAQ_VERSION );
 		}
