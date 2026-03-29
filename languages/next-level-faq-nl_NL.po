@@ -1,0 +1,1593 @@
+# Dutch (Netherlands) translation for Next Level FAQ.
+# Copyright (C) 2026 Krslys
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Next Level FAQ 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/krslys-next-level-faq\n"
+"Last-Translator: Krslys <info@krslys.com>\n"
+"Language-Team: Dutch\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-30T01:11:12+03:00\n"
+"PO-Revision-Date: 2026-03-30 01:40+0300\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: next-level-faq\n"
+
+#. Plugin Name of the plugin
+#: krslys-next-level-faq.php
+#: includes/admin/class-admin-settings.php:67
+msgid "Next Level FAQ"
+msgstr "Next Level FAQ"
+
+#. Plugin URI of the plugin
+#: krslys-next-level-faq.php
+msgid "https://krslys.com/plugins/next-level-faq/"
+msgstr "https://krslys.com/plugins/next-level-faq/"
+
+#. Description of the plugin
+#: krslys-next-level-faq.php
+msgid "Flexible FAQ plugin with customizable styling and live preview."
+msgstr "Flexibele FAQ-plugin met aanpasbare styling en live voorbeeld."
+
+#. Author of the plugin
+#: krslys-next-level-faq.php
+msgid "Krslys"
+msgstr "Krslys"
+
+#. Author URI of the plugin
+#: krslys-next-level-faq.php
+msgid "https://krslys.com"
+msgstr "https://krslys.com"
+
+#: includes/admin/class-admin-settings.php:68
+msgid "FAQs"
+msgstr "FAQ's"
+
+#: includes/admin/class-admin-settings.php:78
+msgid "FAQ Style & Layout"
+msgstr "FAQ-stijl & lay-out"
+
+#: includes/admin/class-admin-settings.php:79
+msgid "Style & Layout"
+msgstr "Stijl & lay-out"
+
+#: includes/admin/class-admin-settings.php:87
+msgid "FAQ Tools"
+msgstr "FAQ-hulpmiddelen"
+
+#: includes/admin/class-admin-settings.php:88
+#: includes/admin/class-admin-settings.php:666
+msgid "Tools"
+msgstr "Hulpmiddelen"
+
+#: includes/admin/class-admin-settings.php:141
+#: includes/admin/class-group-admin.php:752
+#: includes/admin/class-group-cpt.php:2021
+msgid "Security check failed. Please refresh the page and try again."
+msgstr "Beveiligingscontrole mislukt. Vernieuw de pagina en probeer het opnieuw."
+
+#: includes/admin/class-admin-settings.php:149
+msgid "You do not have permission to save settings."
+msgstr "Je hebt geen toestemming om instellingen op te slaan."
+
+#: includes/admin/class-admin-settings.php:159
+msgid "Invalid settings data."
+msgstr "Ongeldige instellingsgegevens."
+
+#: includes/admin/class-admin-settings.php:176
+msgid "Database tables could not be created. Please check database permissions."
+msgstr "Databasetabellen konden niet worden aangemaakt. Controleer de databaserechten."
+
+#: includes/admin/class-admin-settings.php:196
+msgid "Failed to save settings. Please try again."
+msgstr "Instellingen opslaan mislukt. Probeer het opnieuw."
+
+#: includes/admin/class-admin-settings.php:216
+msgid "Settings saved successfully!"
+msgstr "Instellingen succesvol opgeslagen!"
+
+#: includes/admin/class-admin-settings.php:293
+#: includes/admin/class-group-cpt.php:332
+msgid "Saving…"
+msgstr "Opslaan…"
+
+#: includes/admin/class-admin-settings.php:294
+msgid "Saved"
+msgstr "Opgeslagen"
+
+#: includes/admin/class-admin-settings.php:321
+msgid "Next Level FAQ – Style & Layout"
+msgstr "Next Level FAQ – Stijl & lay-out"
+
+#: includes/admin/class-admin-settings.php:327
+msgid "Theme presets"
+msgstr "Themavoorinstellingen"
+
+#: includes/admin/class-admin-settings.php:328
+msgid "Pick a curated starting point, then fine-tune colors, spacing, and typography below."
+msgstr "Kies een samengesteld uitgangspunt en pas vervolgens kleuren, afstanden en typografie hieronder aan."
+
+#: includes/admin/class-admin-settings.php:332
+#: includes/admin/class-group-admin.php:1402
+#: includes/admin/class-group-cpt.php:723
+msgid "Flat"
+msgstr "Vlak"
+
+#: includes/admin/class-admin-settings.php:333
+#: includes/admin/class-group-admin.php:1403
+#: includes/admin/class-group-cpt.php:724
+msgid "Cards"
+msgstr "Kaarten"
+
+#: includes/admin/class-admin-settings.php:334
+#: includes/admin/class-group-admin.php:1404
+#: includes/admin/class-group-cpt.php:725
+msgid "Bordered"
+msgstr "Omrand"
+
+#: includes/admin/class-admin-settings.php:335
+#: includes/admin/class-group-admin.php:1405
+#: includes/admin/class-group-cpt.php:726
+msgid "Clean"
+msgstr "Strak"
+
+#: includes/admin/class-admin-settings.php:336
+#: includes/admin/class-group-admin.php:1406
+#: includes/admin/class-group-cpt.php:727
+msgid "Striped"
+msgstr "Gestreept"
+
+#: includes/admin/class-admin-settings.php:371
+msgid "Sample question?"
+msgstr "Voorbeeldvraag?"
+
+#: includes/admin/class-admin-settings.php:374
+msgid "Sample answer text..."
+msgstr "Voorbeeldantwoordtekst..."
+
+#: includes/admin/class-admin-settings.php:384
+msgid "Another question?"
+msgstr "Nog een vraag?"
+
+#: includes/admin/class-admin-settings.php:415
+msgid "Layout & Container"
+msgstr "Lay-out & container"
+
+#: includes/admin/class-admin-settings.php:420
+msgid "Container background"
+msgstr "Achtergrond container"
+
+#: includes/admin/class-admin-settings.php:428
+msgid "Border color"
+msgstr "Randkleur"
+
+#: includes/admin/class-admin-settings.php:436
+msgid "Border radius (px)"
+msgstr "Randradius (px)"
+
+#: includes/admin/class-admin-settings.php:444
+#: includes/admin/class-group-admin.php:1695
+#: includes/admin/class-group-cpt.php:1236
+msgid "Padding (px)"
+msgstr "Opvulling (px)"
+
+#: includes/admin/class-admin-settings.php:451
+msgid "Shadow"
+msgstr "Schaduw"
+
+#: includes/admin/class-admin-settings.php:455
+msgid "Enable subtle card shadow"
+msgstr "Subtiele kaartschaduw inschakelen"
+
+#: includes/admin/class-admin-settings.php:461
+#: includes/admin/class-group-admin.php:1213
+#: includes/admin/class-group-admin.php:1279
+#: includes/admin/class-group-admin.php:1703
+#: includes/admin/class-group-cpt.php:531
+#: includes/admin/class-group-cpt.php:597
+#: includes/admin/class-group-cpt.php:1244
+msgid "Question"
+msgstr "Vraag"
+
+#: includes/admin/class-admin-settings.php:465
+msgid "Question color"
+msgstr "Vraagkleur"
+
+#: includes/admin/class-admin-settings.php:473
+#: includes/admin/class-admin-settings.php:501
+msgid "Font size (px)"
+msgstr "Lettergrootte (px)"
+
+#: includes/admin/class-admin-settings.php:481
+msgid "Font weight"
+msgstr "Letterdikte"
+
+#: includes/admin/class-admin-settings.php:489
+#: includes/admin/class-group-admin.php:1217
+#: includes/admin/class-group-admin.php:1283
+#: includes/admin/class-group-admin.php:1723
+#: includes/admin/class-group-cpt.php:535
+#: includes/admin/class-group-cpt.php:601
+#: includes/admin/class-group-cpt.php:1264
+msgid "Answer"
+msgstr "Antwoord"
+
+#: includes/admin/class-admin-settings.php:493
+msgid "Answer color"
+msgstr "Antwoordkleur"
+
+#: includes/admin/class-admin-settings.php:509
+msgid "Accent & Behavior"
+msgstr "Accent & gedrag"
+
+#: includes/admin/class-admin-settings.php:513
+msgid "Accent color"
+msgstr "Accentkleur"
+
+#: includes/admin/class-admin-settings.php:521
+msgid "Icon style"
+msgstr "Pictogramstijl"
+
+#: includes/admin/class-admin-settings.php:525
+#: includes/admin/class-group-admin.php:1759
+#: includes/admin/class-group-cpt.php:1300
+msgid "Plus / Minus"
+msgstr "Plus / Min"
+
+#: includes/admin/class-admin-settings.php:526
+#: includes/admin/class-group-admin.php:1760
+#: includes/admin/class-group-cpt.php:1301
+msgid "Chevron"
+msgstr "Chevron"
+
+#: includes/admin/class-admin-settings.php:527
+msgid "Arrow"
+msgstr "Pijl"
+
+#: includes/admin/class-admin-settings.php:533
+msgid "Gap between items (px)"
+msgstr "Ruimte tussen items (px)"
+
+#: includes/admin/class-admin-settings.php:541
+#: includes/admin/class-group-admin.php:1766
+#: includes/admin/class-group-cpt.php:1307
+msgid "Animation"
+msgstr "Animatie"
+
+#: includes/admin/class-admin-settings.php:545
+#: includes/admin/class-group-admin.php:1770
+#: includes/admin/class-group-cpt.php:1311
+msgid "Slide"
+msgstr "Schuiven"
+
+#: includes/admin/class-admin-settings.php:546
+#: includes/admin/class-group-admin.php:1771
+#: includes/admin/class-group-cpt.php:1312
+msgid "Fade"
+msgstr "Vervagen"
+
+#: includes/admin/class-admin-settings.php:547
+#: includes/admin/class-group-admin.php:1772
+#: includes/admin/class-group-cpt.php:1313
+msgid "None"
+msgstr "Geen"
+
+#: includes/admin/class-admin-settings.php:553
+msgid "Layout style"
+msgstr "Lay-outstijl"
+
+#: includes/admin/class-admin-settings.php:557
+msgid "Flat (dividers)"
+msgstr "Vlak (scheidingslijnen)"
+
+#: includes/admin/class-admin-settings.php:558
+msgid "Cards (floating)"
+msgstr "Kaarten (zwevend)"
+
+#: includes/admin/class-admin-settings.php:559
+msgid "Bordered (stacked)"
+msgstr "Omrand (gestapeld)"
+
+#: includes/admin/class-admin-settings.php:560
+msgid "Clean (no dividers)"
+msgstr "Strak (zonder scheidingslijnen)"
+
+#: includes/admin/class-admin-settings.php:561
+msgid "Striped (alternating)"
+msgstr "Gestreept (afwisselend)"
+
+#: includes/admin/class-admin-settings.php:567
+msgid "Save Styles"
+msgstr "Stijlen opslaan"
+
+#: includes/admin/class-admin-settings.php:573
+#: includes/admin/class-group-admin.php:1363
+#: includes/admin/class-group-cpt.php:684
+msgid "Live Preview"
+msgstr "Live voorbeeld"
+
+#: includes/admin/class-admin-settings.php:574
+msgid "Preview shows how your FAQ will look with the current style settings."
+msgstr "Het voorbeeld toont hoe je FAQ eruitziet met de huidige stijlinstellingen."
+
+#: includes/admin/class-admin-settings.php:610
+msgid "How quickly can I customize my FAQs?"
+msgstr "Hoe snel kan ik mijn FAQ's aanpassen?"
+
+#: includes/admin/class-admin-settings.php:614
+msgid "Changes you make here are applied instantly and reflected on the front-end as soon as you save."
+msgstr "Wijzigingen die je hier maakt worden direct toegepast en zijn zichtbaar op de website zodra je opslaat."
+
+#: includes/admin/class-admin-settings.php:619
+msgid "Can I match my brand colors?"
+msgstr "Kan ik mijn merkkleuren gebruiken?"
+
+#: includes/admin/class-admin-settings.php:623
+msgid "Yes. Configure colors, typography, spacing, and animations to align with your brand."
+msgstr "Ja. Configureer kleuren, typografie, afstanden en animaties om aan te sluiten bij je merk."
+
+#: includes/admin/class-admin-settings.php:628
+msgid "Do all layout styles work the same way?"
+msgstr "Werken alle lay-outstijlen op dezelfde manier?"
+
+#: includes/admin/class-admin-settings.php:632
+msgid "Each layout has its own visual personality while keeping the same interactive behavior."
+msgstr "Elke lay-out heeft een eigen visuele uitstraling met hetzelfde interactieve gedrag."
+
+#: includes/admin/class-admin-settings.php:667
+msgid "Manage, backup, and migrate your FAQ data with powerful utilities."
+msgstr "Beheer, maak back-ups en migreer je FAQ-gegevens met krachtige hulpmiddelen."
+
+#: includes/admin/class-admin-settings.php:678
+msgid "Data Management"
+msgstr "Gegevensbeheer"
+
+#: includes/admin/class-admin-settings.php:679
+msgid "Export and import your FAQ content, themes, and settings."
+msgstr "Exporteer en importeer je FAQ-inhoud, thema's en instellingen."
+
+#: includes/admin/class-admin-settings.php:693
+msgid "Export"
+msgstr "Exporteren"
+
+#: includes/admin/class-admin-settings.php:694
+msgid "Download a JSON file for backups or site migration."
+msgstr "Download een JSON-bestand voor back-ups of sitemigratie."
+
+#: includes/admin/class-admin-settings.php:704
+msgid "Export scope"
+msgstr "Exportbereik"
+
+#: includes/admin/class-admin-settings.php:707
+msgid "All groups (full backup)"
+msgstr "Alle groepen (volledige back-up)"
+
+#: includes/admin/class-admin-settings.php:719
+msgid "Include style settings"
+msgstr "Stijlinstellingen opnemen"
+
+#: includes/admin/class-admin-settings.php:723
+msgid "Include FAQ entries"
+msgstr "FAQ-items opnemen"
+
+#: includes/admin/class-admin-settings.php:728
+msgid "Exports the selected group with all its questions, theme, and settings."
+msgstr "Exporteert de geselecteerde groep met alle vragen, thema en instellingen."
+
+#: includes/admin/class-admin-settings.php:731
+msgid "Download Export"
+msgstr "Export downloaden"
+
+#: includes/admin/class-admin-settings.php:744
+#: includes/admin/class-admin-settings.php:813
+msgid "Import"
+msgstr "Importeren"
+
+#: includes/admin/class-admin-settings.php:745
+msgid "Upload a JSON file to restore FAQ data from a backup."
+msgstr "Upload een JSON-bestand om FAQ-gegevens te herstellen vanuit een back-up."
+
+#: includes/admin/class-admin-settings.php:755
+msgid "Import target"
+msgstr "Importdoel"
+
+#: includes/admin/class-admin-settings.php:758
+msgid "Global (all FAQ data)"
+msgstr "Globaal (alle FAQ-gegevens)"
+
+#: includes/admin/class-admin-settings.php:759
+msgid "Duplicate as new group"
+msgstr "Dupliceren als nieuwe groep"
+
+#: includes/admin/class-admin-settings.php:769
+msgid "Creates a brand-new group from the exported file with all its questions, theme, and settings."
+msgstr "Maakt een geheel nieuwe groep aan vanuit het ge\u00ebxporteerde bestand met alle vragen, thema en instellingen."
+
+#: includes/admin/class-admin-settings.php:774
+msgid "Upload file"
+msgstr "Bestand uploaden"
+
+#: includes/admin/class-admin-settings.php:781
+msgid "Drag & drop your file here or"
+msgstr "Sleep je bestand hierheen of"
+
+#: includes/admin/class-admin-settings.php:782
+msgid "browse"
+msgstr "blader"
+
+#: includes/admin/class-admin-settings.php:784
+msgid "Accepts .json files only"
+msgstr "Alleen .json-bestanden worden geaccepteerd"
+
+#: includes/admin/class-admin-settings.php:795
+msgid "Remove file"
+msgstr "Bestand verwijderen"
+
+#: includes/admin/class-admin-settings.php:802
+msgid "Replace existing items before import"
+msgstr "Bestaande items vervangen voor import"
+
+#: includes/admin/class-admin-settings.php:809
+msgid "Apply imported theme and styles to this group"
+msgstr "Ge\u00efmporteerd thema en stijlen toepassen op deze groep"
+
+#: includes/admin/class-admin-settings.php:826
+msgid "More Tools"
+msgstr "Meer hulpmiddelen"
+
+#: includes/admin/class-admin-settings.php:827
+msgid "Powerful utilities coming in future updates."
+msgstr "Krachtige hulpmiddelen beschikbaar in toekomstige updates."
+
+#: includes/admin/class-admin-settings.php:840
+msgid "Reset"
+msgstr "Herstellen"
+
+#: includes/admin/class-admin-settings.php:841
+#: includes/admin/class-admin-settings.php:857
+msgid "Soon"
+msgstr "Binnenkort"
+
+#: includes/admin/class-admin-settings.php:843
+msgid "Selectively reset FAQ data, styles, or all plugin settings at once."
+msgstr "Selectief FAQ-gegevens, stijlen of alle plugin-instellingen in \u00e9\u00e9n keer herstellen."
+
+#: includes/admin/class-admin-settings.php:856
+msgid "Diagnostics"
+msgstr "Diagnostiek"
+
+#: includes/admin/class-admin-settings.php:859
+msgid "Analyze your FAQ setup and get optimization suggestions."
+msgstr "Analyseer je FAQ-instellingen en ontvang optimalisatiesuggesties."
+
+#: includes/admin/class-admin-settings.php:969
+msgid "You do not have permission to export FAQs."
+msgstr "Je hebt geen toestemming om FAQ's te exporteren."
+
+#: includes/admin/class-admin-settings.php:984
+msgid "Unable to export this group. It may not exist."
+msgstr "Kan deze groep niet exporteren. De groep bestaat mogelijk niet."
+
+#: includes/admin/class-admin-settings.php:1009
+msgid "Select at least one component to export."
+msgstr "Selecteer minstens \u00e9\u00e9n onderdeel om te exporteren."
+
+#: includes/admin/class-admin-settings.php:1030
+msgid "All groups"
+msgstr "Alle groepen"
+
+#: includes/admin/class-admin-settings.php:1068
+msgid "You do not have permission to import FAQs."
+msgstr "Je hebt geen toestemming om FAQ's te importeren."
+
+#: includes/admin/class-admin-settings.php:1080
+msgid "Upload an export file before running import."
+msgstr "Upload een exportbestand voordat je de import start."
+
+#: includes/admin/class-admin-settings.php:1091
+msgid "Import file is too large. Please keep exports under 2MB."
+msgstr "Importbestand is te groot. Houd exports onder 2 MB."
+
+#: includes/admin/class-admin-settings.php:1093
+msgid "Only JSON files exported by this plugin are allowed."
+msgstr "Alleen JSON-bestanden die door deze plugin zijn ge\u00ebxporteerd zijn toegestaan."
+
+#: includes/admin/class-admin-settings.php:1102
+msgid "The uploaded file is not a valid export."
+msgstr "Het ge\u00fcploade bestand is geen geldige export."
+
+#: includes/admin/class-admin-settings.php:1115
+msgid "This file does not contain any FAQ data to duplicate."
+msgstr "Dit bestand bevat geen FAQ-gegevens om te dupliceren."
+
+#. translators: %s: original FAQ group title.
+#: includes/admin/class-admin-settings.php:1128
+#: includes/admin/class-admin-settings.php:1181
+#: includes/admin/class-group-admin.php:160
+#: includes/admin/class-group-cpt.php:1127
+#, php-format
+msgid "%s (Copy)"
+msgstr "%s (kopie)"
+
+#: includes/admin/class-admin-settings.php:1129
+msgid "Imported Group (Copy)"
+msgstr "Ge\u00efmporteerde groep (kopie)"
+
+#. translators: %d: FAQ group ID
+#: includes/admin/class-admin-settings.php:1183
+#, php-format
+msgid "Group #%d (Copy)"
+msgstr "Groep #%d (kopie)"
+
+#: includes/admin/class-admin-settings.php:1237
+msgid "Failed to create any new groups."
+msgstr "Aanmaken van nieuwe groepen mislukt."
+
+#. translators: 1: number of groups created, 2: number of items
+#: includes/admin/class-admin-settings.php:1244
+#, php-format
+msgid "%1$d new group created with %2$d FAQ items. Saved as draft."
+msgid_plural "%1$d new groups created with %2$d FAQ items. All saved as drafts."
+msgstr[0] "%1$d nieuwe groep aangemaakt met %2$d FAQ-items. Opgeslagen als concept."
+msgstr[1] "%1$d nieuwe groepen aangemaakt met %2$d FAQ-items. Allemaal opgeslagen als concepten."
+
+#: includes/admin/class-admin-settings.php:1265
+msgid "The selected group does not exist."
+msgstr "De geselecteerde groep bestaat niet."
+
+#. translators: %d: number of imported FAQs
+#: includes/admin/class-admin-settings.php:1313
+#, php-format
+msgid "%d FAQ item imported into group."
+msgid_plural "%d FAQ items imported into group."
+msgstr[0] "%d FAQ-item ge\u00efmporteerd in groep."
+msgstr[1] "%d FAQ-items ge\u00efmporteerd in groep."
+
+#: includes/admin/class-admin-settings.php:1319
+msgid "Group theme and styles applied."
+msgstr "Groepsthema en stijlen toegepast."
+
+#: includes/admin/class-admin-settings.php:1323
+msgid "No items were imported. The file may be empty or contain no valid entries."
+msgstr "Er zijn geen items ge\u00efmporteerd. Het bestand is mogelijk leeg of bevat geen geldige items."
+
+#: includes/admin/class-admin-settings.php:1382
+msgid "Nothing was imported. Ensure the file contains FAQ entries or style settings."
+msgstr "Er is niets ge\u00efmporteerd. Zorg ervoor dat het bestand FAQ-items of stijlinstellingen bevat."
+
+#. translators: %d: number of imported FAQs
+#: includes/admin/class-admin-settings.php:1392
+#, php-format
+msgid "%d FAQ item imported."
+msgid_plural "%d FAQ items imported."
+msgstr[0] "%d FAQ-item ge\u00efmporteerd."
+msgstr[1] "%d FAQ-items ge\u00efmporteerd."
+
+#: includes/admin/class-admin-settings.php:1398
+msgid "Style settings synced."
+msgstr "Stijlinstellingen gesynchroniseerd."
+
+#: includes/admin/class-admin-settings.php:1644
+msgid "The uploaded file exceeds the maximum allowed size."
+msgstr "Het ge\u00fcploade bestand overschrijdt de maximaal toegestane grootte."
+
+#: includes/admin/class-admin-settings.php:1646
+msgid "The uploaded file was only partially uploaded. Please try again."
+msgstr "Het ge\u00fcploade bestand is slechts gedeeltelijk ge\u00fcpload. Probeer het opnieuw."
+
+#: includes/admin/class-admin-settings.php:1648
+msgid "No file was uploaded."
+msgstr "Er is geen bestand ge\u00fcpload."
+
+#: includes/admin/class-admin-settings.php:1650
+msgid "Server configuration error: missing a temporary folder."
+msgstr "Serverconfiguratiefout: tijdelijke map ontbreekt."
+
+#: includes/admin/class-admin-settings.php:1652
+msgid "Server error: failed to write file to disk."
+msgstr "Serverfout: schrijven van bestand naar schijf mislukt."
+
+#: includes/admin/class-admin-settings.php:1654
+msgid "A PHP extension stopped the file upload."
+msgstr "Een PHP-extensie heeft het uploaden van het bestand gestopt."
+
+#: includes/admin/class-admin-settings.php:1656
+msgid "Unexpected upload error occurred."
+msgstr "Er is een onverwachte uploadfout opgetreden."
+
+#. translators: %d: FAQ group ID
+#: includes/admin/class-admin-settings.php:1932
+#, php-format
+msgid "Group #%d"
+msgstr "Groep #%d"
+
+#: includes/admin/class-admin-ui-components.php:60
+msgid "Let's build your FAQ group"
+msgstr "Laten we je FAQ-groep opbouwen"
+
+#: includes/admin/class-admin-ui-components.php:61
+msgid "Follow these quick steps to publish your first FAQ section."
+msgstr "Volg deze snelle stappen om je eerste FAQ-sectie te publiceren."
+
+#: includes/admin/class-admin-ui-components.php:63
+msgid "Add questions"
+msgstr "Vragen toevoegen"
+
+#: includes/admin/class-admin-ui-components.php:63
+msgid "Capture what customers ask most often."
+msgstr "Leg vast wat klanten het vaakst vragen."
+
+#: includes/admin/class-admin-ui-components.php:64
+msgid "Customize the look"
+msgstr "Pas het uiterlijk aan"
+
+#: includes/admin/class-admin-ui-components.php:64
+msgid "Match your brand colors and typography."
+msgstr "Stem af op je merkkleuren en typografie."
+
+#: includes/admin/class-admin-ui-components.php:65
+msgid "Preview & publish"
+msgstr "Voorbeeld bekijken & publiceren"
+
+#: includes/admin/class-admin-ui-components.php:65
+msgid "Review the live preview before publishing."
+msgstr "Bekijk het live voorbeeld voordat je publiceert."
+
+#: includes/admin/class-admin-ui-components.php:69
+msgid "Start adding questions"
+msgstr "Begin met vragen toevoegen"
+
+#: includes/admin/class-admin-ui-components.php:72
+msgid "Explore appearance options"
+msgstr "Verken de uiterlijkopties"
+
+#: includes/admin/class-admin-ui-components.php:151
+msgid "Preview requires a larger screen"
+msgstr "Voorbeeld vereist een groter scherm"
+
+#: includes/admin/class-admin-ui-components.php:152
+msgid "The live preview needs more space to display accurately. Your changes are saved automatically."
+msgstr "Het live voorbeeld heeft meer ruimte nodig om correct weer te geven. Je wijzigingen worden automatisch opgeslagen."
+
+#: includes/admin/class-admin-ui-components.php:155
+msgid "Open on desktop or tablet to preview"
+msgstr "Open op desktop of tablet om voorbeeld te bekijken"
+
+#: includes/admin/class-group-admin.php:60
+#: includes/admin/class-group-admin.php:61
+#: includes/admin/class-group-admin.php:243
+#: includes/admin/class-group-cpt.php:106
+#: includes/admin/class-group-cpt.php:112
+#: includes/admin/class-group-cpt.php:117
+msgid "FAQ Groups"
+msgstr "FAQ-groepen"
+
+#: includes/admin/class-group-admin.php:70
+#: includes/admin/class-group-admin.php:71
+#: includes/admin/class-group-admin.php:266
+#: includes/admin/class-group-admin.php:284
+#: includes/admin/class-group-cpt.php:110
+msgid "Edit FAQ Group"
+msgstr "FAQ-groep bewerken"
+
+#: includes/admin/class-group-admin.php:122
+#: includes/admin/class-group-admin.php:144
+#: includes/admin/class-group-admin.php:622
+#: includes/admin/class-group-admin.php:899
+#: includes/admin/class-group-cpt.php:1768
+#: includes/admin/class-group-list-table.php:104
+msgid "Security check failed."
+msgstr "Beveiligingscontrole mislukt."
+
+#: includes/admin/class-group-admin.php:126
+msgid "You do not have permission to delete this group."
+msgstr "Je hebt geen toestemming om deze groep te verwijderen."
+
+#: includes/admin/class-group-admin.php:148
+#: includes/admin/class-group-cpt.php:1112
+msgid "You do not have permission to duplicate this group."
+msgstr "Je hebt geen toestemming om deze groep te dupliceren."
+
+#: includes/admin/class-group-admin.php:154
+#: includes/admin/class-group-cpt.php:1118
+msgid "FAQ group not found."
+msgstr "FAQ-groep niet gevonden."
+
+#: includes/admin/class-group-admin.php:171
+#: includes/admin/class-group-cpt.php:1135
+msgid "Failed to create duplicate."
+msgstr "Duplicaat aanmaken mislukt."
+
+#: includes/admin/class-group-admin.php:227
+msgid "FAQ group deleted."
+msgstr "FAQ-groep verwijderd."
+
+#: includes/admin/class-group-admin.php:230
+msgid "FAQ group duplicated. You can now edit it."
+msgstr "FAQ-groep gedupliceerd. Je kunt deze nu bewerken."
+
+#: includes/admin/class-group-admin.php:244
+#: includes/admin/class-group-cpt.php:108
+msgid "Add New"
+msgstr "Nieuwe toevoegen"
+
+#: includes/admin/class-group-admin.php:266
+#: includes/admin/class-group-cpt.php:109
+msgid "Add New FAQ Group"
+msgstr "Nieuwe FAQ-groep toevoegen"
+
+#: includes/admin/class-group-admin.php:280
+msgid "Saving..."
+msgstr "Opslaan..."
+
+#: includes/admin/class-group-admin.php:281
+#: includes/admin/class-group-cpt.php:333
+msgid "Saved!"
+msgstr "Opgeslagen!"
+
+#: includes/admin/class-group-admin.php:282
+#: includes/admin/class-group-admin.php:362
+msgid "Update"
+msgstr "Bijwerken"
+
+#: includes/admin/class-group-admin.php:283
+msgid "Please enter a title for this FAQ group."
+msgstr "Voer een titel in voor deze FAQ-groep."
+
+#: includes/admin/class-group-admin.php:285
+#: includes/admin/class-group-admin.php:301
+msgid "FAQ group created."
+msgstr "FAQ-groep aangemaakt."
+
+#: includes/admin/class-group-admin.php:298
+#: includes/admin/class-group-cpt.php:2000
+msgid "FAQ group updated. Your changes are now live."
+msgstr "FAQ-groep bijgewerkt. Je wijzigingen zijn nu zichtbaar."
+
+#: includes/admin/class-group-admin.php:304
+#: includes/admin/class-group-cpt.php:1996
+msgid "FAQ group duplicated. Review and publish when ready."
+msgstr "FAQ-groep gedupliceerd. Controleer en publiceer wanneer je klaar bent."
+
+#: includes/admin/class-group-admin.php:307
+msgid "Title is required. Please enter a title for this FAQ group."
+msgstr "Titel is vereist. Voer een titel in voor deze FAQ-groep."
+
+#: includes/admin/class-group-admin.php:324
+msgid "Back to Groups"
+msgstr "Terug naar groepen"
+
+#: includes/admin/class-group-admin.php:334
+msgid "Group title"
+msgstr "Groepstitel"
+
+#: includes/admin/class-group-admin.php:335
+msgid "Enter group title here"
+msgstr "Voer hier de groepstitel in"
+
+#: includes/admin/class-group-admin.php:356
+#: includes/admin/class-group-admin.php:362
+msgid "Publish"
+msgstr "Publiceren"
+
+#: includes/admin/class-group-admin.php:373
+#: includes/admin/class-group-cpt.php:168
+msgid "How To Use"
+msgstr "Hoe te gebruiken"
+
+#: includes/admin/class-group-admin.php:388
+msgid "Show JSON State"
+msgstr "JSON-status tonen"
+
+#: includes/admin/class-group-admin.php:391
+msgid "Copy JSON"
+msgstr "JSON kopi\u00ebren"
+
+#: includes/admin/class-group-admin.php:411
+#: includes/admin/class-group-cpt.php:159
+#: includes/admin/class-group-cpt.php:374
+msgid "FAQ Group Configuration"
+msgstr "FAQ-groep configuratie"
+
+#: includes/admin/class-group-admin.php:421
+#: includes/admin/class-group-cpt.php:384
+msgid "Content"
+msgstr "Inhoud"
+
+#: includes/admin/class-group-admin.php:432
+#: includes/admin/class-group-cpt.php:395
+msgid "Appearance"
+msgstr "Uiterlijk"
+
+#: includes/admin/class-group-admin.php:443
+#: includes/admin/class-group-cpt.php:406
+msgid "Preview"
+msgstr "Voorbeeld"
+
+#: includes/admin/class-group-admin.php:627
+msgid "You do not have permission to save this group."
+msgstr "Je hebt geen toestemming om deze groep op te slaan."
+
+#: includes/admin/class-group-admin.php:672
+#: includes/admin/class-group-admin.php:806
+msgid "Untitled FAQ Group"
+msgstr "Naamloze FAQ-groep"
+
+#: includes/admin/class-group-admin.php:679
+#: includes/admin/class-group-admin.php:813
+msgid "Failed to create FAQ group."
+msgstr "FAQ-groep aanmaken mislukt."
+
+#: includes/admin/class-group-admin.php:760
+#: includes/admin/class-group-cpt.php:2039
+msgid "You do not have permission to edit this FAQ group."
+msgstr "Je hebt geen toestemming om deze FAQ-groep te bewerken."
+
+#: includes/admin/class-group-admin.php:772
+msgid "Title is required."
+msgstr "Titel is vereist."
+
+#: includes/admin/class-group-admin.php:823
+#: includes/admin/class-group-cpt.php:2048
+msgid "Invalid FAQ group."
+msgstr "Ongeldige FAQ-groep."
+
+#: includes/admin/class-group-admin.php:881
+#: includes/admin/class-group-cpt.php:2086
+msgid "FAQ group saved successfully!"
+msgstr "FAQ-groep succesvol opgeslagen!"
+
+#: includes/admin/class-group-admin.php:904
+#: includes/admin/class-group-cpt.php:1773
+msgid "Permission denied."
+msgstr "Toegang geweigerd."
+
+#: includes/admin/class-group-admin.php:910
+#: includes/admin/class-group-cpt.php:1779
+msgid "Invalid group ID."
+msgstr "Ongeldig groeps-ID."
+
+#: includes/admin/class-group-admin.php:919
+#: includes/admin/class-group-cpt.php:1788
+msgid "No FAQ items found. Add some items in the FAQ Items tab."
+msgstr "Geen FAQ-items gevonden. Voeg items toe in het tabblad FAQ-items."
+
+#: includes/admin/class-group-admin.php:1017
+#: includes/admin/class-group-cpt.php:1889
+#: includes/frontend/class-frontend-renderer.php:314
+msgid "Search FAQs..."
+msgstr "FAQ's zoeken..."
+
+#: includes/admin/class-group-admin.php:1151
+#: includes/admin/class-group-cpt.php:469
+msgid "FAQ Items"
+msgstr "FAQ-items"
+
+#: includes/admin/class-group-admin.php:1153
+#: includes/admin/class-group-admin.php:1184
+#: includes/admin/class-group-cpt.php:471
+#: includes/admin/class-group-cpt.php:502
+msgid "Add questions and answers that your visitors commonly ask."
+msgstr "Voeg vragen en antwoorden toe die je bezoekers vaak stellen."
+
+#: includes/admin/class-group-admin.php:1162
+#: includes/admin/class-group-cpt.php:480
+msgid "Behavior & Display Settings"
+msgstr "Gedrag & weergave-instellingen"
+
+#: includes/admin/class-group-admin.php:1164
+#: includes/admin/class-group-cpt.php:482
+msgid "Control how users interact with your FAQs."
+msgstr "Bepaal hoe gebruikers met je FAQ's omgaan."
+
+#: includes/admin/class-group-admin.php:1183
+#: includes/admin/class-group-cpt.php:501
+msgid "No questions yet"
+msgstr "Nog geen vragen"
+
+#: includes/admin/class-group-admin.php:1186
+#: includes/admin/class-group-cpt.php:504
+msgid "Add Your First Question"
+msgstr "Voeg je eerste vraag toe"
+
+#: includes/admin/class-group-admin.php:1201
+#: includes/admin/class-group-cpt.php:519
+msgid "Question & Answer"
+msgstr "Vraag & antwoord"
+
+#: includes/admin/class-group-admin.php:1202
+#: includes/admin/class-group-cpt.php:520
+msgid "Options"
+msgstr "Opties"
+
+#: includes/admin/class-group-admin.php:1214
+#: includes/admin/class-group-admin.php:1280
+#: includes/admin/class-group-cpt.php:532
+#: includes/admin/class-group-cpt.php:598
+msgid "Enter your question..."
+msgstr "Voer je vraag in..."
+
+#: includes/admin/class-group-admin.php:1232
+#: includes/admin/class-group-admin.php:1286
+#: includes/admin/class-group-cpt.php:550
+#: includes/admin/class-group-cpt.php:604
+msgid "Remove"
+msgstr "Verwijderen"
+
+#: includes/admin/class-group-admin.php:1241
+#: includes/admin/class-group-admin.php:1295
+#: includes/admin/class-group-cpt.php:559
+#: includes/admin/class-group-cpt.php:619
+msgid "Open by default"
+msgstr "Standaard geopend"
+
+#: includes/admin/class-group-admin.php:1247
+#: includes/admin/class-group-admin.php:1301
+#: includes/admin/class-group-cpt.php:565
+#: includes/admin/class-group-cpt.php:619
+msgid "Show"
+msgstr "Tonen"
+
+#: includes/admin/class-group-admin.php:1253
+#: includes/admin/class-group-admin.php:1307
+#: includes/admin/class-group-cpt.php:571
+#: includes/admin/class-group-cpt.php:625
+msgid "Highlight"
+msgstr "Markeren"
+
+#: includes/admin/class-group-admin.php:1266
+#: includes/admin/class-group-cpt.php:584
+msgid "Add Question"
+msgstr "Vraag toevoegen"
+
+#: includes/admin/class-group-admin.php:1284
+#: includes/admin/class-group-cpt.php:602
+msgid "Enter your answer..."
+msgstr "Voer je antwoord in..."
+
+#: includes/admin/class-group-admin.php:1332
+#: includes/admin/class-group-cpt.php:653
+msgid "Theme Presets"
+msgstr "Themavoorinstellingen"
+
+#: includes/admin/class-group-admin.php:1334
+#: includes/admin/class-group-cpt.php:655
+msgid "Choose a pre-designed theme to quickly style your FAQs."
+msgstr "Kies een vooraf ontworpen thema om je FAQ's snel te stijlen."
+
+#: includes/admin/class-group-admin.php:1343
+#: includes/admin/class-group-cpt.php:664
+msgid "Advanced Style Overrides"
+msgstr "Geavanceerde stijloverschrijvingen"
+
+#: includes/admin/class-group-admin.php:1345
+#: includes/admin/class-group-cpt.php:666
+msgid "Fine-tune every detail or override global styles for this group."
+msgstr "Verfijn elk detail of overschrijf globale stijlen voor deze groep."
+
+#: includes/admin/class-group-admin.php:1353
+#: includes/admin/class-group-cpt.php:674
+msgid "Reset Theme"
+msgstr "Thema herstellen"
+
+#: includes/admin/class-group-admin.php:1356
+#: includes/admin/class-group-cpt.php:677
+msgid "Reset Styles"
+msgstr "Stijlen herstellen"
+
+#: includes/admin/class-group-admin.php:1367
+#: includes/admin/class-group-admin.php:1819
+#: includes/admin/class-group-cpt.php:688
+#: includes/admin/class-group-cpt.php:1360
+msgid "Auto refresh"
+msgstr "Automatisch vernieuwen"
+
+#: includes/admin/class-group-admin.php:1371
+#: includes/admin/class-group-cpt.php:692
+msgid "Refresh"
+msgstr "Vernieuwen"
+
+#: includes/admin/class-group-admin.php:1375
+#: includes/admin/class-group-cpt.php:696
+msgid "Changes update instantly as you tweak styles."
+msgstr "Wijzigingen worden direct bijgewerkt terwijl je stijlen aanpast."
+
+#: includes/admin/class-group-admin.php:1378
+#: includes/admin/class-group-cpt.php:699
+msgid "Add at least one question to see the live preview."
+msgstr "Voeg minstens \u00e9\u00e9n vraag toe om het live voorbeeld te zien."
+
+#: includes/admin/class-group-admin.php:1380
+#: includes/admin/class-group-cpt.php:701
+msgid "Add questions first"
+msgstr "Voeg eerst vragen toe"
+
+#: includes/admin/class-group-admin.php:1409
+#: includes/admin/class-group-cpt.php:730
+msgid "Choose a theme preset"
+msgstr "Kies een themavoorinstelling"
+
+#: includes/admin/class-group-admin.php:1435
+#: includes/admin/class-group-cpt.php:756
+msgid "Sample Question?"
+msgstr "Voorbeeldvraag?"
+
+#: includes/admin/class-group-admin.php:1438
+#: includes/admin/class-group-cpt.php:759
+msgid "Preview answer text..."
+msgstr "Voorbeeldantwoordtekst..."
+
+#: includes/admin/class-group-admin.php:1449
+#: includes/admin/class-group-cpt.php:770
+msgid "Another Question?"
+msgstr "Nog een vraag?"
+
+#: includes/admin/class-group-admin.php:1460
+#: includes/admin/class-group-cpt.php:781
+msgid "Applied"
+msgstr "Toegepast"
+
+#: includes/admin/class-group-admin.php:1468
+#: includes/admin/class-group-cpt.php:789
+msgid "Customize Colors"
+msgstr "Kleuren aanpassen"
+
+#: includes/admin/class-group-admin.php:1470
+#: includes/admin/class-group-cpt.php:791
+msgid "Override theme colors with your own custom values."
+msgstr "Overschrijf themakleuren met je eigen aangepaste waarden."
+
+#: includes/admin/class-group-admin.php:1475
+#: includes/admin/class-group-cpt.php:796
+msgid "Primary Color"
+msgstr "Primaire kleur"
+
+#: includes/admin/class-group-admin.php:1483
+#: includes/admin/class-group-cpt.php:804
+msgid "Secondary Color"
+msgstr "Secundaire kleur"
+
+#: includes/admin/class-group-admin.php:1491
+#: includes/admin/class-group-admin.php:1747
+#: includes/admin/class-group-cpt.php:812
+#: includes/admin/class-group-cpt.php:1288
+msgid "Accent Color"
+msgstr "Accentkleur"
+
+#: includes/admin/class-group-admin.php:1499
+#: includes/admin/class-group-cpt.php:820
+msgid "Background Color"
+msgstr "Achtergrondkleur"
+
+#: includes/admin/class-group-admin.php:1518
+#: includes/admin/class-group-cpt.php:839
+msgid "How should users interact?"
+msgstr "Hoe moeten gebruikers interactie hebben?"
+
+#: includes/admin/class-group-admin.php:1523
+#: includes/admin/class-group-cpt.php:844
+msgid "Accordion Mode"
+msgstr "Accordeonmodus"
+
+#: includes/admin/class-group-admin.php:1524
+#: includes/admin/class-group-admin.php:1543
+#: includes/admin/class-group-admin.php:1563
+#: includes/admin/class-group-admin.php:1587
+#: includes/admin/class-group-admin.php:1606
+#: includes/admin/class-group-admin.php:1625
+#: includes/admin/class-group-cpt.php:845
+#: includes/admin/class-group-cpt.php:864
+#: includes/admin/class-group-cpt.php:884
+#: includes/admin/class-group-cpt.php:908
+#: includes/admin/class-group-cpt.php:927
+#: includes/admin/class-group-cpt.php:946
+msgid "Learn more"
+msgstr "Meer informatie"
+
+#: includes/admin/class-group-admin.php:1532
+#: includes/admin/class-group-cpt.php:853
+msgid "Only allow one item to be open at a time"
+msgstr "Slechts \u00e9\u00e9n item tegelijk geopend toestaan"
+
+#: includes/admin/class-group-admin.php:1535
+#: includes/admin/class-group-cpt.php:856
+msgid "When enabled, opening one item automatically closes all others. Perfect for keeping your FAQ section compact."
+msgstr "Wanneer ingeschakeld, sluit het openen van een item automatisch alle andere. Ideaal om je FAQ-sectie compact te houden."
+
+#: includes/admin/class-group-admin.php:1542
+#: includes/admin/class-group-cpt.php:863
+msgid "Initial State"
+msgstr "Beginstatus"
+
+#: includes/admin/class-group-admin.php:1550
+#: includes/admin/class-group-cpt.php:871
+msgid "All Closed"
+msgstr "Alles gesloten"
+
+#: includes/admin/class-group-admin.php:1551
+#: includes/admin/class-group-cpt.php:872
+msgid "First Item Open"
+msgstr "Eerste item geopend"
+
+#: includes/admin/class-group-admin.php:1552
+#: includes/admin/class-group-cpt.php:873
+msgid "Custom (Use item settings)"
+msgstr "Aangepast (iteminstellingen gebruiken)"
+
+#: includes/admin/class-group-admin.php:1555
+#: includes/admin/class-group-cpt.php:876
+msgid "Choose how items should appear when the page loads. \"Custom\" uses the \"Open by default\" setting for each item."
+msgstr "Kies hoe items moeten verschijnen wanneer de pagina laadt. \"Aangepast\" gebruikt de instelling \"Standaard geopend\" voor elk item."
+
+#: includes/admin/class-group-admin.php:1562
+#: includes/admin/class-group-cpt.php:883
+msgid "Animation Speed"
+msgstr "Animatiesnelheid"
+
+#: includes/admin/class-group-admin.php:1570
+#: includes/admin/class-group-cpt.php:891
+msgid "Fast (150ms)"
+msgstr "Snel (150ms)"
+
+#: includes/admin/class-group-admin.php:1571
+#: includes/admin/class-group-cpt.php:892
+msgid "Normal (300ms)"
+msgstr "Normaal (300ms)"
+
+#: includes/admin/class-group-admin.php:1572
+#: includes/admin/class-group-cpt.php:893
+msgid "Slow (500ms)"
+msgstr "Langzaam (500ms)"
+
+#: includes/admin/class-group-admin.php:1575
+#: includes/admin/class-group-cpt.php:896
+msgid "Controls how quickly items expand and collapse. Normal works well for most sites."
+msgstr "Bepaalt hoe snel items uitvouwen en invouwen. Normaal werkt goed voor de meeste websites."
+
+#: includes/admin/class-group-admin.php:1581
+#: includes/admin/class-group-cpt.php:902
+msgid "What should users see?"
+msgstr "Wat moeten gebruikers zien?"
+
+#: includes/admin/class-group-admin.php:1586
+#: includes/admin/class-group-cpt.php:907
+msgid "Search Box"
+msgstr "Zoekvak"
+
+#: includes/admin/class-group-admin.php:1595
+#: includes/admin/class-group-cpt.php:916
+msgid "Show search box above FAQ items"
+msgstr "Zoekvak tonen boven FAQ-items"
+
+#: includes/admin/class-group-admin.php:1598
+#: includes/admin/class-group-cpt.php:919
+msgid "Adds a live search box that filters questions and answers as visitors type."
+msgstr "Voegt een live zoekvak toe dat vragen en antwoorden filtert terwijl bezoekers typen."
+
+#: includes/admin/class-group-admin.php:1605
+#: includes/admin/class-group-cpt.php:926
+msgid "Item Counter"
+msgstr "Itemnummering"
+
+#: includes/admin/class-group-admin.php:1614
+#: includes/admin/class-group-cpt.php:935
+msgid "Display item numbers (e.g., 1., 2., 3.)"
+msgstr "Itemnummers weergeven (bijv. 1., 2., 3.)"
+
+#: includes/admin/class-group-admin.php:1617
+#: includes/admin/class-group-cpt.php:938
+msgid "Shows numbered labels before each question for easy reference."
+msgstr "Toont genummerde labels voor elke vraag voor eenvoudige verwijzing."
+
+#: includes/admin/class-group-admin.php:1624
+#: includes/admin/class-group-cpt.php:945
+msgid "Smooth Scroll"
+msgstr "Vloeiend scrollen"
+
+#: includes/admin/class-group-admin.php:1633
+#: includes/admin/class-group-cpt.php:954
+msgid "Scroll to item when opened via URL hash"
+msgstr "Naar item scrollen bij openen via URL-hash"
+
+#: includes/admin/class-group-admin.php:1636
+#: includes/admin/class-group-cpt.php:957
+msgid "Smoothly scrolls opened items into view, helpful when linking directly to specific questions."
+msgstr "Scrollt geopende items vloeiend in beeld, handig bij het direct linken naar specifieke vragen."
+
+#: includes/admin/class-group-admin.php:1659
+#: includes/admin/class-group-cpt.php:1200
+msgid "Use custom styles for this group"
+msgstr "Aangepaste stijlen gebruiken voor deze groep"
+
+#: includes/admin/class-group-admin.php:1662
+#: includes/admin/class-group-cpt.php:1203
+msgid "Enable this to override global styles with group-specific styling."
+msgstr "Schakel dit in om globale stijlen te overschrijven met groepsspecifieke styling."
+
+#: includes/admin/class-group-admin.php:1667
+#: includes/admin/class-group-cpt.php:1208
+msgid "Container"
+msgstr "Container"
+
+#: includes/admin/class-group-admin.php:1671
+#: includes/admin/class-group-cpt.php:1212
+msgid "Background"
+msgstr "Achtergrond"
+
+#: includes/admin/class-group-admin.php:1679
+#: includes/admin/class-group-cpt.php:1220
+msgid "Border Color"
+msgstr "Randkleur"
+
+#: includes/admin/class-group-admin.php:1687
+#: includes/admin/class-group-cpt.php:1228
+msgid "Border Radius (px)"
+msgstr "Randradius (px)"
+
+#: includes/admin/class-group-admin.php:1707
+#: includes/admin/class-group-admin.php:1727
+#: includes/admin/class-group-cpt.php:1248
+#: includes/admin/class-group-cpt.php:1268
+msgid "Color"
+msgstr "Kleur"
+
+#: includes/admin/class-group-admin.php:1715
+#: includes/admin/class-group-admin.php:1735
+#: includes/admin/class-group-cpt.php:1256
+#: includes/admin/class-group-cpt.php:1276
+msgid "Font Size (px)"
+msgstr "Lettergrootte (px)"
+
+#: includes/admin/class-group-admin.php:1743
+#: includes/admin/class-group-cpt.php:1284
+msgid "Accent & Animation"
+msgstr "Accent & animatie"
+
+#: includes/admin/class-group-admin.php:1755
+#: includes/admin/class-group-cpt.php:1296
+msgid "Icon Style"
+msgstr "Pictogramstijl"
+
+#: includes/admin/class-group-admin.php:1797
+#: includes/admin/class-group-cpt.php:1338
+msgid "Preview will appear after you add items"
+msgstr "Voorbeeld verschijnt nadat je items hebt toegevoegd"
+
+#: includes/admin/class-group-admin.php:1798
+#: includes/admin/class-group-cpt.php:1339
+msgid "Add at least one question in the Content tab, then return here to see how it looks."
+msgstr "Voeg minstens \u00e9\u00e9n vraag toe in het tabblad Inhoud en kom dan hier terug om te zien hoe het eruitziet."
+
+#: includes/admin/class-group-admin.php:1800
+#: includes/admin/class-group-cpt.php:1341
+msgid "Go to Content Tab"
+msgstr "Ga naar tabblad Inhoud"
+
+#: includes/admin/class-group-admin.php:1805
+#: includes/admin/class-group-cpt.php:1346
+msgid "Preview device"
+msgstr "Voorbeeldapparaat"
+
+#: includes/admin/class-group-admin.php:1806
+#: includes/admin/class-group-cpt.php:1347
+msgid "Desktop view"
+msgstr "Desktopweergave"
+
+#: includes/admin/class-group-admin.php:1809
+#: includes/admin/class-group-cpt.php:1350
+msgid "Tablet view"
+msgstr "Tabletweergave"
+
+#: includes/admin/class-group-admin.php:1812
+#: includes/admin/class-group-cpt.php:1353
+msgid "Mobile view"
+msgstr "Mobiele weergave"
+
+#: includes/admin/class-group-admin.php:1823
+#: includes/admin/class-group-cpt.php:1364
+msgid "Refresh Preview"
+msgstr "Voorbeeld vernieuwen"
+
+#: includes/admin/class-group-admin.php:1830
+#: includes/admin/class-group-cpt.php:1371
+msgid "Save the group to see all changes reflected in the preview."
+msgstr "Sla de groep op om alle wijzigingen in het voorbeeld te zien."
+
+#: includes/admin/class-group-admin.php:1852
+#: includes/admin/class-group-cpt.php:1393
+msgid "Default"
+msgstr "Standaard"
+
+#: includes/admin/class-group-admin.php:1853
+#: includes/admin/class-group-cpt.php:1394
+msgid "Refined baseline with soft shadows. Fits any site."
+msgstr "Verfijnde basis met zachte schaduwen. Past bij elke website."
+
+#: includes/admin/class-group-admin.php:1881
+#: includes/admin/class-group-cpt.php:1422
+#: includes/core/class-presets.php:66
+msgid "Modern"
+msgstr "Modern"
+
+#: includes/admin/class-group-admin.php:1882
+#: includes/admin/class-group-cpt.php:1423
+msgid "Floating cards with indigo accent. Clean and airy."
+msgstr "Zwevende kaarten met indigo accent. Strak en luchtig."
+
+#: includes/admin/class-group-admin.php:1910
+#: includes/admin/class-group-cpt.php:1451
+msgid "Elegant"
+msgstr "Elegant"
+
+#: includes/admin/class-group-admin.php:1911
+#: includes/admin/class-group-cpt.php:1452
+msgid "Warm tones with connected bordered items."
+msgstr "Warme tinten met verbonden omrande items."
+
+#: includes/admin/class-group-admin.php:1939
+#: includes/admin/class-group-cpt.php:1480
+#: includes/core/class-presets.php:43
+msgid "Minimal"
+msgstr "Minimaal"
+
+#: includes/admin/class-group-admin.php:1940
+#: includes/admin/class-group-cpt.php:1481
+msgid "Stripped to essentials. Content speaks for itself."
+msgstr "Teruggebracht tot de essentie. De inhoud spreekt voor zich."
+
+#: includes/admin/class-group-admin.php:1968
+#: includes/admin/class-group-cpt.php:1509
+msgid "Bold"
+msgstr "Vet"
+
+#: includes/admin/class-group-admin.php:1969
+#: includes/admin/class-group-cpt.php:1510
+msgid "Strong cards with emerald accent. High visual impact."
+msgstr "Sterke kaarten met smaragdgroen accent. Hoge visuele impact."
+
+#: includes/admin/class-group-admin.php:1997
+#: includes/admin/class-group-cpt.php:1538
+msgid "Professional"
+msgstr "Professioneel"
+
+#: includes/admin/class-group-admin.php:1998
+#: includes/admin/class-group-cpt.php:1539
+msgid "Structured alternating rows. Enterprise-ready."
+msgstr "Gestructureerde afwisselende rijen. Klaar voor zakelijk gebruik."
+
+#: includes/admin/class-group-admin.php:2050
+#: includes/admin/class-group-cpt.php:197
+#: includes/admin/class-group-cpt.php:1013
+#: includes/admin/class-group-list-table.php:47
+msgid "Shortcode"
+msgstr "Shortcode"
+
+#: includes/admin/class-group-admin.php:2056
+#: includes/admin/class-group-admin.php:2066
+#: includes/admin/class-group-cpt.php:203
+#: includes/admin/class-group-cpt.php:213
+msgid "Copied!"
+msgstr "Gekopieerd!"
+
+#: includes/admin/class-group-admin.php:2060
+#: includes/admin/class-group-cpt.php:207
+msgid "PHP Template"
+msgstr "PHP-sjabloon"
+
+#: includes/admin/class-group-admin.php:2072
+#: includes/admin/class-group-cpt.php:219
+msgid "Also available as a Gutenberg block."
+msgstr "Ook beschikbaar als Gutenberg-blok."
+
+#: includes/admin/class-group-cpt.php:107
+#: blocks/faq/editor.js:97
+msgid "FAQ Group"
+msgstr "FAQ-groep"
+
+#: includes/admin/class-group-cpt.php:111
+msgid "New FAQ Group"
+msgstr "Nieuwe FAQ-groep"
+
+#: includes/admin/class-group-cpt.php:113
+msgid "View FAQ Group"
+msgstr "FAQ-groep bekijken"
+
+#: includes/admin/class-group-cpt.php:114
+msgid "Search FAQ Groups"
+msgstr "FAQ-groepen zoeken"
+
+#: includes/admin/class-group-cpt.php:115
+msgid "No FAQ groups found"
+msgstr "Geen FAQ-groepen gevonden"
+
+#: includes/admin/class-group-cpt.php:116
+msgid "No FAQ groups found in Trash"
+msgstr "Geen FAQ-groepen gevonden in prullenbak"
+
+#: includes/admin/class-group-cpt.php:990
+#: includes/admin/class-group-list-table.php:165
+msgid "Duplicate"
+msgstr "Dupliceren"
+
+#: includes/admin/class-group-cpt.php:1014
+#: includes/admin/class-group-list-table.php:48
+msgid "Questions"
+msgstr "Vragen"
+
+#: includes/admin/class-group-cpt.php:1015
+#: includes/admin/class-group-list-table.php:49
+msgid "Theme"
+msgstr "Thema"
+
+#: includes/admin/class-group-cpt.php:1039
+#: includes/admin/class-group-list-table.php:193
+msgid "Copy shortcode"
+msgstr "Shortcode kopi\u00ebren"
+
+#: includes/admin/class-group-cpt.php:1064
+#: includes/admin/class-group-list-table.php:223
+msgid "Hidden from frontend"
+msgstr "Verborgen op de website"
+
+#: includes/admin/class-group-cpt.php:1066
+#: includes/admin/class-group-list-table.php:225
+msgid "hidden"
+msgstr "verborgen"
+
+#: includes/admin/class-group-cpt.php:1104
+msgid "Invalid request."
+msgstr "Ongeldig verzoek."
+
+#. translators: %s: Source group title.
+#: includes/admin/class-group-cpt.php:1993
+#, php-format
+msgid "FAQ group duplicated from \"%s\". Review and publish when ready."
+msgstr "FAQ-groep gedupliceerd van \"%s\". Controleer en publiceer wanneer je klaar bent."
+
+#: includes/admin/class-group-cpt.php:2031
+msgid "Invalid post ID."
+msgstr "Ongeldig bericht-ID."
+
+#: includes/admin/class-group-list-table.php:46
+#: blocks/faq/editor.js:79
+msgid "Title"
+msgstr "Titel"
+
+#: includes/admin/class-group-list-table.php:50
+msgid "Date"
+msgstr "Datum"
+
+#: includes/admin/class-group-list-table.php:73
+#: includes/admin/class-group-list-table.php:166
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: includes/admin/class-group-list-table.php:164
+msgid "Edit"
+msgstr "Bewerken"
+
+#: includes/admin/class-group-list-table.php:166
+msgid "Are you sure?"
+msgstr "Weet je het zeker?"
+
+#: includes/admin/class-group-list-table.php:290
+msgid "No FAQ groups found."
+msgstr "Geen FAQ-groepen gevonden."
+
+#: includes/core/class-presets.php:44
+msgid "Clean and subtle. Works with any design."
+msgstr "Strak en subtiel. Werkt met elk ontwerp."
+
+#: includes/core/class-presets.php:67
+msgid "Floating cards with indigo accent and soft elevation."
+msgstr "Zwevende kaarten met indigo accent en zachte verhoging."
+
+#: includes/core/class-presets.php:89
+msgid "Card"
+msgstr "Kaart"
+
+#: includes/core/class-presets.php:90
+msgid "Stacked connected items with clean borders."
+msgstr "Gestapelde verbonden items met strakke randen."
+
+#: includes/core/class-presets.php:112
+msgid "Outline"
+msgstr "Omlijning"
+
+#: includes/core/class-presets.php:113
+msgid "No borders. Answers marked with left accent bar."
+msgstr "Geen randen. Antwoorden gemarkeerd met linker accentbalk."
+
+#: includes/core/class-presets.php:135
+msgid "Contrast"
+msgstr "Contrast"
+
+#: includes/core/class-presets.php:136
+msgid "Dark surface with orange accent. Bold statement."
+msgstr "Donker oppervlak met oranje accent. Opvallende uitstraling."
+
+#: includes/frontend/class-frontend-renderer.php:101
+msgid "Invalid tracking payload."
+msgstr "Ongeldige tracking-gegevens."
+
+#: includes/frontend/class-frontend-renderer.php:107
+msgid "Group not found."
+msgstr "Groep niet gevonden."
+
+#: includes/frontend/class-frontend-renderer.php:196
+#: blocks/faq/editor.js:115
+msgid "Frequently Asked Questions"
+msgstr "Veelgestelde vragen"
+
+#: includes/frontend/class-frontend-renderer.php:355
+msgid "No FAQs found yet. Add some FAQs in the admin to populate this section."
+msgstr "Nog geen FAQ's gevonden. Voeg FAQ's toe in het beheerpaneel om deze sectie te vullen."
+
+#: blocks/faq/editor.js:24
+msgid "Use global preset"
+msgstr "Globale voorinstelling gebruiken"
+
+#: blocks/faq/editor.js:60
+msgid "All FAQs (default)"
+msgstr "Alle FAQ's (standaard)"
+
+#: blocks/faq/editor.js:63
+msgid "(no title)"
+msgstr "(geen titel)"
+
+#: blocks/faq/editor.js:77
+msgid "FAQ Settings"
+msgstr "FAQ-instellingen"
+
+#: blocks/faq/editor.js:86
+msgid "Preset"
+msgstr "Voorinstelling"
+
+#: blocks/faq/editor.js:92
+msgid "Choose which preset to apply to this block. Leave blank to use the global preset."
+msgstr "Kies welke voorinstelling op dit blok moet worden toegepast. Laat leeg om de globale voorinstelling te gebruiken."
+
+#: blocks/faq/editor.js:121
+msgid "This block will display the selected FAQ group on the front-end."
+msgstr "Dit blok toont de geselecteerde FAQ-groep op de website."
+
+#: blocks/faq/editor.js:122
+msgid "No specific group selected. Default FAQs will be shown."
+msgstr "Geen specifieke groep geselecteerd. Standaard FAQ's worden getoond."
+
+#: blocks/faq/editor.js:128
+msgid "Preset: "
+msgstr "Voorinstelling: "
+
+#: blocks/faq/editor.js:129
+msgid "Using global preset"
+msgstr "Globale voorinstelling wordt gebruikt"
+
+#: blocks/faq/block.json
+msgctxt "block title"
+msgid "Next Level FAQ"
+msgstr "Next Level FAQ"
+
+#: blocks/faq/block.json
+msgctxt "block description"
+msgid "Display a styled FAQ section using the Next Level FAQ styles."
+msgstr "Toon een gestijlde FAQ-sectie met de Next Level FAQ-stijlen."
+
+#: blocks/faq/block.json
+msgctxt "block keyword"
+msgid "faq"
+msgstr "faq"
+
+#: blocks/faq/block.json
+msgctxt "block keyword"
+msgid "accordion"
+msgstr "accordeon"
+
+#: blocks/faq/block.json
+msgctxt "block keyword"
+msgid "help"
+msgstr "hulp"
