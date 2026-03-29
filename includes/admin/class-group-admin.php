@@ -55,16 +55,9 @@ class Group_Admin {
 	 * Called on `admin_menu`.
 	 */
 	public static function register_admin_pages() {
-		add_submenu_page(
-			'nlf-faq',
-			__( 'FAQ Groups', 'next-level-faq' ),
-			__( 'FAQ Groups', 'next-level-faq' ),
-			'manage_options',
-			'nlf-faq-groups',
-			array( __CLASS__, 'render_list_page' )
-		);
-
 		// Hidden submenu page for editing / adding a single group.
+		// Note: the visible "FAQ Groups" entry is registered by Admin_Settings::register_menu()
+		// to control menu ordering. Only the hidden edit page lives here.
 		add_submenu_page(
 			null, // hidden
 			__( 'Edit FAQ Group', 'next-level-faq' ),

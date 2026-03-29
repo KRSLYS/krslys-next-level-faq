@@ -68,9 +68,28 @@ class Admin_Settings {
 			__( 'FAQs', 'next-level-faq' ),
 			'manage_options',
 			self::TOP_MENU_SLUG,
-			array( __CLASS__, 'render_style_page' ),
+			array( __CLASS__, 'render_dashboard_page' ),
 			'dashicons-editor-help',
 			26
+		);
+
+		// First submenu uses the same slug as the parent to avoid a duplicate entry.
+		add_submenu_page(
+			self::TOP_MENU_SLUG,
+			__( 'Dashboard', 'next-level-faq' ),
+			__( 'Dashboard', 'next-level-faq' ),
+			'manage_options',
+			self::TOP_MENU_SLUG,
+			array( __CLASS__, 'render_dashboard_page' )
+		);
+
+		add_submenu_page(
+			self::TOP_MENU_SLUG,
+			__( 'FAQ Groups', 'next-level-faq' ),
+			__( 'FAQ Groups', 'next-level-faq' ),
+			'manage_options',
+			'nlf-faq-groups',
+			array( 'Krslys\NextLevelFaq\Group_Admin', 'render_list_page' )
 		);
 
 		add_submenu_page(
@@ -234,9 +253,9 @@ class Admin_Settings {
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
 
 		$allowed_pages = array(
+			self::TOP_MENU_SLUG,
 			self::STYLE_SLUG,
 			self::QUESTIONS_SLUG,
-			self::TOP_MENU_SLUG,
 			self::TOOLS_SLUG,
 		);
 
@@ -252,7 +271,7 @@ class Admin_Settings {
 		);
 
 		// Enqueue generated CSS for style page preview.
-		if ( in_array( $page, array( self::STYLE_SLUG, self::TOP_MENU_SLUG ), true ) ) {
+		if ( self::STYLE_SLUG === $page ) {
 			$css_path = Style_Generator::get_css_file_path();
 			$css_url  = Style_Generator::get_css_file_url();
 			if ( $css_url && $css_path && file_exists( $css_path ) ) {
@@ -266,7 +285,7 @@ class Admin_Settings {
 		}
 
 		// Enqueue WordPress color picker for style page only.
-		if ( in_array( $page, array( self::STYLE_SLUG, self::TOP_MENU_SLUG ), true ) ) {
+		if ( self::STYLE_SLUG === $page ) {
 			wp_enqueue_style( 'wp-color-picker' );
 			wp_enqueue_script(
 				'nlf-faq-admin',
@@ -301,6 +320,64 @@ class Admin_Settings {
 				'saveNonce'      => wp_create_nonce( 'nlf_save_settings' ),
 			)
 		);
+	}
+
+	/**
+	 * Render the plugin dashboard / welcome page.
+	 *
+	 * SECURITY: Capability check at start of function.
+	 */
+	public static function render_dashboard_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$group_count = \Krslys\NextLevelFaq\Groups_Repository::count_groups();
+		$groups_url  = admin_url( 'admin.php?page=nlf-faq-groups' );
+		$style_url   = admin_url( 'admin.php?page=' . self::STYLE_SLUG );
+		$tools_url   = admin_url( 'admin.php?page=' . self::TOOLS_SLUG );
+		?>
+		<div class="wrap nlf-faq-admin nlf-faq-dashboard">
+
+			<div class="nlf-dashboard-hero">
+				<span class="dashicons dashicons-editor-help nlf-dashboard-hero__icon"></span>
+				<h1 class="nlf-dashboard-hero__title"><?php esc_html_e( 'Next Level FAQ', 'next-level-faq' ); ?></h1>
+				<p class="nlf-dashboard-hero__desc"><?php esc_html_e( 'Flexible FAQ plugin with customizable styling and live preview.', 'next-level-faq' ); ?></p>
+			</div>
+
+			<div class="nlf-dashboard-cards">
+
+				<a href="<?php echo esc_url( $groups_url ); ?>" class="nlf-dashboard-card">
+					<span class="dashicons dashicons-list-view nlf-dashboard-card__icon"></span>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'FAQ Groups', 'next-level-faq' ); ?></h2>
+					<p class="nlf-dashboard-card__meta">
+						<?php
+						printf(
+							/* translators: %d: number of FAQ groups */
+							esc_html( _n( '%d group', '%d groups', $group_count, 'next-level-faq' ) ),
+							(int) $group_count
+						);
+						?>
+					</p>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'next-level-faq' ); ?></p>
+				</a>
+
+				<a href="<?php echo esc_url( $style_url ); ?>" class="nlf-dashboard-card">
+					<span class="dashicons dashicons-admin-appearance nlf-dashboard-card__icon"></span>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Style & Layout', 'next-level-faq' ); ?></h2>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Customize colors, typography, and layout with a live preview.', 'next-level-faq' ); ?></p>
+				</a>
+
+				<a href="<?php echo esc_url( $tools_url ); ?>" class="nlf-dashboard-card">
+					<span class="dashicons dashicons-admin-tools nlf-dashboard-card__icon"></span>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Tools', 'next-level-faq' ); ?></h2>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Import and export your FAQ data for backup or migration.', 'next-level-faq' ); ?></p>
+				</a>
+
+			</div>
+
+		</div>
+		<?php
 	}
 
 	/**

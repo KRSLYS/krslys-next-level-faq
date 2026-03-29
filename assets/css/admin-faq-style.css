@@ -3201,3 +3201,96 @@
 		padding: var(--spacing-3);
 	}
 }
+
+/* ── Dashboard Page ───────────────────────────────────────── */
+
+.nlf-faq-dashboard {
+	max-width: 900px;
+}
+
+.nlf-dashboard-hero {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 32px 0 24px;
+	border-bottom: 1px solid #e0e0e0;
+	margin-bottom: 32px;
+}
+
+.nlf-dashboard-hero__icon {
+	font-size: 36px;
+	width: 36px;
+	height: 36px;
+	color: #2271b1;
+}
+
+.nlf-dashboard-hero__title {
+	font-size: 24px;
+	font-weight: 600;
+	margin: 0;
+	color: #1d2327;
+}
+
+.nlf-dashboard-hero__desc {
+	margin: 4px 0 0;
+	color: #646970;
+	font-size: 14px;
+}
+
+.nlf-dashboard-cards {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20px;
+}
+
+.nlf-dashboard-card {
+	display: block;
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 6px;
+	padding: 24px;
+	text-decoration: none;
+	color: inherit;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.nlf-dashboard-card:hover {
+	border-color: #2271b1;
+	box-shadow: 0 2px 8px rgba(0,0,0,.08);
+	color: inherit;
+}
+
+.nlf-dashboard-card__icon {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: #2271b1;
+	margin-bottom: 12px;
+}
+
+.nlf-dashboard-card__title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 4px;
+	color: #1d2327;
+}
+
+.nlf-dashboard-card__meta {
+	font-size: 12px;
+	color: #2271b1;
+	font-weight: 500;
+	margin: 0 0 8px;
+}
+
+.nlf-dashboard-card__desc {
+	font-size: 13px;
+	color: #646970;
+	margin: 0;
+	line-height: 1.5;
+}
+
+@media (max-width: 782px) {
+	.nlf-dashboard-cards {
+		grid-template-columns: 1fr;
+	}
+}
