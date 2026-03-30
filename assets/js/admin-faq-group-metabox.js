@@ -1056,10 +1056,18 @@
 		// Add error message if not already shown.
 		const wrap = titleInput.closest('#titlediv') || titleInput.parentElement;
 		if (!wrap.querySelector('.nlf-field-error')) {
-			const msg = doc.createElement('div');
-			msg.className = 'nlf-field-error';
-			msg.innerHTML = '<span class="dashicons dashicons-warning" aria-hidden="true"></span><span>' +
-				(nlfGroupData.i18n?.title_required || 'Please enter a title for this FAQ group.') + '</span>';
+			const msg      = doc.createElement('div');
+			msg.className  = 'nlf-field-error';
+
+			const icon     = doc.createElement('span');
+			icon.className = 'dashicons dashicons-warning';
+			icon.setAttribute('aria-hidden', 'true');
+
+			const text     = doc.createElement('span');
+			text.textContent = nlfGroupData.i18n?.title_required || 'Please enter a title for this FAQ group.';
+
+			msg.appendChild(icon);
+			msg.appendChild(text);
 			wrap.appendChild(msg);
 		}
 
@@ -1079,6 +1087,7 @@
 
 	function showInlineNotice(message, type) {
 		type = type || 'error';
+
 		// Remove any existing inline notice.
 		const existing = $('.nlf-inline-notice');
 		if (existing) {
@@ -1090,11 +1099,21 @@
 			return;
 		}
 
-		const icon = type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning';
-		const notice = doc.createElement('div');
-		notice.className = 'nlf-inline-notice nlf-inline-notice--' + type;
+		const iconClass = type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning';
+
+		const notice      = doc.createElement('div');
+		notice.className  = 'nlf-inline-notice nlf-inline-notice--' + type;
 		notice.setAttribute('role', 'alert');
-		notice.innerHTML = '<span class="dashicons ' + icon + '" aria-hidden="true"></span><p>' + message + '</p>';
+
+		const icon        = doc.createElement('span');
+		icon.className    = 'dashicons ' + iconClass;
+		icon.setAttribute('aria-hidden', 'true');
+
+		const p           = doc.createElement('p');
+		p.textContent     = message;
+
+		notice.appendChild(icon);
+		notice.appendChild(p);
 		form.insertBefore(notice, form.firstChild);
 
 		// Scroll into view.
