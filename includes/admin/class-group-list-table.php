@@ -104,6 +104,10 @@ class Group_List_Table extends \WP_List_Table {
 			wp_die( esc_html__( 'Security check failed.', 'next-level-faq' ) );
 		}
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to delete groups.', 'next-level-faq' ) );
+		}
+
 		$ids = isset( $_REQUEST['faq_group'] ) ? array_map( 'absint', (array) $_REQUEST['faq_group'] ) : array();
 
 		foreach ( $ids as $id ) {

@@ -242,6 +242,7 @@ class Admin_Settings {
 			self::STYLE_SLUG,
 			self::QUESTIONS_SLUG,
 			self::TOOLS_SLUG,
+			'nlf-faq-groups',
 		);
 
 		if ( ! in_array( $page, $allowed_pages, true ) ) {
@@ -1090,9 +1091,9 @@ class Admin_Settings {
 		if ( $include_questions ) {
 			$payload['meta']['group_scope']       = 'all';
 			$payload['meta']['group_scope_label'] = __( 'All groups', 'next-level-faq' );
-			$payload['faqs']                      = self::group_faq_export_items(
-				Repository::get_all_items_for_export( null )
-			);
+			$faqs              = self::group_faq_export_items( Repository::get_all_items_for_export( null ) );
+			$payload['faqs']   = $faqs;
+			$payload['groups'] = self::build_groups_meta_for_export( array_keys( $faqs ) );
 		}
 
 		while ( ob_get_level() > 0 ) {
@@ -1230,31 +1231,48 @@ class Admin_Settings {
 
 			// ── Global export file (has 'faqs' key) ─────────
 			if ( $has_global_faqs ) {
+				// Per-group metadata written by the exporter; absent in export files
+				// created before this field was added — treat those as empty arrays.
+				$exported_group_meta = isset( $data['groups'] ) && is_array( $data['groups'] )
+					? $data['groups']
+					: array();
+
 				foreach ( $data['faqs'] as $original_group_id => $items ) {
 					if ( ! is_array( $items ) || empty( $items ) ) {
 						continue;
 					}
 
-					// Try to get the original group title.
-					$source_group   = Groups_Repository::get_group_by_id( (int) $original_group_id );
-					$original_title = $source_group ? trim( $source_group->title ) : '';
+					// Use metadata from the export payload — never query the destination
+					// DB by source ID, which would pull unrelated data on cross-site imports.
+					$group_meta     = isset( $exported_group_meta[ (string) $original_group_id ] )
+						&& is_array( $exported_group_meta[ (string) $original_group_id ] )
+						? $exported_group_meta[ (string) $original_group_id ]
+						: array();
+					$original_title = isset( $group_meta['title'] )
+						? sanitize_text_field( $group_meta['title'] )
+						: '';
 
 					$new_title = '' !== $original_title
 						? sprintf( __( '%s (Copy)', 'next-level-faq' ), $original_title )
 						/* translators: %d: FAQ group ID */
 						: sprintf( __( 'Group #%d (Copy)', 'next-level-faq' ), (int) $original_group_id );
 
-					// Build creation data, copying settings from original group if it exists.
 					$create_data = array(
 						'title'  => $new_title,
 						'status' => 'draft',
 					);
 
-					if ( $source_group ) {
-						$create_data['theme_settings']   = $source_group->theme_settings;
-						$create_data['display_settings']  = $source_group->display_settings;
-						$create_data['use_custom_style']  = $source_group->use_custom_style;
-						$create_data['custom_styles']     = $source_group->custom_styles;
+					if ( ! empty( $group_meta['theme_settings'] ) && is_array( $group_meta['theme_settings'] ) ) {
+						$create_data['theme_settings'] = $group_meta['theme_settings'];
+					}
+					if ( ! empty( $group_meta['display_settings'] ) && is_array( $group_meta['display_settings'] ) ) {
+						$create_data['display_settings'] = $group_meta['display_settings'];
+					}
+					if ( isset( $group_meta['use_custom_style'] ) ) {
+						$create_data['use_custom_style'] = (bool) $group_meta['use_custom_style'];
+					}
+					if ( ! empty( $group_meta['custom_styles'] ) && is_array( $group_meta['custom_styles'] ) ) {
+						$create_data['custom_styles'] = $group_meta['custom_styles'];
 					}
 
 					$new_group_id = Groups_Repository::create_group( $create_data );
@@ -1810,6 +1828,38 @@ class Admin_Settings {
 		ksort( $grouped, SORT_NUMERIC );
 
 		return $grouped;
+	}
+
+	/**
+	 * Build per-group metadata for the global export payload.
+	 *
+	 * Keyed by group ID (string) so the importer can look up metadata without
+	 * querying the destination database.
+	 *
+	 * @param string[] $group_ids String group IDs from the faqs map.
+	 * @return array<string, array>
+	 */
+	private static function build_groups_meta_for_export( array $group_ids ) {
+		$meta = array();
+
+		foreach ( $group_ids as $group_id ) {
+			$group_id = (int) $group_id;
+			$group    = Groups_Repository::get_group_by_id( $group_id );
+
+			if ( ! $group ) {
+				continue;
+			}
+
+			$meta[ (string) $group_id ] = array(
+				'title'            => $group->title,
+				'theme_settings'   => $group->theme_settings,
+				'display_settings' => $group->display_settings,
+				'use_custom_style' => (bool) $group->use_custom_style,
+				'custom_styles'    => $group->custom_styles,
+			);
+		}
+
+		return $meta;
 	}
 
 	/**

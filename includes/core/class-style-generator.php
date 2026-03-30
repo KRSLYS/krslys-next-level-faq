@@ -35,8 +35,9 @@ class Style_Generator {
 	public static function maybe_regenerate_css() {
 		$css_version = get_option( 'nlf_faq_css_version', '' );
 		if ( NLF_FAQ_CSS_VERSION !== $css_version ) {
-			self::generate_and_save();
-			update_option( 'nlf_faq_css_version', NLF_FAQ_CSS_VERSION );
+			if ( self::generate_and_save() ) {
+				update_option( 'nlf_faq_css_version', NLF_FAQ_CSS_VERSION );
+			}
 		}
 	}
 

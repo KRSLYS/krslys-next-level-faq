@@ -33,6 +33,7 @@ Database::drop_tables();
 delete_option( 'nlf_faq_schema_version' );
 delete_option( 'nlf_faq_style_options' );
 delete_option( 'nlf_faq_presets_css_version' );
+delete_option( 'nlf_faq_css_version' );
 /**
  * Delete generated CSS files from uploads directory using WP_Filesystem.
  */
