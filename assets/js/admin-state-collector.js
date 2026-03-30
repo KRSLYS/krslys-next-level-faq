@@ -153,18 +153,21 @@
 			el.style.display = 'none';
 		});
 
+		const newRows = [];
+
 		items.forEach((item, i) => {
 			const html = template.innerHTML.replace(/\{\{index\}\}/g, String(i)).trim();
 			const wrapper = doc.createElement('tbody');
 			wrapper.innerHTML = html;
 			const row = wrapper.firstElementChild;
 			body.appendChild(row);
+			newRows.push(row);
 
 			// Fill in values.
 			setVal('[name="nlf_faq_group_item_id[]"]', item.id || '', row);
 			setVal('[name="nlf_faq_group_question[]"]', item.question || '', row);
 
-			// Answer — set the textarea; TinyMCE will be initialized by the metabox script.
+			// Answer — textarea value; nlfSetupItemRow will initialize TinyMCE.
 			const textarea = row.querySelector('.nlf-faq-group-answer-editor');
 			if (textarea) {
 				textarea.value = item.answer || '';
@@ -175,6 +178,17 @@
 			setChecked(`[name="nlf_faq_group_open[${i}]"]`, item.initial_state, row);
 			setChecked(`[name="nlf_faq_group_highlight[${i}]"]`, item.highlight, row);
 		});
+
+		// Attach drag handlers and initialize editors via the metabox script.
+		// Guard against script load order: if metabox has already run, call now;
+		// otherwise wait for it to signal readiness via nlf:metabox-ready.
+		const setupAll = () => newRows.forEach((row) => window.nlfSetupItemRow(row));
+
+		if (typeof window.nlfSetupItemRow === 'function') {
+			setupAll();
+		} else {
+			doc.addEventListener('nlf:metabox-ready', setupAll, { once: true });
+		}
 	}
 
 	/* ================================================================== */

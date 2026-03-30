@@ -775,6 +775,15 @@
 		requestPreview('main');
 	}
 
+	// Module-scope so admin-state-collector.js can reach it via window.nlfSetupItemRow.
+	function prepareRow(row) {
+		row.setAttribute('draggable', 'true');
+		row.addEventListener('dragstart', handleDragStart);
+		row.addEventListener('dragover', handleDragOver);
+		row.addEventListener('drop', handleDrop);
+		row.addEventListener('dragend', handleDragEnd);
+	}
+
 	function initQuestionList() {
 		const body = $('#nlf-faq-group-questions-body');
 		const template = $('#tmpl-nlf-faq-group-row');
@@ -782,14 +791,6 @@
 		if (!body || !template) {
 			return;
 		}
-
-		const prepareRow = (row) => {
-			row.setAttribute('draggable', 'true');
-			row.addEventListener('dragstart', handleDragStart);
-			row.addEventListener('dragover', handleDragOver);
-			row.addEventListener('drop', handleDrop);
-			row.addEventListener('dragend', handleDragEnd);
-		};
 
 		$$('.nlf-faq-question-row', body).forEach(prepareRow);
 
@@ -1294,5 +1295,15 @@
 	doc.addEventListener('DOMContentLoaded', () => {
 		init();
 		initCopyButtons();
+
+		// Expose shared row-setup function for admin-state-collector.js so that
+		// rows hydrated by populateItems() go through the same drag + editor path.
+		window.nlfSetupItemRow = (row) => {
+			prepareRow(row);
+			initNewEditor(row);
+		};
+
+		window.nlfMetaboxReady = true;
+		doc.dispatchEvent(new CustomEvent('nlf:metabox-ready'));
 	});
 })();
