@@ -209,11 +209,19 @@
 			const textarea = row.querySelector('.nlf-faq-group-answer-editor');
 			let answer = '';
 
-			if (textarea && textarea.id && window.tinymce) {
-				const editor = window.tinymce.get(textarea.id);
-				answer = editor ? editor.getContent() : textarea.value;
-			} else if (textarea) {
-				answer = textarea.value;
+			if (textarea) {
+				const editor = window.tinymce && textarea.id && window.tinymce.get(textarea.id);
+				if (editor) {
+					// Fall back to textarea.value when the editor is in Text/Code mode
+					// and getContent() hasn't synced the user's typed content yet.
+					try {
+						answer = editor.getContent() || textarea.value;
+					} catch (e) {
+						answer = textarea.value;
+					}
+				} else {
+					answer = textarea.value;
+				}
 			}
 
 			return {

@@ -326,27 +326,66 @@
 		});
 	}
 
+	/**
+	 * Show the PHP-rendered empty-state block and hide (or show) the preview
+	 * controls/notice/viewport for the given container's wrapper.
+	 *
+	 * Handles both the Preview tab (.nlf-preview-wrapper) and the Appearance
+	 * tab mini preview (no wrapper — empty-state is a direct sibling).
+	 *
+	 * @param {Element} container  The .nlf-preview-container element.
+	 * @param {boolean} hasItems   Whether there are visible FAQ items.
+	 */
+	function syncPreviewEmptyState(container, hasItems) {
+		// Walk up until we find an ancestor that owns a .nlf-preview-empty-state child.
+		let wrapper = container.parentElement;
+		while (wrapper && !wrapper.querySelector('.nlf-preview-empty-state')) {
+			wrapper = wrapper.parentElement;
+		}
+		if (!wrapper) {
+			return;
+		}
+
+		const emptyState = wrapper.querySelector('.nlf-preview-empty-state');
+		if (emptyState) {
+			emptyState.style.display = hasItems ? 'none' : '';
+		}
+
+		// Preview-tab extras: controls, info notice, and the device viewport.
+		// These don't exist in the Appearance mini preview — querySelector returns null safely.
+		['.nlf-preview-controls', '.nlf-preview-notice', '.nlf-preview-viewport'].forEach((sel) => {
+			const el = wrapper.querySelector(sel);
+			if (el) {
+				el.style.display = hasItems ? '' : 'none';
+			}
+		});
+	}
+
 	// Build preview client-side from live DOM state — no AJAX needed.
 	function loadLivePreview(targetNodes) {
 		const containers = targetNodes && targetNodes.length ? targetNodes : $$('.nlf-preview-container');
 
+		// Compute once — all containers share the same item list and settings.
+		const items    = getItemsFromDom().filter((item) => item.status);
+		const settings = getDisplaySettingsFromDom();
+		const hasItems = items.length > 0;
+
 		containers.forEach((container) => {
+			// Always sync the empty-state / controls visibility first.
+			syncPreviewEmptyState(container, hasItems);
+
 			const loading = $('.nlf-preview-loading', container);
 			const content = $('.nlf-preview-content', container);
 			if (!loading || !content) {
 				return;
 			}
 
-			const items    = getItemsFromDom().filter((item) => item.status);
-			const settings = getDisplaySettingsFromDom();
-
-			if (!items.length) {
+			if (!hasItems) {
+				// Reset any stale preview content; empty-state messaging is
+				// handled by the PHP-rendered .nlf-preview-empty-state block.
 				loading.style.display = 'none';
-				content.style.display = '';
-				content.classList.add('loaded');
-				content.innerHTML = '<div class="nlf-live-view-empty"><p>' +
-					'No FAQ items found. Add some items in the FAQ Items tab.' +
-					'</p></div>';
+				content.style.display = 'none';
+				content.classList.remove('loaded');
 				return;
 			}
 
