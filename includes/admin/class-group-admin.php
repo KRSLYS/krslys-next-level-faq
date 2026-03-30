@@ -58,7 +58,7 @@ class Group_Admin {
 		// Note: the visible "FAQ Groups" entry is registered by Admin_Settings::register_menu()
 		// to control menu ordering. Only the hidden edit page lives here.
 		add_submenu_page(
-			null, // hidden
+			'', // hidden (no parent — empty string avoids PHP 8 null deprecation)
 			__( 'Edit FAQ Group', 'next-level-faq' ),
 			__( 'Edit FAQ Group', 'next-level-faq' ),
 			'manage_options',

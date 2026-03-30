@@ -350,36 +350,29 @@ class Style_Generator {
 /* ----- Arrow ----- */
 
 .nlf-faq--icon-arrow .nlf-faq__icon::before {
-	width: 0.625rem;
-	height: 2px;
-	background: currentColor;
-	border: none;
-	border-radius: 1px;
-	transform: none;
-	margin: 0;
-}
-
-.nlf-faq--icon-arrow .nlf-faq__icon::after {
-	width: 0;
-	height: 0;
-	background: none;
-	border-left: 5px solid currentColor;
-	border-top: 4px solid transparent;
-	border-bottom: 4px solid transparent;
-	border-radius: 0;
 	position: absolute;
-	right: calc(50% - 6px);
-	transform: none;
-	opacity: 1;
+	top: 50%;
+	left: 50%;
+	width: 1rem;
+	height: 1rem;
+	background: currentColor;
+	clip-path: polygon(0% 30%, 55% 30%, 55% 10%, 100% 50%, 55% 90%, 55% 70%, 0% 70%);
+	border: none;
+	border-radius: 0;
+	transform: translate(-50%, -50%);
 	transition: transform 280ms cubic-bezier(.4,0,.2,1);
 }
 
-.nlf-faq--icon-arrow .nlf-faq__item.is-open .nlf-faq__icon {
-	transform: rotate(90deg);
+.nlf-faq--icon-arrow .nlf-faq__icon::after {
+	display: none;
 }
 
-.nlf-faq--icon-arrow .nlf-faq__item.is-open .nlf-faq__icon::after {
-	opacity: 1;
+.nlf-faq--icon-arrow .nlf-faq__item.is-open .nlf-faq__icon {
+	transform: none;
+}
+
+.nlf-faq--icon-arrow .nlf-faq__item.is-open .nlf-faq__icon::before {
+	transform: translate(-50%, -50%) rotate(90deg);
 }
 
 
