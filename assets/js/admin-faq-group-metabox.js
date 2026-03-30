@@ -40,6 +40,10 @@
 		initEmptyStateHandlers();
 		initQuestionList();
 		initAjaxSave();
+
+		if (nlfGroupData && nlfGroupData.isDebug) {
+			initDebugPanel();
+		}
 	}
 
 	// Tabs
@@ -427,6 +431,88 @@
 				window.nlfInitFaq(content);
 			}
 		});
+
+		if (nlfGroupData && nlfGroupData.isDebug) {
+			updateDebugPanel();
+		}
+	}
+
+	// Debug panel — only active when WP_DEBUG is true (nlfGroupData.isDebug).
+	function updateDebugPanel() {
+		const output = doc.getElementById('nlf-json-state-output');
+		if (!output) {
+			return;
+		}
+
+		const selectedThemeInput = $('input[name="nlf_faq_group_theme"]:checked');
+		const useCustomToggle    = $('#nlf-use-custom-style-toggle');
+
+		const customColors = {};
+		$$('.nlf-theme-color').forEach((input) => {
+			const key = input.getAttribute('data-color-key');
+			if (key) {
+				customColors[key] = input.value;
+			}
+		});
+
+		const liveState = {
+			group_id:         nlfGroupData.groupId || 0,
+			items:            getItemsFromDom(),
+			theme:            selectedThemeInput ? selectedThemeInput.value : 'default',
+			use_custom_style: useCustomToggle ? useCustomToggle.checked : false,
+			custom_colors:    customColors,
+			display_settings: (nlfGroupData.groupState && nlfGroupData.groupState.display_settings) || {},
+		};
+
+		output.value = JSON.stringify(liveState, null, 2);
+	}
+
+	function initDebugPanel() {
+		const toggle   = doc.getElementById('nlf-show-json-state');
+		const output   = doc.getElementById('nlf-json-state-output');
+		const copyBtn  = doc.getElementById('nlf-copy-json');
+
+		if (!toggle || !output) {
+			return;
+		}
+
+		// Show/hide textarea when checkbox changes.
+		toggle.addEventListener('change', () => {
+			const visible = toggle.checked;
+			output.style.display  = visible ? '' : 'none';
+			if (copyBtn) {
+				copyBtn.style.display = visible ? '' : 'none';
+			}
+			if (visible) {
+				updateDebugPanel();
+			}
+		});
+
+		// Copy JSON to clipboard.
+		if (copyBtn) {
+			copyBtn.addEventListener('click', () => {
+				if (!output.value) {
+					return;
+				}
+				const write = navigator.clipboard && navigator.clipboard.writeText
+					? navigator.clipboard.writeText(output.value)
+					: new Promise((resolve) => {
+						output.select();
+						doc.execCommand('copy');
+						resolve();
+					});
+				write.then(() => {
+					copyBtn.textContent = 'Copied!';
+					setTimeout(() => { copyBtn.textContent = 'Copy JSON'; }, 1500);
+				});
+			});
+		}
+
+		// Update panel on every state change.
+		doc.addEventListener('nlf:state-changed', updateDebugPanel);
+
+		// Initial population.
+		updateDebugPanel();
 	}
 
 	function escapeHtml(str) {

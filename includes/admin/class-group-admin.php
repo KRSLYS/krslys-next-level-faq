@@ -380,7 +380,7 @@ class Group_Admin {
 					<button type="button" class="button button-small" id="nlf-copy-json" style="display:none;"><?php esc_html_e( 'Copy JSON', 'next-level-faq' ); ?></button>
 				</div>
 				<?php endif; ?>
-			</form>
+				</form>
 
 		</div><!-- .wrap -->
 		<?php
