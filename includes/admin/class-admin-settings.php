@@ -44,6 +44,22 @@ class Admin_Settings {
 	const TOOLS_SLUG = 'nlf-faq-tools';
 
 	/**
+	 * Bootstrap all admin-settings hooks.
+	 */
+	public static function init() {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'admin_post_nlf_faq_export', array( __CLASS__, 'handle_export' ) );
+		add_action( 'admin_post_nlf_faq_import', array( __CLASS__, 'handle_import' ) );
+		add_action( 'wp_ajax_nlf_save_settings_ajax', array( __CLASS__, 'handle_ajax_save_settings' ) );
+	}
+
+	/**
 	 * Register admin menu.
 	 */
 	public static function register_menu() {
@@ -52,9 +68,28 @@ class Admin_Settings {
 			__( 'FAQs', 'next-level-faq' ),
 			'manage_options',
 			self::TOP_MENU_SLUG,
-			array( __CLASS__, 'render_style_page' ),
+			array( __CLASS__, 'render_dashboard_page' ),
 			'dashicons-editor-help',
 			26
+		);
+
+		// First submenu uses the same slug as the parent to avoid a duplicate entry.
+		add_submenu_page(
+			self::TOP_MENU_SLUG,
+			__( 'Dashboard', 'next-level-faq' ),
+			__( 'Dashboard', 'next-level-faq' ),
+			'manage_options',
+			self::TOP_MENU_SLUG,
+			array( __CLASS__, 'render_dashboard_page' )
+		);
+
+		add_submenu_page(
+			self::TOP_MENU_SLUG,
+			__( 'FAQ Groups', 'next-level-faq' ),
+			__( 'FAQ Groups', 'next-level-faq' ),
+			'manage_options',
+			'nlf-faq-groups',
+			array( 'Krslys\NextLevelFaq\Group_Admin', 'render_list_page' )
 		);
 
 		add_submenu_page(
@@ -158,10 +193,9 @@ class Admin_Settings {
 				wp_send_json_error(
 					array( 
 						'message' => __( 'Database tables could not be created. Please check database permissions.', 'next-level-faq' ),
-						'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? array(
-							'last_error' => $wpdb->last_error,
-							'prefix'     => $wpdb->prefix,
-						) : null,
+						'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG )
+						? array( 'last_error' => $wpdb->last_error )
+						: null,
 					),
 					500
 				);
@@ -179,11 +213,9 @@ class Admin_Settings {
 			wp_send_json_error(
 				array( 
 					'message' => __( 'Failed to save settings. Please try again.', 'next-level-faq' ),
-					'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? array(
-						'db_error' => $db_error,
-						'table'    => Database::get_settings_table(),
-						'key'      => Settings_Repository::KEY_GLOBAL_STYLES,
-					) : null,
+					'debug'   => ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG )
+					? array( 'db_error' => $db_error )
+					: null,
 				),
 				500
 			);
@@ -221,9 +253,9 @@ class Admin_Settings {
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
 
 		$allowed_pages = array(
+			self::TOP_MENU_SLUG,
 			self::STYLE_SLUG,
 			self::QUESTIONS_SLUG,
-			self::TOP_MENU_SLUG,
 			self::TOOLS_SLUG,
 		);
 
@@ -233,13 +265,13 @@ class Admin_Settings {
 
 		wp_enqueue_style(
 			'nlf-faq-admin',
-			NLF_FAQ_PLUGIN_URL . 'assets/css/admin-faq-style.css',
+			nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 			array(),
-			NLF_FAQ_VERSION
+			NLF_FAQ_CSS_VERSION
 		);
 
 		// Enqueue generated CSS for style page preview.
-		if ( in_array( $page, array( self::STYLE_SLUG, self::TOP_MENU_SLUG ), true ) ) {
+		if ( self::STYLE_SLUG === $page ) {
 			$css_path = Style_Generator::get_css_file_path();
 			$css_url  = Style_Generator::get_css_file_url();
 			if ( $css_url && $css_path && file_exists( $css_path ) ) {
@@ -253,11 +285,11 @@ class Admin_Settings {
 		}
 
 		// Enqueue WordPress color picker for style page only.
-		if ( in_array( $page, array( self::STYLE_SLUG, self::TOP_MENU_SLUG ), true ) ) {
+		if ( self::STYLE_SLUG === $page ) {
 			wp_enqueue_style( 'wp-color-picker' );
 			wp_enqueue_script(
 				'nlf-faq-admin',
-				NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-style.js',
+				nlf_asset_url( 'assets/js/admin-faq-style.js' ),
 				array( 'jquery', 'wp-color-picker' ),
 				NLF_FAQ_VERSION,
 				true
@@ -265,7 +297,7 @@ class Admin_Settings {
 		} else {
 			wp_enqueue_script(
 				'nlf-faq-admin',
-				NLF_FAQ_PLUGIN_URL . 'assets/js/admin-faq-style.js',
+				nlf_asset_url( 'assets/js/admin-faq-style.js' ),
 				array( 'jquery' ),
 				NLF_FAQ_VERSION,
 				true
@@ -288,6 +320,64 @@ class Admin_Settings {
 				'saveNonce'      => wp_create_nonce( 'nlf_save_settings' ),
 			)
 		);
+	}
+
+	/**
+	 * Render the plugin dashboard / welcome page.
+	 *
+	 * SECURITY: Capability check at start of function.
+	 */
+	public static function render_dashboard_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$group_count = \Krslys\NextLevelFaq\Groups_Repository::count_groups();
+		$groups_url  = admin_url( 'admin.php?page=nlf-faq-groups' );
+		$style_url   = admin_url( 'admin.php?page=' . self::STYLE_SLUG );
+		$tools_url   = admin_url( 'admin.php?page=' . self::TOOLS_SLUG );
+		?>
+		<div class="wrap nlf-faq-admin nlf-faq-dashboard">
+
+			<div class="nlf-dashboard-hero">
+				<span class="dashicons dashicons-editor-help nlf-dashboard-hero__icon"></span>
+				<h1 class="nlf-dashboard-hero__title"><?php esc_html_e( 'Next Level FAQ', 'next-level-faq' ); ?></h1>
+				<p class="nlf-dashboard-hero__desc"><?php esc_html_e( 'Flexible FAQ plugin with customizable styling and live preview.', 'next-level-faq' ); ?></p>
+			</div>
+
+			<div class="nlf-dashboard-cards">
+
+				<a href="<?php echo esc_url( $groups_url ); ?>" class="nlf-dashboard-card">
+					<span class="dashicons dashicons-list-view nlf-dashboard-card__icon"></span>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'FAQ Groups', 'next-level-faq' ); ?></h2>
+					<p class="nlf-dashboard-card__meta">
+						<?php
+						printf(
+							/* translators: %d: number of FAQ groups */
+							esc_html( _n( '%d group', '%d groups', $group_count, 'next-level-faq' ) ),
+							(int) $group_count
+						);
+						?>
+					</p>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'next-level-faq' ); ?></p>
+				</a>
+
+				<a href="<?php echo esc_url( $style_url ); ?>" class="nlf-dashboard-card">
+					<span class="dashicons dashicons-admin-appearance nlf-dashboard-card__icon"></span>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Style & Layout', 'next-level-faq' ); ?></h2>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Customize colors, typography, and layout with a live preview.', 'next-level-faq' ); ?></p>
+				</a>
+
+				<a href="<?php echo esc_url( $tools_url ); ?>" class="nlf-dashboard-card">
+					<span class="dashicons dashicons-admin-tools nlf-dashboard-card__icon"></span>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Tools', 'next-level-faq' ); ?></h2>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Import and export your FAQ data for backup or migration.', 'next-level-faq' ); ?></p>
+				</a>
+
+			</div>
+
+		</div>
+		<?php
 	}
 
 	/**
@@ -640,7 +730,7 @@ class Admin_Settings {
 			return;
 		}
 
-		$cpt_groups = self::get_cpt_group_choices();
+		$groups = self::get_group_choices();
 		?>
 		<div class="wrap nlf-faq-admin nlf-faq-tools">
 
@@ -692,7 +782,7 @@ class Admin_Settings {
 									</label>
 									<select id="nlf-faq-export-scope" name="nlf_faq_export_group" class="nlf-tool-card__select">
 										<option value="all"><?php esc_html_e( 'All groups (full backup)', 'next-level-faq' ); ?></option>
-										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+										<?php foreach ( $groups as $value => $label ) : ?>
 											<option value="<?php echo esc_attr( $value ); ?>">
 												<?php echo esc_html( $label ); ?>
 											</option>
@@ -744,7 +834,7 @@ class Admin_Settings {
 									<select id="nlf-faq-import-target" name="nlf_faq_import_target" class="nlf-tool-card__select">
 										<option value="all"><?php esc_html_e( 'Global (all FAQ data)', 'next-level-faq' ); ?></option>
 										<option value="duplicate"><?php esc_html_e( 'Duplicate as new group', 'next-level-faq' ); ?></option>
-										<?php foreach ( $cpt_groups as $value => $label ) : ?>
+										<?php foreach ( $groups as $value => $label ) : ?>
 											<option value="<?php echo esc_attr( $value ); ?>">
 												<?php echo esc_html( $label ); ?>
 											</option>
@@ -1115,15 +1205,14 @@ class Admin_Settings {
 					? sprintf( __( '%s (Copy)', 'next-level-faq' ), $original_title )
 					: __( 'Imported Group (Copy)', 'next-level-faq' );
 
-				$new_post_id = wp_insert_post(
+				$new_group_id = Groups_Repository::create_group(
 					array(
-						'post_type'   => Group_CPT::POST_TYPE,
-						'post_status' => 'draft',
-						'post_title'  => $new_title,
+						'title'  => $new_title,
+						'status' => 'draft',
 					)
 				);
 
-				if ( ! is_wp_error( $new_post_id ) && $new_post_id ) {
+				if ( $new_group_id ) {
 					$groups_created++;
 
 					foreach ( $data['items'] as $index => $item ) {
@@ -1136,7 +1225,7 @@ class Admin_Settings {
 
 						Repository::save_item(
 							0,
-							$new_post_id,
+							$new_group_id,
 							$question,
 							$answer,
 							isset( $item['status'] ) ? (int) $item['status'] : 1,
@@ -1149,8 +1238,8 @@ class Admin_Settings {
 					}
 
 					// Apply theme/settings from export.
-					self::apply_group_meta_from_data( $new_post_id, $data );
-					Cache::invalidate_group( $new_post_id );
+					self::apply_group_meta_from_data( $new_group_id, $data );
+					Cache::invalidate_group( $new_group_id );
 				}
 			}
 
@@ -1162,44 +1251,34 @@ class Admin_Settings {
 					}
 
 					// Try to get the original group title.
-					$source_post    = get_post( (int) $original_group_id );
-					$original_title = $source_post ? trim( get_the_title( $source_post ) ) : '';
+					$source_group   = Groups_Repository::get_group_by_id( (int) $original_group_id );
+					$original_title = $source_group ? trim( $source_group->title ) : '';
 
 					$new_title = '' !== $original_title
 						? sprintf( __( '%s (Copy)', 'next-level-faq' ), $original_title )
+						/* translators: %d: FAQ group ID */
 						: sprintf( __( 'Group #%d (Copy)', 'next-level-faq' ), (int) $original_group_id );
 
-					$new_post_id = wp_insert_post(
-						array(
-							'post_type'   => Group_CPT::POST_TYPE,
-							'post_status' => 'draft',
-							'post_title'  => $new_title,
-						)
+					// Build creation data, copying settings from original group if it exists.
+					$create_data = array(
+						'title'  => $new_title,
+						'status' => 'draft',
 					);
 
-					if ( is_wp_error( $new_post_id ) || ! $new_post_id ) {
+					if ( $source_group ) {
+						$create_data['theme_settings']   = $source_group->theme_settings;
+						$create_data['display_settings']  = $source_group->display_settings;
+						$create_data['use_custom_style']  = $source_group->use_custom_style;
+						$create_data['custom_styles']     = $source_group->custom_styles;
+					}
+
+					$new_group_id = Groups_Repository::create_group( $create_data );
+
+					if ( ! $new_group_id ) {
 						continue;
 					}
 
 					$groups_created++;
-
-					// Copy meta from original group if it exists.
-					if ( $source_post && Group_CPT::POST_TYPE === $source_post->post_type ) {
-						$meta_keys = array(
-							'_nlf_faq_group_theme',
-							'_nlf_faq_group_theme_custom',
-							'_nlf_faq_group_settings',
-							'_nlf_faq_group_use_custom_style',
-							'_nlf_faq_group_custom_styles',
-						);
-
-						foreach ( $meta_keys as $key ) {
-							$value = get_post_meta( (int) $original_group_id, $key, true );
-							if ( $value ) {
-								update_post_meta( $new_post_id, $key, $value );
-							}
-						}
-					}
 
 					foreach ( $items as $index => $item ) {
 						if ( ! is_array( $item ) ) {
@@ -1215,7 +1294,7 @@ class Admin_Settings {
 
 						Repository::save_item(
 							0,
-							$new_post_id,
+							$new_group_id,
 							$question,
 							$answer,
 							isset( $item['status'] ) ? (int) $item['status'] : 1,
@@ -1227,7 +1306,7 @@ class Admin_Settings {
 						$total_imported++;
 					}
 
-					Cache::invalidate_group( $new_post_id );
+					Cache::invalidate_group( $new_group_id );
 				}
 			}
 
@@ -1258,8 +1337,8 @@ class Admin_Settings {
 		if ( 'all' !== $import_target && is_numeric( $import_target ) ) {
 			$group_id = absint( $import_target );
 
-			$post = get_post( $group_id );
-			if ( ! $post || Group_CPT::POST_TYPE !== $post->post_type ) {
+			$group = Groups_Repository::get_group_by_id( $group_id );
+			if ( ! $group ) {
 				self::store_tools_notice( 'error', __( 'The selected group does not exist.', 'next-level-faq' ) );
 				wp_safe_redirect( $page_url );
 				exit;
@@ -1404,13 +1483,13 @@ class Admin_Settings {
 	/**
 	 * Build export payload for a single group.
 	 *
-	 * @param int $group_id Group post ID.
+	 * @param int $group_id Group ID.
 	 * @return array|null Payload array or null if group not found.
 	 */
 	private static function build_group_export_payload( $group_id ) {
-		$post = get_post( $group_id );
+		$group = Groups_Repository::get_group_by_id( $group_id );
 
-		if ( ! $post || Group_CPT::POST_TYPE !== $post->post_type ) {
+		if ( ! $group ) {
 			return null;
 		}
 
@@ -1419,14 +1498,14 @@ class Admin_Settings {
 		return array(
 			'meta'             => array(
 				'id'           => $group_id,
-				'title'        => get_the_title( $post ),
+				'title'        => $group->title,
 				'generated_at' => gmdate( 'c' ),
 			),
-			'theme'            => get_post_meta( $group_id, '_nlf_faq_group_theme', true ),
-			'theme_custom'     => get_post_meta( $group_id, '_nlf_faq_group_theme_custom', true ),
-			'settings'         => get_post_meta( $group_id, '_nlf_faq_group_settings', true ),
-			'use_custom_style' => (bool) get_post_meta( $group_id, '_nlf_faq_group_use_custom_style', true ),
-			'custom_styles'    => get_post_meta( $group_id, '_nlf_faq_group_custom_styles', true ),
+			'theme'            => $group->theme_settings['theme'] ?? '',
+			'theme_custom'     => $group->theme_settings['custom_colors'] ?? '',
+			'settings'         => $group->display_settings,
+			'use_custom_style' => (bool) $group->use_custom_style,
+			'custom_styles'    => $group->custom_styles,
 			'items'            => array_map(
 				static function ( $item ) {
 					return array(
@@ -1443,20 +1522,26 @@ class Admin_Settings {
 	}
 
 	/**
-	 * Apply theme/settings meta from export data to a group post.
+	 * Apply theme/settings from export data to a group in the custom table.
 	 *
 	 * Used by both "Duplicate as new group" and "Import into group" with apply styles.
 	 *
-	 * @param int   $post_id Target group post ID.
-	 * @param array $data    Decoded export data.
+	 * @param int   $group_id Target group ID.
+	 * @param array $data     Decoded export data.
 	 */
-	private static function apply_group_meta_from_data( $post_id, $data ) {
-		if ( isset( $data['theme'] ) ) {
-			update_post_meta( $post_id, '_nlf_faq_group_theme', sanitize_key( $data['theme'] ) );
-		}
+	private static function apply_group_meta_from_data( $group_id, $data ) {
+		$update = array();
 
+		// Build theme_settings from export data.
+		$theme_settings = array();
+		if ( isset( $data['theme'] ) ) {
+			$theme_settings['theme'] = sanitize_key( $data['theme'] );
+		}
 		if ( isset( $data['theme_custom'] ) && is_array( $data['theme_custom'] ) ) {
-			update_post_meta( $post_id, '_nlf_faq_group_theme_custom', array_map( 'sanitize_hex_color', $data['theme_custom'] ) );
+			$theme_settings['custom_colors'] = array_map( 'sanitize_hex_color', $data['theme_custom'] );
+		}
+		if ( ! empty( $theme_settings ) ) {
+			$update['theme_settings'] = $theme_settings;
 		}
 
 		if ( isset( $data['settings'] ) && is_array( $data['settings'] ) ) {
@@ -1469,19 +1554,24 @@ class Admin_Settings {
 				'show_counter'    => ! empty( $settings['show_counter'] ),
 				'smooth_scroll'   => ! empty( $settings['smooth_scroll'] ),
 			);
-			update_post_meta( $post_id, '_nlf_faq_group_settings', $sanitized_settings );
+			$update['display_settings'] = $sanitized_settings;
 		}
 
 		if ( isset( $data['use_custom_style'] ) ) {
-			update_post_meta( $post_id, '_nlf_faq_group_use_custom_style', ! empty( $data['use_custom_style'] ) );
+			$update['use_custom_style'] = ! empty( $data['use_custom_style'] );
 		}
 
 		if ( isset( $data['custom_styles'] ) && is_array( $data['custom_styles'] ) ) {
-			$sanitized_styles = Options::sanitize( $data['custom_styles'] );
-			update_post_meta( $post_id, '_nlf_faq_group_custom_styles', $sanitized_styles );
-			if ( class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
-				Style_Generator::generate_and_save_for_group( $post_id, $sanitized_styles );
-			}
+			$sanitized_styles       = Options::sanitize( $data['custom_styles'] );
+			$update['custom_styles'] = $sanitized_styles;
+		}
+
+		if ( ! empty( $update ) ) {
+			Groups_Repository::update_group( $group_id, $update );
+		}
+
+		if ( isset( $sanitized_styles ) && class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
+			Style_Generator::generate_and_save_for_group( $group_id, $sanitized_styles );
 		}
 	}
 
@@ -1899,31 +1989,24 @@ class Admin_Settings {
 
 
 	/**
-	 * Get FAQ group choices from the WordPress CPT posts.
+	 * Get FAQ group choices from the custom groups table.
 	 *
-	 * Returns an array of post_id => title for all published/draft nlf_faq_group posts.
+	 * Returns an array of group_id => title for all groups.
 	 *
 	 * @return array
 	 */
-	private static function get_cpt_group_choices() {
+	private static function get_group_choices() {
 		$choices = array();
 
-		$posts = get_posts(
-			array(
-				'post_type'      => Group_CPT::POST_TYPE,
-				'post_status'    => array( 'publish', 'draft', 'private' ),
-				'posts_per_page' => -1,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-			)
-		);
+		$groups = Groups_Repository::get_all_groups( null, 'title', 'ASC' );
 
-		foreach ( $posts as $post ) {
-			$title = trim( get_the_title( $post ) );
+		foreach ( $groups as $group ) {
+			$title = trim( $group->title );
 
-			$choices[ (string) $post->ID ] = '' !== $title
+			$choices[ (string) $group->id ] = '' !== $title
 				? $title
-				: sprintf( __( 'Group #%d', 'next-level-faq' ), (int) $post->ID );
+				/* translators: %d: FAQ group ID */
+				: sprintf( __( 'Group #%d', 'next-level-faq' ), (int) $group->id );
 		}
 
 		return $choices;

@@ -277,85 +277,168 @@
 		previewState.timers.set(context, timer);
 	}
 
-	// Live preview via fetch
+	// Read FAQ items from the live DOM (Content tab rows).
+	function getItemsFromDom() {
+		const rows = $$('#nlf-faq-group-questions-body .nlf-faq-question-row');
+		return rows.map((row) => {
+			const questionInput      = row.querySelector('input[name="nlf_faq_group_question[]"]');
+			const idInput            = row.querySelector('input[name="nlf_faq_group_item_id[]"]');
+			const textarea           = row.querySelector('.nlf-faq-group-answer-editor');
+			const visibleCheckbox    = row.querySelector('input[name^="nlf_faq_group_visible"]');
+			const openCheckbox       = row.querySelector('input[name^="nlf_faq_group_open"]');
+			const highlightCheckbox  = row.querySelector('input[name^="nlf_faq_group_highlight"]');
+
+			let answer = '';
+			if (textarea) {
+				const editor = window.tinymce && window.tinymce.get(textarea.id);
+				if (editor) {
+					try { answer = editor.getContent() || textarea.value; } catch (e) { answer = textarea.value; }
+				} else {
+					answer = textarea.value;
+				}
+			}
+
+			return {
+				id:            idInput ? (parseInt(idInput.value, 10) || 0) : 0,
+				question:      questionInput ? questionInput.value.trim() : '',
+				answer:        answer,
+				status:        visibleCheckbox ? (visibleCheckbox.checked ? 1 : 0) : 1,
+				initial_state: openCheckbox ? (openCheckbox.checked ? 1 : 0) : 0,
+				highlight:     highlightCheckbox ? (highlightCheckbox.checked ? 1 : 0) : 0,
+			};
+		});
+	}
+
+	// Build preview client-side from live DOM state — no AJAX needed.
 	function loadLivePreview(targetNodes) {
 		const containers = targetNodes && targetNodes.length ? targetNodes : $$('.nlf-preview-container');
 
 		containers.forEach((container) => {
-			if (!container) {
-				return;
-			}
-
-			const groupId = parseInt(container.getAttribute('data-group-id'), 10);
-			if (!groupId) {
-				return;
-			}
-
 			const loading = $('.nlf-preview-loading', container);
 			const content = $('.nlf-preview-content', container);
 			if (!loading || !content) {
 				return;
 			}
 
-			loading.style.display = '';
-			content.classList.remove('loaded');
-			content.style.display = 'none';
+			const state    = (nlfGroupData && nlfGroupData.groupState) || {};
+			const items    = getItemsFromDom().filter((item) => item.status);
+			const settings = state.display_settings || {};
 
-			const params = new URLSearchParams();
-			params.append('action', 'nlf_get_group_preview');
-			params.append('group_id', String(groupId));
-			params.append('nonce', nlfGroupData.nonce);
-
-			// Send the currently selected theme so the preview reflects unsaved changes.
-			const selectedTheme = $('input[name="nlf_faq_group_theme"]:checked');
-			if (selectedTheme) {
-				params.append('theme', selectedTheme.value);
+			if (!items.length) {
+				loading.style.display = 'none';
+				content.style.display = '';
+				content.classList.add('loaded');
+				content.innerHTML = '<div class="nlf-live-view-empty"><p>' +
+					'No FAQ items found. Add some items in the FAQ Items tab.' +
+					'</p></div>';
+				return;
 			}
 
-			// Send custom color overrides.
+			// Resolve theme slug from the current UI selection.
+			const selectedThemeInput = $('input[name="nlf_faq_group_theme"]:checked');
+			const themeSlug = selectedThemeInput
+				? selectedThemeInput.value
+				: ((state.theme_settings && state.theme_settings.theme) || 'default');
+
+			const themes    = (nlfGroupData && nlfGroupData.themes) || {};
+			const themeData = themes[themeSlug] || themes['default'] || {};
+
+			// Start with pre-computed theme CSS vars; skip if custom style override is active.
+			const useCustomToggle = $('#nlf-use-custom-style-toggle');
+			let inlineStyle = (useCustomToggle && useCustomToggle.checked) ? '' : (themeData.inlineStyle || '');
+
+			// Overlay any custom color picker values.
+			const colorMap = {
+				primary:    '--nlf-faq-question-color',
+				secondary:  '--nlf-faq-answer-color',
+				accent:     '--nlf-faq-accent-color',
+				background: '--nlf-faq-container-bg',
+			};
 			$$('.nlf-theme-color').forEach((input) => {
 				const key = input.getAttribute('data-color-key');
-				const val = input.value;
-				if (key && val) {
-					params.append('theme_custom_' + key, val);
+				const val = input.value.trim();
+				if (key && val && colorMap[key]) {
+					inlineStyle += ';' + colorMap[key] + ':' + val;
 				}
 			});
 
-			fetch(nlfGroupData.ajaxurl, {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				},
-				body: params.toString(),
-			})
-				.then((response) => response.json())
-				.then((result) => {
-					if (result.success && result.data && result.data.html) {
-						content.innerHTML = result.data.html;
-						loading.style.display = 'none';
-						content.style.display = '';
-						content.classList.add('loaded');
+			// Determine layout and icon classes.
+			const layout    = themeData.layout || 'flat';
+			const iconStyle = themeData.iconStyle || 'plus_minus';
+			const classes   = ['nlf-faq', 'nlf-faq--preview'];
+			if ('flat' !== layout) {
+				classes.push('nlf-faq--layout-' + layout);
+			}
+			if ('chevron' === iconStyle) {
+				classes.push('nlf-faq--icon-chevron');
+			} else if ('arrow' === iconStyle) {
+				classes.push('nlf-faq--icon-arrow');
+			}
 
-						if (typeof window.nlfInitFaq === 'function') {
-							window.nlfInitFaq(content);
-						}
-				} else {
-					const message = result.data && result.data.message ? result.data.message : 'Failed to load preview.';
-					const errorDiv = document.createElement('div');
-					errorDiv.className = 'nlf-preview-error';
-					errorDiv.innerHTML = '<span class="dashicons dashicons-warning"></span>';
-					const p = document.createElement('p');
-					p.textContent = message;
-					errorDiv.appendChild(p);
-					loading.textContent = '';
-					loading.appendChild(errorDiv);
+			const accordionMode  = settings.accordion_mode ? '1' : '0';
+			const animationSpeed = settings.animation_speed || 'normal';
+			const smoothScroll   = settings.smooth_scroll ? '1' : '0';
+			const initialState   = settings.initial_state || 'all_closed';
+			const showCounter    = settings.show_counter;
+			const showSearch     = settings.show_search;
+
+			let html = '<div class="' + classes.join(' ') + '"'
+				+ ' data-accordion="' + accordionMode + '"'
+				+ ' data-animation-speed="' + escapeAttr(animationSpeed) + '"'
+				+ ' data-smooth-scroll="' + smoothScroll + '"'
+				+ (inlineStyle ? ' style="' + escapeAttr(inlineStyle) + '"' : '')
+				+ '>';
+
+			if (showSearch) {
+				html += '<div class="nlf-faq-search">'
+					+ '<input type="text" class="nlf-faq-search-input" placeholder="Search FAQs..." />'
+					+ '</div>';
+			}
+
+			items.forEach((item, index) => {
+				const isOpen      = item.initial_state && 'custom' === initialState;
+				const isFirst     = 0 === index && 'first_open' === initialState;
+				const isHighlight = item.highlight;
+				const itemClasses = ['nlf-faq__item'];
+				if (isOpen || isFirst) {
+					itemClasses.push('is-open');
 				}
-				})
-				.catch(() => {
-					loading.innerHTML = '<div class="nlf-preview-error"><span class="dashicons dashicons-warning"></span><p>Error loading preview. Please save the group and try again.</p></div>';
-				});
+				if (isHighlight) {
+					itemClasses.push('nlf-faq__item--highlight');
+				}
+				html += '<div class="' + itemClasses.join(' ') + '" data-faq-id="' + item.id + '">'
+					+ '<div class="nlf-faq__question">'
+					+ (showCounter ? '<span class="nlf-faq__counter">' + (index + 1) + '.</span>' : '')
+					+ '<span>' + escapeHtml(item.question) + '</span>'
+					+ '<span class="nlf-faq__icon" aria-hidden="true"></span>'
+					+ '</div>'
+					+ '<div class="nlf-faq__answer">' + item.answer + '</div>'
+					+ '</div>';
+			});
+
+			html += '</div>';
+
+			content.innerHTML = html;
+			loading.style.display = 'none';
+			content.style.display = '';
+			content.classList.add('loaded');
+
+			if (typeof window.nlfInitFaq === 'function') {
+				window.nlfInitFaq(content);
+			}
 		});
+	}
+
+	function escapeHtml(str) {
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function escapeAttr(str) {
+		return String(str).replace(/"/g, '&quot;');
 	}
 
 	function renumberGroupCheckboxes() {
@@ -593,6 +676,7 @@
 			prepareRow(newRow);
 			initNewEditor(newRow);
 			renumberGroupCheckboxes();
+			doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
 			requestPreview('main');
 		});
 
@@ -622,6 +706,7 @@
 
 			row.remove();
 			renumberGroupCheckboxes();
+			doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
 			requestPreview('main');
 		});
 	}
@@ -668,6 +753,7 @@
 		storedEditors = [];
 		dragSource = null;
 		renumberGroupCheckboxes();
+		doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
 		requestPreview('main');
 	}
 
@@ -798,15 +884,14 @@
 
 	// AJAX Save
 	function initAjaxSave() {
-		const form = $('#post');
+		const form = $('#nlf-group-edit-form') || $('#post');
 		const publishButton = $('#publish');
-		
+
 		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
 			return;
 		}
 
 		form.addEventListener('submit', function(e) {
-			// Only intercept if clicking the publish/update button
 			if (e.submitter && e.submitter.id === 'publish') {
 				e.preventDefault();
 				handleAjaxSave();
@@ -819,12 +904,115 @@
 		});
 	}
 
+	function showTitleError() {
+		const titleInput = $('#nlf_group_title');
+		if (!titleInput) {
+			return;
+		}
+
+		titleInput.classList.add('nlf-has-error', 'nlf-shake');
+		titleInput.addEventListener('animationend', () => titleInput.classList.remove('nlf-shake'), { once: true });
+		titleInput.focus();
+
+		// Add error message if not already shown.
+		const wrap = titleInput.closest('#titlediv') || titleInput.parentElement;
+		if (!wrap.querySelector('.nlf-field-error')) {
+			const msg = doc.createElement('div');
+			msg.className = 'nlf-field-error';
+			msg.innerHTML = '<span class="dashicons dashicons-warning" aria-hidden="true"></span><span>' +
+				(nlfGroupData.i18n?.title_required || 'Please enter a title for this FAQ group.') + '</span>';
+			wrap.appendChild(msg);
+		}
+
+		// Clear error on input.
+		const clearError = () => {
+			if (titleInput.value.trim()) {
+				titleInput.classList.remove('nlf-has-error');
+				const err = wrap.querySelector('.nlf-field-error');
+				if (err) {
+					err.remove();
+				}
+				titleInput.removeEventListener('input', clearError);
+			}
+		};
+		titleInput.addEventListener('input', clearError);
+	}
+
+	function showInlineNotice(message, type) {
+		type = type || 'error';
+		// Remove any existing inline notice.
+		const existing = $('.nlf-inline-notice');
+		if (existing) {
+			existing.remove();
+		}
+
+		const form = $('#nlf-group-edit-form') || $('#post');
+		if (!form) {
+			return;
+		}
+
+		const icon = type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning';
+		const notice = doc.createElement('div');
+		notice.className = 'nlf-inline-notice nlf-inline-notice--' + type;
+		notice.setAttribute('role', 'alert');
+		notice.innerHTML = '<span class="dashicons ' + icon + '" aria-hidden="true"></span><p>' + message + '</p>';
+		form.insertBefore(notice, form.firstChild);
+
+		// Scroll into view.
+		notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+		// Auto-dismiss after 6 seconds.
+		setTimeout(() => {
+			if (notice.parentNode) {
+				notice.style.opacity = '0';
+				notice.style.transition = 'opacity 300ms ease';
+				setTimeout(() => notice.remove(), 300);
+			}
+		}, 6000);
+	}
+
+	function showHowToUseSidebar(groupId) {
+		const box = $('#nlf-how-to-use-box');
+		if (!box) {
+			return;
+		}
+
+		const shortcode = '[krslys_nlf group="' + groupId + '"]';
+		const phpCode   = "<?php echo do_shortcode( '" + shortcode + "' ); ?>";
+
+		// Update data-copy-text and visible code for each snippet.
+		const snippets = $$('.nlf-htu-snippet', box);
+		if (snippets[0]) {
+			snippets[0].setAttribute('data-copy-text', shortcode);
+			const code = snippets[0].querySelector('.nlf-htu-snippet__code');
+			if (code) {
+				code.textContent = shortcode;
+			}
+		}
+		if (snippets[1]) {
+			snippets[1].setAttribute('data-copy-text', phpCode);
+			const code = snippets[1].querySelector('.nlf-htu-snippet__code');
+			if (code) {
+				code.textContent = phpCode;
+			}
+		}
+
+		// Reveal the sidebar box.
+		box.style.display = '';
+	}
+
 	function handleAjaxSave() {
-		const form = $('#post');
+		const form = $('#nlf-group-edit-form') || $('#post');
 		const publishButton = $('#publish');
-		const spinner = $('.spinner', publishButton.parentElement);
-		
+
 		if (!form || !publishButton || typeof nlfGroupData === 'undefined') {
+			return;
+		}
+
+		// Client-side title validation.
+		const titleInput = $('#nlf_group_title');
+		if (titleInput && !titleInput.value.trim()) {
+			showTitleError();
 			return;
 		}
 
@@ -832,31 +1020,17 @@
 		const savingText = nlfGroupData.i18n.saving || 'Saving…';
 		const savedText = nlfGroupData.i18n.saved || 'Saved!';
 
-		// Update button state
 		publishButton.disabled = true;
 		publishButton.value = savingText;
-		if (spinner) {
-			spinner.classList.add('is-active');
-		}
 
-		// Sync TinyMCE editors back to their textareas before collecting data.
-		// Without this, answers edited in the visual editor are not included in FormData.
+		// Sync TinyMCE editors back to their textareas.
 		if (window.tinyMCE) {
 			window.tinyMCE.triggerSave();
 		}
 
-		// Collect form data
 		const formData = new FormData(form);
 		formData.append('action', 'nlf_save_faq_group_ajax');
 		formData.append('nlf_faq_group_nonce', nlfGroupData.saveNonce);
-
-		// Force post_status to "publish" when clicking the Publish/Update button.
-		// The #post_status field is a <select> that only has draft/pending options,
-		// so we override the value directly in FormData.
-		const originalPostStatus = document.getElementById('original_post_status');
-		if (!originalPostStatus || originalPostStatus.value !== 'publish') {
-			formData.set('post_status', 'publish');
-		}
 
 		// Convert FormData to URLSearchParams for fetch
 		const params = new URLSearchParams();
@@ -864,7 +1038,6 @@
 			params.append(key, value);
 		}
 
-		// Send AJAX request
 		fetch(nlfGroupData.ajaxurl, {
 			method: 'POST',
 			headers: {
@@ -877,45 +1050,55 @@
 			if (data.success) {
 				publishButton.value = savedText;
 
-				// Update UI after successful publish
-				const origStatus = document.getElementById('original_post_status');
-				const newStatus = data.data?.post_status;
-				if (origStatus && newStatus === 'publish' && origStatus.value !== 'publish') {
-					origStatus.value = 'publish';
-					// Hide Save Draft button since the post is now published
-					const saveDraft = document.getElementById('save-post');
-					if (saveDraft) saveDraft.style.display = 'none';
-					// Update the minor-publishing-actions (Save Draft area)
-					const minorActions = document.getElementById('minor-publishing-actions');
-					if (minorActions) minorActions.style.display = 'none';
+				// New group: transition "Add New" → "Edit" in-place (no redirect).
+				if (data.data?.group_id && !parseInt(nlfGroupData.groupId, 10)) {
+					const newId = data.data.group_id;
+
+					// Update JS state.
+					nlfGroupData.groupId = newId;
+
+					// Update hidden form input.
+					const hiddenId = form.querySelector('[name="group_id"]');
+					if (hiddenId) {
+						hiddenId.value = newId;
+					}
+
+					// Update URL without reload.
+					const newUrl = nlfGroupData.editUrl + '&id=' + newId;
+					history.replaceState(null, '', newUrl);
+
+					// Update page heading.
+					const heading = doc.querySelector('.wrap > h1.wp-heading-inline');
+					if (heading) {
+						heading.textContent = nlfGroupData.i18n.edit_title || 'Edit FAQ Group';
+					}
+					doc.title = doc.title.replace(/Add New FAQ Group/, 'Edit FAQ Group');
+
+					// Reveal and populate "How To Use" sidebar.
+					showHowToUseSidebar(newId);
+
+					// Show success notice.
+					showInlineNotice(nlfGroupData.i18n.created || 'FAQ group created.', 'success');
 				}
 
-				// Reset button after a short delay
+				// Notify state collector (debug panel + future consumers).
+				doc.dispatchEvent(new CustomEvent('nlf:state-changed'));
+
 				setTimeout(() => {
-					// Use "Update" text if the post is now published
-					if (origStatus && origStatus.value === 'publish') {
-						publishButton.value = nlfGroupData.i18n.update || 'Update';
-					} else {
-						publishButton.value = originalText;
-					}
+					publishButton.value = nlfGroupData.i18n.update || 'Update';
 					publishButton.disabled = false;
 				}, 1500);
 			} else {
-				alert(data.data?.message || 'Error saving FAQ group.');
+				showInlineNotice(data.data?.message || 'Error saving FAQ group.');
 				publishButton.value = originalText;
 				publishButton.disabled = false;
 			}
 		})
 		.catch(error => {
 			console.error('Save error:', error);
-			alert('An unexpected error occurred while saving.');
+			showInlineNotice('An unexpected error occurred while saving.');
 			publishButton.value = originalText;
 			publishButton.disabled = false;
-		})
-		.finally(() => {
-			if (spinner) {
-				spinner.classList.remove('is-active');
-			}
 		});
 	}
 

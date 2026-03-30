@@ -22,6 +22,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Style_Generator {
 
 	/**
+	 * Bootstrap style generation hooks.
+	 */
+	public static function init() {
+		add_action( 'nlf_faq_settings_updated', array( __CLASS__, 'generate_and_save' ), 10, 2 );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_regenerate_css' ) );
+	}
+
+	/**
+	 * Regenerate CSS if the plugin version changed.
+	 */
+	public static function maybe_regenerate_css() {
+		$css_version = get_option( 'nlf_faq_css_version', '' );
+		if ( NLF_FAQ_CSS_VERSION !== $css_version ) {
+			self::generate_and_save();
+			update_option( 'nlf_faq_css_version', NLF_FAQ_CSS_VERSION );
+		}
+	}
+
+	/**
 	 * Get path to generated CSS file.
 	 *
 	 * @return string

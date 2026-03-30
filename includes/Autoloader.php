@@ -81,15 +81,16 @@ class Autoloader {
 	 *
 	 * Maps class names to subdirectories and files based on naming patterns:
 	 * - Admin_* classes -> admin/class-*.php
+	 * - Group_* classes -> admin/class-*.php
+	 * - *_List_Table classes -> admin/class-*.php
 	 * - Frontend_* classes -> frontend/class-*.php
 	 * - Core classes (Options, Repository, Style_Generator) -> core/class-*.php
-	 * - *_CPT classes -> admin/class-*.php
 	 *
 	 * Examples:
 	 *   Options -> core/class-options.php
 	 *   Style_Generator -> core/class-style-generator.php
 	 *   Admin_Settings -> admin/class-admin-settings.php
-	 *   Group_CPT -> admin/class-group-cpt.php
+	 *   Group_Admin -> admin/class-group-admin.php
 	 *   Frontend_Renderer -> frontend/class-frontend-renderer.php
 	 *
 	 * @param string $class_name The class name.
@@ -122,8 +123,11 @@ class Autoloader {
 	 * @return string The subdirectory name (without trailing slash) or empty string.
 	 */
 	private function get_subdirectory_for_class( $class_name ) {
-		// Admin classes: Admin_* or *_CPT.
-		if ( strpos( $class_name, 'Admin_' ) === 0 || strpos( $class_name, '_CPT' ) !== false ) {
+		// Admin classes: Admin_*, Group_*, *_List_Table.
+		if ( strpos( $class_name, 'Admin_' ) === 0
+			|| strpos( $class_name, 'Group_' ) === 0
+			|| strpos( $class_name, '_List_Table' ) !== false
+		) {
 			return 'admin';
 		}
 
