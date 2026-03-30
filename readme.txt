@@ -12,15 +12,17 @@ Flexible FAQ plugin with customizable styling, live preview, and Gutenberg block
 
 == Description ==
 
-**Next Level FAQ** is a lightweight, professional FAQ plugin for WordPress with a focus on design freedom. Configure colors, typography, spacing, and animation from a dedicated style page, then drop a shortcode into any page to display a beautifully styled FAQ section.
+**Next Level FAQ** is a lightweight, professional FAQ plugin for WordPress with a focus on design freedom. Organize questions into FAQ Groups, configure colors, layouts, and animations from a dedicated admin interface, then embed them anywhere using a shortcode or the native Gutenberg block.
 
 = Key Features =
 
-* **Live style preview** — see your changes before saving.
-* **Full design control** — customize colors, fonts, spacing, borders, and animations.
-* **Shortcode support** — use `[krslys_nlf]` anywhere: pages, posts, or widgets.
+* **FAQ Groups** — organize questions into named groups, each with its own theme and display settings.
+* **Live style preview** — see your changes before saving, rendered entirely in the browser.
+* **Theme presets** — choose from flat, cards, bordered, clean, or striped layouts.
+* **Full design control** — customize colors, spacing, borders, and animations per group.
+* **Shortcode support** — use `[krslys_nlf group="ID"]` anywhere: pages, posts, or widgets.
 * **Gutenberg block** — native block included for the block editor.
-* **FAQ Groups** — organize questions into groups for better management.
+* **Custom database tables** — dedicated tables for performance; does not pollute `wp_posts`.
 * **Clean & lightweight** — no bloat, no external dependencies on the front end.
 * **RTL ready** — full right-to-left language support.
 * **GPL licensed** — 100% open source.
@@ -28,36 +30,46 @@ Flexible FAQ plugin with customizable styling, live preview, and Gutenberg block
 == Installation ==
 
 1. Upload the `krslys-next-level-faq` folder to the `/wp-content/plugins/` directory, or install it directly through the WordPress plugin screen.
-2. Activate the plugin through the **Plugins** screen in WordPress.
-3. Go to **Settings → Next Level FAQ** to configure your FAQ styles.
+2. Activate the plugin through the **Plugins** screen in WordPress. The plugin creates its database tables automatically on activation.
+3. Go to **FAQs** in the WordPress admin menu to get started.
 
 == Frequently Asked Questions ==
 
-= How do I display the FAQ on a page? =
+= How do I display an FAQ group on a page? =
 
-Add the shortcode `[krslys_nlf]` to any post, page, or widget area.
+Use the shortcode with the group ID:
 
-= Can I group my FAQ questions? =
+`[krslys_nlf group="1"]`
 
-Yes. You can organize questions into FAQ Groups from the WordPress admin and display a specific group using `[krslys_nlf group="group-slug"]`.
+The group ID is shown on the FAQ Groups list page and in the **How To Use** sidebar after saving a group.
+
+= Can I have multiple FAQ groups? =
+
+Yes. Create as many groups as you need from **FAQs → FAQ Groups**. Each group has its own questions, theme, and display settings.
 
 = Is the plugin compatible with the block editor (Gutenberg)? =
 
-Yes. A native Gutenberg block is included so you can insert the FAQ directly from the block editor without using a shortcode.
+Yes. A native Gutenberg block is included so you can insert any FAQ group directly from the block editor without using a shortcode.
 
 = Does it support RTL languages (Arabic, Hebrew, etc.)? =
 
 Yes. The plugin includes full RTL stylesheet support.
 
-= Where are the styles stored? =
+= Where are the settings stored? =
 
-Your style choices are stored as a WordPress option and compiled into a generated CSS file that is automatically enqueued on the front end.
+FAQ groups and their style settings are stored in dedicated custom database tables (`wp_nlf_faq_groups`, `wp_nlf_faq_items`, `wp_nlf_plugin_settings`). The plugin does not use `wp_posts` or `wp_postmeta`.
+
+= Will the plugin slow down my site? =
+
+No. Frontend assets are only loaded on pages where a FAQ shortcode or block is present. The CSS is pre-generated and served as a static file.
 
 == Screenshots ==
 
-1. FAQ style settings page with live preview.
-2. FAQ displayed on the front end with custom styling.
-3. Gutenberg block inserter.
+1. FAQ Groups dashboard — overview of all groups with quick actions.
+2. Group editor — Content tab for managing questions and answers.
+3. Group editor — Appearance tab with live preview.
+4. FAQ displayed on the front end with custom styling.
+5. Gutenberg block inserter.
 
 == Changelog ==
 
