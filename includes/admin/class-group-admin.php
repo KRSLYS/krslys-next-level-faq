@@ -58,7 +58,7 @@ class Group_Admin {
 		// Note: the visible "FAQ Groups" entry is registered by Admin_Settings::register_menu()
 		// to control menu ordering. Only the hidden edit page lives here.
 		add_submenu_page(
-			null, // hidden
+			'', // hidden (no parent — empty string avoids PHP 8 null deprecation)
 			__( 'Edit FAQ Group', 'next-level-faq' ),
 			__( 'Edit FAQ Group', 'next-level-faq' ),
 			'manage_options',
@@ -380,7 +380,7 @@ class Group_Admin {
 					<button type="button" class="button button-small" id="nlf-copy-json" style="display:none;"><?php esc_html_e( 'Copy JSON', 'next-level-faq' ); ?></button>
 				</div>
 				<?php endif; ?>
-			</form>
+				</form>
 
 		</div><!-- .wrap -->
 		<?php
@@ -1050,10 +1050,11 @@ class Group_Admin {
 										$item->answer,
 										$editor_id,
 										array(
-											'textarea_name' => 'nlf_faq_group_answer[]',
-											'media_buttons' => false,
-											'teeny'         => true,
-											'textarea_rows' => 4,
+											'textarea_name'  => 'nlf_faq_group_answer[]',
+											'textarea_class' => 'wp-editor-area large-text nlf-faq-group-answer-editor',
+											'media_buttons'  => false,
+											'teeny'          => true,
+											'textarea_rows'  => 4,
 										)
 									);
 									?>
@@ -1204,16 +1205,13 @@ class Group_Admin {
 						</div>
 					</div>
 					<p class="description"><?php esc_html_e( 'Changes update instantly as you tweak styles.', 'next-level-faq' ); ?></p>
-					<?php if ( empty( $items ) ) : ?>
-						<div class="nlf-preview-empty-state nlf-preview-empty-state--mini">
-							<p><?php esc_html_e( 'Add at least one question to see the live preview.', 'next-level-faq' ); ?></p>
-							<button type="button" class="button button-secondary" data-switch-tab="content">
-								<?php esc_html_e( 'Add questions first', 'next-level-faq' ); ?> &rarr;
-							</button>
-						</div>
-					<?php else : ?>
-						<?php Admin_UI_Components::preview_container( $group_id, 'appearance' ); ?>
-					<?php endif; ?>
+					<div class="nlf-preview-empty-state nlf-preview-empty-state--mini"<?php echo ! empty( $items ) ? ' style="display:none"' : ''; ?>>
+						<p><?php esc_html_e( 'Add at least one question to see the live preview.', 'next-level-faq' ); ?></p>
+						<button type="button" class="button button-secondary" data-switch-tab="content">
+							<?php esc_html_e( 'Add questions first', 'next-level-faq' ); ?> &rarr;
+						</button>
+					</div>
+					<?php Admin_UI_Components::preview_container( $group_id, 'appearance' ); ?>
 				</div>
 			</div>
 		</div>
@@ -1624,9 +1622,8 @@ class Group_Admin {
 	private static function render_preview_tab( $group_id, $items ) {
 		?>
 		<div class="nlf-preview-wrapper">
-	<?php if ( empty( $items ) ) : ?>
-		<!-- Empty State -->
-		<div class="nlf-preview-empty-state">
+		<!-- Empty state: hidden by JS once the first question is added. -->
+		<div class="nlf-preview-empty-state"<?php echo ! empty( $items ) ? ' style="display:none"' : ''; ?>>
 			<div class="nlf-empty-icon">
 				<span class="dashicons dashicons-visibility"></span>
 			</div>
@@ -1636,40 +1633,39 @@ class Group_Admin {
 				<?php esc_html_e( 'Go to Content Tab', 'next-level-faq' ); ?> &rarr;
 			</button>
 		</div>
-	<?php else : ?>
-				<div class="nlf-preview-controls">
-					<div class="nlf-preview-device-toggle" role="radiogroup" aria-label="<?php esc_attr_e( 'Preview device', 'next-level-faq' ); ?>">
-						<button type="button" class="nlf-device-btn active" data-device="desktop" aria-label="<?php esc_attr_e( 'Desktop view', 'next-level-faq' ); ?>">
-							<span class="dashicons dashicons-desktop" aria-hidden="true"></span>
-						</button>
-						<button type="button" class="nlf-device-btn" data-device="tablet" aria-label="<?php esc_attr_e( 'Tablet view', 'next-level-faq' ); ?>">
-							<span class="dashicons dashicons-tablet" aria-hidden="true"></span>
-						</button>
-						<button type="button" class="nlf-device-btn" data-device="mobile" aria-label="<?php esc_attr_e( 'Mobile view', 'next-level-faq' ); ?>">
-							<span class="dashicons dashicons-smartphone" aria-hidden="true"></span>
-						</button>
-					</div>
-			<div class="nlf-preview-controls-right">
-				<label class="nlf-preview-auto">
-					<input type="checkbox" class="nlf-preview-auto-toggle" data-preview-auto="main" checked>
-					<span><?php esc_html_e( 'Auto refresh', 'next-level-faq' ); ?></span>
-				</label>
-				<button type="button" class="button nlf-refresh-preview" data-refresh-preview="main">
-					<span class="dashicons dashicons-update" aria-hidden="true"></span>
-					<?php esc_html_e( 'Refresh Preview', 'next-level-faq' ); ?>
-				</button>
+		<?php $preview_hidden = empty( $items ) ? ' style="display:none"' : ''; ?>
+			<div class="nlf-preview-controls"<?php echo $preview_hidden; // phpcs:ignore WordPress.Security.EscapeOutput ?>>
+				<div class="nlf-preview-device-toggle" role="radiogroup" aria-label="<?php esc_attr_e( 'Preview device', 'next-level-faq' ); ?>">
+					<button type="button" class="nlf-device-btn active" data-device="desktop" aria-label="<?php esc_attr_e( 'Desktop view', 'next-level-faq' ); ?>">
+						<span class="dashicons dashicons-desktop" aria-hidden="true"></span>
+					</button>
+					<button type="button" class="nlf-device-btn" data-device="tablet" aria-label="<?php esc_attr_e( 'Tablet view', 'next-level-faq' ); ?>">
+						<span class="dashicons dashicons-tablet" aria-hidden="true"></span>
+					</button>
+					<button type="button" class="nlf-device-btn" data-device="mobile" aria-label="<?php esc_attr_e( 'Mobile view', 'next-level-faq' ); ?>">
+						<span class="dashicons dashicons-smartphone" aria-hidden="true"></span>
+					</button>
+				</div>
+				<div class="nlf-preview-controls-right">
+					<label class="nlf-preview-auto">
+						<input type="checkbox" class="nlf-preview-auto-toggle" data-preview-auto="main" checked>
+						<span><?php esc_html_e( 'Auto refresh', 'next-level-faq' ); ?></span>
+					</label>
+					<button type="button" class="button nlf-refresh-preview" data-refresh-preview="main">
+						<span class="dashicons dashicons-update" aria-hidden="true"></span>
+						<?php esc_html_e( 'Refresh Preview', 'next-level-faq' ); ?>
+					</button>
+				</div>
 			</div>
-				</div>
 
-				<div class="nlf-preview-notice">
-					<span class="dashicons dashicons-info" aria-hidden="true"></span>
-					<span><?php esc_html_e( 'Save the group to see all changes reflected in the preview.', 'next-level-faq' ); ?></span>
-				</div>
+			<div class="nlf-preview-notice"<?php echo $preview_hidden; // phpcs:ignore WordPress.Security.EscapeOutput ?>>
+				<span class="dashicons dashicons-info" aria-hidden="true"></span>
+				<span><?php esc_html_e( 'Save the group to see all changes reflected in the preview.', 'next-level-faq' ); ?></span>
+			</div>
 
-				<div class="nlf-preview-viewport" data-device="desktop">
-			<?php Admin_UI_Components::preview_container( $group_id, 'main' ); ?>
-				</div>
-			<?php endif; ?>
+			<div class="nlf-preview-viewport"<?php echo $preview_hidden; // phpcs:ignore WordPress.Security.EscapeOutput ?> data-device="desktop">
+				<?php Admin_UI_Components::preview_container( $group_id, 'main' ); ?>
+			</div>
 		</div>
 		<?php
 	}

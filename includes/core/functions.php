@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function nlf_asset_url( string $path ): string {
 	if ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
-		$path = preg_replace( '/\.(js|css)$/', '.min.$1', $path );
+		$path = preg_replace( '/(?<!\.min)\.(js|css)$/', '.min.$1', $path );
 	}
 
 	return NLF_FAQ_PLUGIN_URL . $path;
@@ -37,7 +37,7 @@ function nlf_asset_url( string $path ): string {
  */
 function nlf_asset_path( string $path ): string {
 	if ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
-		$path = preg_replace( '/\.(js|css)$/', '.min.$1', $path );
+		$path = preg_replace( '/(?<!\.min)\.(js|css)$/', '.min.$1', $path );
 	}
 
 	return NLF_FAQ_PLUGIN_DIR . $path;

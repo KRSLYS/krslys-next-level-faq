@@ -2009,7 +2009,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-1);
-	animation: nlf-fadeIn 200ms ease;
+	animation: nlf-fade-in 200ms ease;
 }
 
 #titlediv .nlf-field-error .dashicons {
@@ -2029,7 +2029,7 @@
 	30%, 60%, 90% { transform: translateX(4px); }
 }
 
-@keyframes nlf-fadeIn {
+@keyframes nlf-fade-in {
 	from { opacity: 0; transform: translateY(-4px); }
 	to { opacity: 1; transform: translateY(0); }
 }
@@ -2047,7 +2047,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-2);
-	animation: nlf-fadeIn 200ms ease;
+	animation: nlf-fade-in 200ms ease;
 }
 
 .nlf-inline-notice .dashicons {

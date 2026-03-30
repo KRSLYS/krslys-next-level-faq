@@ -153,18 +153,21 @@
 			el.style.display = 'none';
 		});
 
+		const newRows = [];
+
 		items.forEach((item, i) => {
 			const html = template.innerHTML.replace(/\{\{index\}\}/g, String(i)).trim();
 			const wrapper = doc.createElement('tbody');
 			wrapper.innerHTML = html;
 			const row = wrapper.firstElementChild;
 			body.appendChild(row);
+			newRows.push(row);
 
 			// Fill in values.
 			setVal('[name="nlf_faq_group_item_id[]"]', item.id || '', row);
 			setVal('[name="nlf_faq_group_question[]"]', item.question || '', row);
 
-			// Answer — set the textarea; TinyMCE will be initialized by the metabox script.
+			// Answer — textarea value; nlfSetupItemRow will initialize TinyMCE.
 			const textarea = row.querySelector('.nlf-faq-group-answer-editor');
 			if (textarea) {
 				textarea.value = item.answer || '';
@@ -175,6 +178,17 @@
 			setChecked(`[name="nlf_faq_group_open[${i}]"]`, item.initial_state, row);
 			setChecked(`[name="nlf_faq_group_highlight[${i}]"]`, item.highlight, row);
 		});
+
+		// Attach drag handlers and initialize editors via the metabox script.
+		// Guard against script load order: if metabox has already run, call now;
+		// otherwise wait for it to signal readiness via nlf:metabox-ready.
+		const setupAll = () => newRows.forEach((row) => window.nlfSetupItemRow(row));
+
+		if (typeof window.nlfSetupItemRow === 'function') {
+			setupAll();
+		} else {
+			doc.addEventListener('nlf:metabox-ready', setupAll, { once: true });
+		}
 	}
 
 	/* ================================================================== */
@@ -195,11 +209,35 @@
 			const textarea = row.querySelector('.nlf-faq-group-answer-editor');
 			let answer = '';
 
-			if (textarea && textarea.id && window.tinymce) {
-				const editor = window.tinymce.get(textarea.id);
-				answer = editor ? editor.getContent() : textarea.value;
-			} else if (textarea) {
-				answer = textarea.value;
+			if (textarea) {
+				const editor = window.tinymce && textarea.id && window.tinymce.get(textarea.id);
+				if (editor) {
+					// Fall back to textarea.value when the editor is in Text/Code mode
+					// and getContent() hasn't synced the user's typed content yet.
+					try {
+						answer = editor.getContent() || textarea.value;
+					} catch (e) {
+						answer = textarea.value;
+					}
+				} else {
+					answer = textarea.value;
+				}
+			}
+
+			// If the answer is still blank, check whether TinyMCE has finished
+			// initialising. While the iframe is loading, both getContent() and
+			// textarea.value are "". Fall back to the server-side snapshot for
+			// already-saved items so their content is not lost.
+			if (!answer) {
+				const itemId = parseInt(row.querySelector('[name="nlf_faq_group_item_id[]"]')?.value, 10) || 0;
+				const editorReady = !!(textarea?.id && window.tinymce?.get(textarea?.id)?.initialized);
+				if (itemId && !editorReady) {
+					const saved = ((typeof nlfGroupData !== 'undefined' && nlfGroupData.groupState?.items) || [])
+						.find(it => it.id === itemId);
+					if (saved?.answer) {
+						answer = saved.answer;
+					}
+				}
 			}
 
 			return {
@@ -306,16 +344,19 @@
 	/* ================================================================== */
 
 	function initLiveSync() {
-		const form   = $('#nlf-group-edit-form') || $('#post');
-		const output = $('#nlf-json-state-output');
+		const form = $('#nlf-group-edit-form') || $('#post');
 
-		if (!form || !output) {
+		if (!form) {
 			return;
 		}
 
 		let timer;
 		const schedule = () => {
 			clearTimeout(timer);
+			// Only write to the debug textarea if it exists (WP_DEBUG mode).
+			if (!$('#nlf-json-state-output')) {
+				return;
+			}
 			timer = setTimeout(updateDebugPanel, 300);
 		};
 
@@ -327,6 +368,9 @@
 		if (window.tinymce) {
 			window.tinymce.on('AddEditor', (e) => {
 				e.editor.on('input change keyup', schedule);
+				// Re-run once the editor has finished loading its iframe so the
+				// server-side answer snapshot is replaced with live content.
+				e.editor.on('init', schedule);
 			});
 		}
 

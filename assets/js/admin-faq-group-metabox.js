@@ -40,6 +40,10 @@
 		initEmptyStateHandlers();
 		initQuestionList();
 		initAjaxSave();
+
+		if (nlfGroupData && nlfGroupData.isDebug) {
+			initDebugPanel();
+		}
 	}
 
 	// Tabs
@@ -277,6 +281,19 @@
 		previewState.timers.set(context, timer);
 	}
 
+	// Read display settings from the live DOM (Settings tab fields).
+	function getDisplaySettingsFromDom() {
+		const get = (sel) => doc.querySelector(sel);
+		return {
+			accordion_mode:  !!(get('[name="nlf_faq_group_settings[accordion_mode]"]')?.checked),
+			initial_state:    get('[name="nlf_faq_group_settings[initial_state]"]')?.value    || 'all_closed',
+			animation_speed:  get('[name="nlf_faq_group_settings[animation_speed]"]')?.value  || 'normal',
+			show_search:     !!(get('[name="nlf_faq_group_settings[show_search]"]')?.checked),
+			show_counter:    !!(get('[name="nlf_faq_group_settings[show_counter]"]')?.checked),
+			smooth_scroll:   !!(get('[name="nlf_faq_group_settings[smooth_scroll]"]')?.checked),
+		};
+	}
+
 	// Read FAQ items from the live DOM (Content tab rows).
 	function getItemsFromDom() {
 		const rows = $$('#nlf-faq-group-questions-body .nlf-faq-question-row');
@@ -298,6 +315,21 @@
 				}
 			}
 
+			// TinyMCE clears textarea.value before its init event fires, so
+			// getContent() and textarea.value are both "" during that window.
+			// Fall back to the server-side snapshot for already-saved items.
+			if (!answer) {
+				const itemId = idInput ? (parseInt(idInput.value, 10) || 0) : 0;
+				const editorReady = !!(textarea?.id && window.tinymce?.get(textarea?.id)?.initialized);
+				if (itemId && !editorReady) {
+					const saved = ((typeof nlfGroupData !== 'undefined' && nlfGroupData.groupState?.items) || [])
+						.find(it => it.id === itemId);
+					if (saved?.answer) {
+						answer = saved.answer;
+					}
+				}
+			}
+
 			return {
 				id:            idInput ? (parseInt(idInput.value, 10) || 0) : 0,
 				question:      questionInput ? questionInput.value.trim() : '',
@@ -309,62 +341,151 @@
 		});
 	}
 
+	/**
+	 * Show the PHP-rendered empty-state block and hide (or show) the preview
+	 * controls/notice/viewport for the given container's wrapper.
+	 *
+	 * Handles both the Preview tab (.nlf-preview-wrapper) and the Appearance
+	 * tab mini preview (no wrapper — empty-state is a direct sibling).
+	 *
+	 * @param {Element} container  The .nlf-preview-container element.
+	 * @param {boolean} hasItems   Whether there are visible FAQ items.
+	 */
+	function syncPreviewEmptyState(container, hasItems) {
+		// Walk up until we find an ancestor that owns a .nlf-preview-empty-state child.
+		let wrapper = container.parentElement;
+		while (wrapper && !wrapper.querySelector('.nlf-preview-empty-state')) {
+			wrapper = wrapper.parentElement;
+		}
+		if (!wrapper) {
+			return;
+		}
+
+		const emptyState = wrapper.querySelector('.nlf-preview-empty-state');
+		if (emptyState) {
+			emptyState.style.display = hasItems ? 'none' : '';
+		}
+
+		// Preview-tab extras: controls, info notice, and the device viewport.
+		// These don't exist in the Appearance mini preview — querySelector returns null safely.
+		['.nlf-preview-controls', '.nlf-preview-notice', '.nlf-preview-viewport'].forEach((sel) => {
+			const el = wrapper.querySelector(sel);
+			if (el) {
+				el.style.display = hasItems ? '' : 'none';
+			}
+		});
+	}
+
 	// Build preview client-side from live DOM state — no AJAX needed.
 	function loadLivePreview(targetNodes) {
 		const containers = targetNodes && targetNodes.length ? targetNodes : $$('.nlf-preview-container');
 
+		// Compute once — all containers share the same item list and settings.
+		const items    = getItemsFromDom().filter((item) => item.status);
+		const settings = getDisplaySettingsFromDom();
+		const hasItems = items.length > 0;
+
 		containers.forEach((container) => {
+			// Always sync the empty-state / controls visibility first.
+			syncPreviewEmptyState(container, hasItems);
+
 			const loading = $('.nlf-preview-loading', container);
 			const content = $('.nlf-preview-content', container);
 			if (!loading || !content) {
 				return;
 			}
 
-			const state    = (nlfGroupData && nlfGroupData.groupState) || {};
-			const items    = getItemsFromDom().filter((item) => item.status);
-			const settings = state.display_settings || {};
-
-			if (!items.length) {
+			if (!hasItems) {
+				// Reset any stale preview content; empty-state messaging is
+				// handled by the PHP-rendered .nlf-preview-empty-state block.
 				loading.style.display = 'none';
-				content.style.display = '';
-				content.classList.add('loaded');
-				content.innerHTML = '<div class="nlf-live-view-empty"><p>' +
-					'No FAQ items found. Add some items in the FAQ Items tab.' +
-					'</p></div>';
+				content.style.display = 'none';
+				content.classList.remove('loaded');
 				return;
 			}
 
-			// Resolve theme slug from the current UI selection.
+			// Resolve theme slug from the checked radio (always set by PHP or JS).
 			const selectedThemeInput = $('input[name="nlf_faq_group_theme"]:checked');
-			const themeSlug = selectedThemeInput
-				? selectedThemeInput.value
-				: ((state.theme_settings && state.theme_settings.theme) || 'default');
+			const themeSlug = selectedThemeInput ? selectedThemeInput.value : 'default';
 
 			const themes    = (nlfGroupData && nlfGroupData.themes) || {};
 			const themeData = themes[themeSlug] || themes['default'] || {};
 
-			// Start with pre-computed theme CSS vars; skip if custom style override is active.
 			const useCustomToggle = $('#nlf-use-custom-style-toggle');
-			let inlineStyle = (useCustomToggle && useCustomToggle.checked) ? '' : (themeData.inlineStyle || '');
+			const isCustom        = !!(useCustomToggle && useCustomToggle.checked);
 
-			// Overlay any custom color picker values.
-			const colorMap = {
-				primary:    '--nlf-faq-question-color',
-				secondary:  '--nlf-faq-answer-color',
-				accent:     '--nlf-faq-accent-color',
-				background: '--nlf-faq-container-bg',
-			};
-			$$('.nlf-theme-color').forEach((input) => {
-				const key = input.getAttribute('data-color-key');
-				const val = input.value.trim();
-				if (key && val && colorMap[key]) {
-					inlineStyle += ';' + colorMap[key] + ':' + val;
+			let inlineStyle;
+			let iconStyle;
+			let layout;
+
+			if (isCustom) {
+				// Read every nlf_faq_group_custom_styles[key] input and map to CSS vars.
+				// Mirrors the PHP normalize_options() logic: px values are divided by 16 for rem.
+				const getCustomVal = (key) => {
+					const el = $(`[name="nlf_faq_group_custom_styles[${key}]"]`);
+					return el ? el.value.trim() : '';
+				};
+				const pxToRem = (val) => {
+					const n = parseFloat(val);
+					return isNaN(n) ? '' : (n / 16).toFixed(3) + 'rem';
+				};
+
+				// animation select → --nlf-faq-answer-transition (mirrors normalize_options).
+				const anim = getCustomVal('animation') || 'slide';
+				let answerTransition;
+				if ('fade' === anim) {
+					answerTransition = 'max-height 200ms ease, opacity 250ms ease, transform 180ms ease';
+				} else if ('none' === anim) {
+					answerTransition = 'none';
+				} else {
+					answerTransition = 'max-height 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease, transform 220ms ease';
 				}
-			});
 
-			// Determine layout and icon classes.
-			const layout    = themeData.layout || 'flat';
-			const iconStyle = themeData.iconStyle || 'plus_minus';
+				const customProps = [
+					['--nlf-faq-container-bg',     getCustomVal('container_background')],
+					['--nlf-faq-border-color',      getCustomVal('container_border_color')],
+					['--nlf-faq-question-color',    getCustomVal('question_color')],
+					['--nlf-faq-answer-color',      getCustomVal('answer_color')],
+					['--nlf-faq-accent-color',      getCustomVal('accent_color')],
+					['--nlf-faq-border-radius',     pxToRem(getCustomVal('container_border_radius'))],
+					['--nlf-faq-padding',           pxToRem(getCustomVal('container_padding'))],
+					['--nlf-faq-question-size',     pxToRem(getCustomVal('question_font_size'))],
+					['--nlf-faq-answer-size',       pxToRem(getCustomVal('answer_font_size'))],
+					['--nlf-faq-answer-transition', answerTransition],
+				];
+
+				inlineStyle = customProps
+					.filter(([, val]) => val !== '')
+					.map(([prop, val]) => prop + ':' + val)
+					.join(';');
+
+				// icon_style select → CSS class modifier.
+				iconStyle = getCustomVal('icon_style') || 'plus_minus';
+
+				// Custom styles have no layout override — keep flat.
+				layout = 'flat';
+			} else {
+				// Use pre-computed theme CSS vars.
+				inlineStyle = themeData.inlineStyle || '';
+
+				// Overlay theme color picker overrides.
+				const colorMap = {
+					primary:    '--nlf-faq-question-color',
+					secondary:  '--nlf-faq-answer-color',
+					accent:     '--nlf-faq-accent-color',
+					background: '--nlf-faq-container-bg',
+				};
+				$$('.nlf-theme-color').forEach((input) => {
+					const key = input.getAttribute('data-color-key');
+					const val = input.value.trim();
+					if (key && val && colorMap[key]) {
+						inlineStyle += ';' + colorMap[key] + ':' + val;
+					}
+				});
+
+				iconStyle = themeData.iconStyle || 'plus_minus';
+				layout    = themeData.layout    || 'flat';
+			}
 			const classes   = ['nlf-faq', 'nlf-faq--preview'];
 			if ('flat' !== layout) {
 				classes.push('nlf-faq--layout-' + layout);
@@ -427,6 +548,88 @@
 				window.nlfInitFaq(content);
 			}
 		});
+
+		if (nlfGroupData && nlfGroupData.isDebug) {
+			updateDebugPanel();
+		}
+	}
+
+	// Debug panel — only active when WP_DEBUG is true (nlfGroupData.isDebug).
+	function updateDebugPanel() {
+		const output = doc.getElementById('nlf-json-state-output');
+		if (!output) {
+			return;
+		}
+
+		const selectedThemeInput = $('input[name="nlf_faq_group_theme"]:checked');
+		const useCustomToggle    = $('#nlf-use-custom-style-toggle');
+
+		const customColors = {};
+		$$('.nlf-theme-color').forEach((input) => {
+			const key = input.getAttribute('data-color-key');
+			if (key) {
+				customColors[key] = input.value;
+			}
+		});
+
+		const liveState = {
+			group_id:         nlfGroupData.groupId || 0,
+			items:            getItemsFromDom(),
+			theme:            selectedThemeInput ? selectedThemeInput.value : 'default',
+			use_custom_style: useCustomToggle ? useCustomToggle.checked : false,
+			custom_colors:    customColors,
+			display_settings: getDisplaySettingsFromDom(),
+		};
+
+		output.value = JSON.stringify(liveState, null, 2);
+	}
+
+	function initDebugPanel() {
+		const toggle   = doc.getElementById('nlf-show-json-state');
+		const output   = doc.getElementById('nlf-json-state-output');
+		const copyBtn  = doc.getElementById('nlf-copy-json');
+
+		if (!toggle || !output) {
+			return;
+		}
+
+		// Show/hide textarea when checkbox changes.
+		toggle.addEventListener('change', () => {
+			const visible = toggle.checked;
+			output.style.display  = visible ? '' : 'none';
+			if (copyBtn) {
+				copyBtn.style.display = visible ? '' : 'none';
+			}
+			if (visible) {
+				updateDebugPanel();
+			}
+		});
+
+		// Copy JSON to clipboard.
+		if (copyBtn) {
+			copyBtn.addEventListener('click', () => {
+				if (!output.value) {
+					return;
+				}
+				const write = navigator.clipboard && navigator.clipboard.writeText
+					? navigator.clipboard.writeText(output.value)
+					: new Promise((resolve) => {
+						output.select();
+						doc.execCommand('copy');
+						resolve();
+					});
+				write.then(() => {
+					copyBtn.textContent = 'Copied!';
+					setTimeout(() => { copyBtn.textContent = 'Copy JSON'; }, 1500);
+				});
+			});
+		}
+
+		// Update panel on every state change.
+		doc.addEventListener('nlf:state-changed', updateDebugPanel);
+
+		// Initial population.
+		updateDebugPanel();
 	}
 
 	function escapeHtml(str) {
@@ -636,6 +839,15 @@
 		requestPreview('main');
 	}
 
+	// Module-scope so admin-state-collector.js can reach it via window.nlfSetupItemRow.
+	function prepareRow(row) {
+		row.setAttribute('draggable', 'true');
+		row.addEventListener('dragstart', handleDragStart);
+		row.addEventListener('dragover', handleDragOver);
+		row.addEventListener('drop', handleDrop);
+		row.addEventListener('dragend', handleDragEnd);
+	}
+
 	function initQuestionList() {
 		const body = $('#nlf-faq-group-questions-body');
 		const template = $('#tmpl-nlf-faq-group-row');
@@ -643,14 +855,6 @@
 		if (!body || !template) {
 			return;
 		}
-
-		const prepareRow = (row) => {
-			row.setAttribute('draggable', 'true');
-			row.addEventListener('dragstart', handleDragStart);
-			row.addEventListener('dragover', handleDragOver);
-			row.addEventListener('drop', handleDrop);
-			row.addEventListener('dragend', handleDragEnd);
-		};
 
 		$$('.nlf-faq-question-row', body).forEach(prepareRow);
 
@@ -917,10 +1121,18 @@
 		// Add error message if not already shown.
 		const wrap = titleInput.closest('#titlediv') || titleInput.parentElement;
 		if (!wrap.querySelector('.nlf-field-error')) {
-			const msg = doc.createElement('div');
-			msg.className = 'nlf-field-error';
-			msg.innerHTML = '<span class="dashicons dashicons-warning" aria-hidden="true"></span><span>' +
-				(nlfGroupData.i18n?.title_required || 'Please enter a title for this FAQ group.') + '</span>';
+			const msg      = doc.createElement('div');
+			msg.className  = 'nlf-field-error';
+
+			const icon     = doc.createElement('span');
+			icon.className = 'dashicons dashicons-warning';
+			icon.setAttribute('aria-hidden', 'true');
+
+			const text     = doc.createElement('span');
+			text.textContent = nlfGroupData.i18n?.title_required || 'Please enter a title for this FAQ group.';
+
+			msg.appendChild(icon);
+			msg.appendChild(text);
 			wrap.appendChild(msg);
 		}
 
@@ -940,6 +1152,7 @@
 
 	function showInlineNotice(message, type) {
 		type = type || 'error';
+
 		// Remove any existing inline notice.
 		const existing = $('.nlf-inline-notice');
 		if (existing) {
@@ -951,11 +1164,21 @@
 			return;
 		}
 
-		const icon = type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning';
-		const notice = doc.createElement('div');
-		notice.className = 'nlf-inline-notice nlf-inline-notice--' + type;
+		const iconClass = type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning';
+
+		const notice      = doc.createElement('div');
+		notice.className  = 'nlf-inline-notice nlf-inline-notice--' + type;
 		notice.setAttribute('role', 'alert');
-		notice.innerHTML = '<span class="dashicons ' + icon + '" aria-hidden="true"></span><p>' + message + '</p>';
+
+		const icon        = doc.createElement('span');
+		icon.className    = 'dashicons ' + iconClass;
+		icon.setAttribute('aria-hidden', 'true');
+
+		const p           = doc.createElement('p');
+		p.textContent     = message;
+
+		notice.appendChild(icon);
+		notice.appendChild(p);
 		form.insertBefore(notice, form.firstChild);
 
 		// Scroll into view.
@@ -1136,5 +1359,15 @@
 	doc.addEventListener('DOMContentLoaded', () => {
 		init();
 		initCopyButtons();
+
+		// Expose shared row-setup function for admin-state-collector.js so that
+		// rows hydrated by populateItems() go through the same drag + editor path.
+		window.nlfSetupItemRow = (row) => {
+			prepareRow(row);
+			initNewEditor(row);
+		};
+
+		window.nlfMetaboxReady = true;
+		doc.dispatchEvent(new CustomEvent('nlf:metabox-ready'));
 	});
 })();
