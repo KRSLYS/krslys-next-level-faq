@@ -54,7 +54,7 @@ class Block_Registrar {
 		wp_register_script(
 			'nlf-faq-block-editor',
 			nlf_asset_url( 'blocks/faq/editor.js' ),
-			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-data' ),
+			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
 			NLF_FAQ_VERSION,
 			true
 		);
@@ -63,13 +63,41 @@ class Block_Registrar {
 			'nlf-faq-block-editor',
 			'nlfFaqBlockData',
 			array(
-				'presets'       => Options::get_preset_registry(),
-				'activePreset'  => Options::get_active_preset_slug( Options::get_options() ),
-				'defaultPreset' => Options::get_default_preset_slug(),
+				'presets'        => Options::get_preset_registry(),
+				'activePreset'   => Options::get_active_preset_slug( Options::get_options() ),
+				'defaultPreset'  => Options::get_default_preset_slug(),
+				'groups'         => self::get_groups_for_block(),
+				'editGroupUrl'   => admin_url( 'admin.php?page=nlf-faq-group-edit&id=' ),
 			)
 		);
 
 		wp_set_script_translations( 'nlf-faq-block-editor', 'next-level-faq', NLF_FAQ_PLUGIN_DIR . 'languages' );
+	}
+
+	/**
+	 * Build a flat groups list for the block editor inspector panel.
+	 *
+	 * Reads from the custom table via Groups_Repository so the block
+	 * no longer depends on the (removed) nlf_faq_group CPT.
+	 *
+	 * @return array[] Array of associative arrays with 'id' and 'title' keys.
+	 */
+	private static function get_groups_for_block() {
+		$groups = Groups_Repository::get_all_groups( 'active' );
+
+		if ( empty( $groups ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $group ) {
+				return array(
+					'id'    => (int) $group->id,
+					'title' => (string) $group->title,
+				);
+			},
+			$groups
+		);
 	}
 
 	/**
