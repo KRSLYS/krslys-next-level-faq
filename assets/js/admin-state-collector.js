@@ -224,6 +224,22 @@
 				}
 			}
 
+			// If the answer is still blank, check whether TinyMCE has finished
+			// initialising. While the iframe is loading, both getContent() and
+			// textarea.value are "". Fall back to the server-side snapshot for
+			// already-saved items so their content is not lost.
+			if (!answer) {
+				const itemId = parseInt(row.querySelector('[name="nlf_faq_group_item_id[]"]')?.value, 10) || 0;
+				const editorReady = !!(textarea?.id && window.tinymce?.get(textarea?.id)?.initialized);
+				if (itemId && !editorReady) {
+					const saved = ((typeof nlfGroupData !== 'undefined' && nlfGroupData.groupState?.items) || [])
+						.find(it => it.id === itemId);
+					if (saved?.answer) {
+						answer = saved.answer;
+					}
+				}
+			}
+
 			return {
 				id:            parseInt(row.querySelector('[name="nlf_faq_group_item_id[]"]')?.value, 10) || 0,
 				question:      row.querySelector('[name="nlf_faq_group_question[]"]')?.value || '',
@@ -352,6 +368,9 @@
 		if (window.tinymce) {
 			window.tinymce.on('AddEditor', (e) => {
 				e.editor.on('input change keyup', schedule);
+				// Re-run once the editor has finished loading its iframe so the
+				// server-side answer snapshot is replaced with live content.
+				e.editor.on('init', schedule);
 			});
 		}
 

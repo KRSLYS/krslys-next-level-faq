@@ -315,6 +315,21 @@
 				}
 			}
 
+			// TinyMCE clears textarea.value before its init event fires, so
+			// getContent() and textarea.value are both "" during that window.
+			// Fall back to the server-side snapshot for already-saved items.
+			if (!answer) {
+				const itemId = idInput ? (parseInt(idInput.value, 10) || 0) : 0;
+				const editorReady = !!(textarea?.id && window.tinymce?.get(textarea?.id)?.initialized);
+				if (itemId && !editorReady) {
+					const saved = ((typeof nlfGroupData !== 'undefined' && nlfGroupData.groupState?.items) || [])
+						.find(it => it.id === itemId);
+					if (saved?.answer) {
+						answer = saved.answer;
+					}
+				}
+			}
+
 			return {
 				id:            idInput ? (parseInt(idInput.value, 10) || 0) : 0,
 				question:      questionInput ? questionInput.value.trim() : '',

@@ -1050,10 +1050,11 @@ class Group_Admin {
 										$item->answer,
 										$editor_id,
 										array(
-											'textarea_name' => 'nlf_faq_group_answer[]',
-											'media_buttons' => false,
-											'teeny'         => true,
-											'textarea_rows' => 4,
+											'textarea_name'  => 'nlf_faq_group_answer[]',
+											'textarea_class' => 'wp-editor-area large-text nlf-faq-group-answer-editor',
+											'media_buttons'  => false,
+											'teeny'          => true,
+											'textarea_rows'  => 4,
 										)
 									);
 									?>
