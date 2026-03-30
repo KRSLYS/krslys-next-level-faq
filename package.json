@@ -1,0 +1,13 @@
+{
+	"name": "krslys-next-level-faq",
+	"version": "1.0.0",
+	"description": "Next Level FAQ – build pipeline",
+	"private": true,
+	"scripts": {
+		"build": "webpack --config webpack.config.js",
+		"start": "webpack --config webpack.config.js --watch"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.0.0"
+	}
+}

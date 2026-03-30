@@ -165,9 +165,11 @@ class Groups_Repository {
 			return false;
 		}
 
-		Cache::invalidate_group( $wpdb->insert_id );
+		$new_id = (int) $wpdb->insert_id;
 
-		return (int) $wpdb->insert_id;
+		Cache::invalidate_group( $new_id );
+
+		return $new_id;
 	}
 
 	/**
@@ -406,6 +408,90 @@ class Groups_Repository {
 		$group->use_custom_style = (bool) $group->use_custom_style;
 
 		return $group;
+	}
+
+	/**
+	 * Get full group state including items — used for JSON state in admin editor.
+	 *
+	 * @param int $id Group ID.
+	 * @return array Full state array ready for JSON encoding, or defaults for new group.
+	 */
+	public static function get_full_group_state( $id = 0 ) {
+		$defaults = array(
+			'id'               => 0,
+			'title'            => '',
+			'slug'             => '',
+			'description'      => '',
+			'theme_settings'   => array(
+				'theme'         => 'default',
+				'custom_colors' => array(
+					'primary'    => '',
+					'secondary'  => '',
+					'accent'     => '',
+					'background' => '',
+				),
+			),
+			'display_settings' => array(
+				'accordion_mode'  => false,
+				'initial_state'   => 'all_closed',
+				'animation_speed' => 'normal',
+				'show_search'     => false,
+				'show_counter'    => false,
+				'smooth_scroll'   => true,
+			),
+			'custom_styles'    => Options::get_defaults(),
+			'use_custom_style' => false,
+			'status'           => 'active',
+			'items'            => array(),
+		);
+
+		if ( $id <= 0 ) {
+			return $defaults;
+		}
+
+		$group = self::get_group_by_id( $id );
+
+		if ( ! $group ) {
+			return $defaults;
+		}
+
+		$items_raw = Repository::get_items_for_group( $id, false );
+		$items     = array();
+
+		foreach ( $items_raw as $item ) {
+			$items[] = array(
+				'id'            => (int) $item->id,
+				'question'      => $item->question,
+				'answer'        => $item->answer,
+				'status'        => (int) $item->status,
+				'position'      => (int) $item->position,
+				'initial_state' => (int) $item->initial_state,
+				'highlight'     => (int) $item->highlight,
+			);
+		}
+
+		$theme_settings = wp_parse_args(
+			is_array( $group->theme_settings ) ? $group->theme_settings : array(),
+			$defaults['theme_settings']
+		);
+		if ( ! isset( $theme_settings['custom_colors'] ) || ! is_array( $theme_settings['custom_colors'] ) ) {
+			$theme_settings['custom_colors'] = $defaults['theme_settings']['custom_colors'];
+		} else {
+			$theme_settings['custom_colors'] = wp_parse_args( $theme_settings['custom_colors'], $defaults['theme_settings']['custom_colors'] );
+		}
+
+		return array(
+			'id'               => (int) $group->id,
+			'title'            => $group->title,
+			'slug'             => $group->slug,
+			'description'      => $group->description ?? '',
+			'theme_settings'   => $theme_settings,
+			'display_settings' => wp_parse_args( is_array( $group->display_settings ) ? $group->display_settings : array(), $defaults['display_settings'] ),
+			'custom_styles'    => wp_parse_args( is_array( $group->custom_styles ) ? $group->custom_styles : array(), $defaults['custom_styles'] ),
+			'use_custom_style' => $group->use_custom_style,
+			'status'           => $group->status,
+			'items'            => $items,
+		);
 	}
 
 	/**

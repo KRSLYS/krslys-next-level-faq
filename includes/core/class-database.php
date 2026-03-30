@@ -25,6 +25,13 @@ class Database {
 	const SCHEMA_VERSION = '1.0.0';
 
 	/**
+	 * Register database-related hooks.
+	 */
+	public static function init() {
+		add_action( 'admin_init', array( __CLASS__, 'create_tables' ) );
+	}
+
+	/**
 	 * Get the groups table name with prefix.
 	 *
 	 * @return string
@@ -164,44 +171,6 @@ class Database {
 		) {$charset_collate};";
 
 		dbDelta( $sql );
-	}
-
-	/**
-	 * Clean up legacy data from WordPress core tables.
-	 *
-	 * Removes old Custom Post Type posts, postmeta, and legacy options.
-	 * This is safe to run - it only removes plugin-specific data.
-	 */
-	public static function cleanup_legacy_data() {
-		global $wpdb;
-
-		// Delete old CPT posts (nlf_faq_group)
-		$deleted_posts = $wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->posts} WHERE post_type = %s",
-				'nlf_faq_group'
-			)
-		);
-
-		// Delete orphaned postmeta (postmeta without corresponding post)
-		$wpdb->query(
-			"DELETE pm FROM {$wpdb->postmeta} pm 
-			LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
-			WHERE p.ID IS NULL"
-		);
-
-		// Delete old style options (will be migrated to settings table)
-		delete_option( 'nlf_faq_style_options' );
-
-		// Clear legacy items with group_id = 0 (old questions feature)
-		$items_table = self::get_items_table();
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$items_table} WHERE group_id = %d",
-				0
-			)
-		);
-
 	}
 
 	/**

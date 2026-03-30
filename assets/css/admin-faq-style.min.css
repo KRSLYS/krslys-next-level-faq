@@ -1,3 +1,6 @@
+/*!************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./assets/css/admin-faq-style.css ***!
+  \************************************************************************************************************************************************************************************/
 /* ============================================
    Design System Variables
    ============================================ */
@@ -104,6 +107,7 @@
 }
 
 /* Restore dashicons font — the wildcard above overrides it */
+
 .nlf-faq-admin .dashicons,
 .nlf-faq-admin .dashicons::before {
 	font-family: dashicons !important;
@@ -226,7 +230,9 @@
 	font-size: var(--font-size-lg);
 	line-height: var(--line-height-normal);
 	transition: color var(--transition-base);
-	user-select: none;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
 }
 
 .nlf-faq-group-table .nlf-faq-sort-handle:hover {
@@ -354,6 +360,10 @@
 	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.nlf-faq-question-field input[type="text"]::-moz-placeholder {
+	color: var(--color-slate-400);
+}
+
 .nlf-faq-question-field input[type="text"]::placeholder {
 	color: var(--color-slate-400);
 }
@@ -418,6 +428,7 @@
 }
 
 /* Checkbox labels should be horizontal */
+
 .nlf-faq-options-group p:nth-child(1) label,
 .nlf-faq-options-group p:nth-child(2) label,
 .nlf-faq-options-group p:nth-child(3) label {
@@ -433,6 +444,7 @@
 }
 
 /* Checkbox Styling */
+
 .nlf-faq-options-group input[type="checkbox"] {
 	width: 1.125rem; /* 18px */
 	height: 1.125rem; /* 18px */
@@ -442,7 +454,9 @@
 	border-radius: var(--radius-sm);
 	background: var(--color-white);
 	transition: all var(--transition-base);
-	appearance: none;
+	-webkit-appearance: none;
+	   -moz-appearance: none;
+	        appearance: none;
 	position: relative;
 	flex-shrink: 0;
 }
@@ -676,6 +690,7 @@
 }
 
 /* Accent bar */
+
 .nlf-tool-card__accent {
 	height: 4px;
 	background: var(--color-slate-300);
@@ -690,6 +705,7 @@
 }
 
 /* Card Header */
+
 .nlf-tool-card__header {
 	display: flex;
 	align-items: flex-start;
@@ -744,6 +760,7 @@
 }
 
 /* Card Body */
+
 .nlf-tool-card__body {
 	padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
 }
@@ -779,12 +796,13 @@
 	font-family: var(--font-family-base);
 	color: var(--color-slate-800);
 	background-color: var(--color-white);
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 12 12%27%3E%3Cpath d=%27M2 4l4 4 4-4%27 fill=%27none%27 stroke=%27%2364748b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: right 0.75rem center;
 	background-size: 12px;
 	transition: border-color var(--transition-base), box-shadow var(--transition-base);
-	appearance: none;
+	-moz-appearance: none;
+	     appearance: none;
 	-webkit-appearance: none;
 	cursor: pointer;
 }
@@ -800,6 +818,7 @@
 }
 
 /* Checkbox Options Group */
+
 .nlf-tool-card__options {
 	display: flex;
 	flex-direction: column;
@@ -834,7 +853,8 @@
 	border-radius: 4px;
 	background: var(--color-white);
 	transition: all var(--transition-base);
-	appearance: none;
+	-moz-appearance: none;
+	     appearance: none;
 	-webkit-appearance: none;
 	position: relative;
 	flex-shrink: 0;
@@ -867,6 +887,7 @@
 }
 
 /* Hint text */
+
 .nlf-tool-card__hint {
 	font-size: var(--font-size-sm);
 	color: var(--color-slate-500);
@@ -960,6 +981,7 @@
 }
 
 /* File Selected Info Bar */
+
 .nlf-file-info {
 	display: none;
 	align-items: center;
@@ -1097,7 +1119,9 @@
 	opacity: 0.6;
 	cursor: default;
 	pointer-events: none;
-	user-select: none;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
 }
 
 .nlf-tool-card--placeholder .nlf-tool-card__accent {
@@ -1115,6 +1139,7 @@
 }
 
 /* Badge */
+
 .nlf-badge {
 	display: inline-flex;
 	align-items: center;
@@ -2009,7 +2034,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-1);
-	animation: nlf-fade-in 200ms ease;
+	animation: nlf-fadeIn 200ms ease;
 }
 
 #titlediv .nlf-field-error .dashicons {
@@ -2029,7 +2054,7 @@
 	30%, 60%, 90% { transform: translateX(4px); }
 }
 
-@keyframes nlf-fade-in {
+@keyframes nlf-fadeIn {
 	from { opacity: 0; transform: translateY(-4px); }
 	to { opacity: 1; transform: translateY(0); }
 }
@@ -2047,7 +2072,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-2);
-	animation: nlf-fade-in 200ms ease;
+	animation: nlf-fadeIn 200ms ease;
 }
 
 .nlf-inline-notice .dashicons {
@@ -2441,6 +2466,7 @@
    ============================================ */
 
 /* Mobile Notice - Uses WP admin color palette for consistency */
+
 .nlf-preview-mobile-notice {
 	display: block;
 	background: var(--color-white);
@@ -2516,6 +2542,7 @@
 }
 
 /* Mobile: Hide preview content, show notice */
+
 .nlf-preview-container .nlf-preview-loading,
 .nlf-preview-container .nlf-preview-content,
 .nlf-preview-viewport,
@@ -2541,6 +2568,7 @@
 }
 
 /* Desktop: Show preview, hide notice */
+
 @media (min-width: 783px) {
 	.nlf-preview-mobile-notice {
 		display: none;
@@ -2596,6 +2624,7 @@
 /* ------------------------------------------
    Snippet button (click-to-copy)
    ------------------------------------------ */
+
 .nlf-htu-snippet {
 	display: flex;
 	flex-direction: column;
@@ -2627,6 +2656,7 @@
 }
 
 /* Label */
+
 .nlf-htu-snippet__label {
 	display: block;
 	font-family: var(--font-family-base);
@@ -2639,6 +2669,7 @@
 }
 
 /* Code row: code + icon */
+
 .nlf-htu-snippet__row {
 	display: flex;
 	align-items: center;
@@ -2656,6 +2687,7 @@
 }
 
 /* Code text */
+
 .nlf-htu-snippet__code {
 	flex: 1;
 	min-width: 0;
@@ -2669,6 +2701,7 @@
 }
 
 /* Icon container — shared base */
+
 .nlf-htu-snippet__icon {
 	display: flex;
 	align-items: center;
@@ -2685,6 +2718,7 @@
 }
 
 /* Copy icon — default state */
+
 .nlf-htu-snippet__icon--copy {
 	color: var(--color-slate-400);
 	background: transparent;
@@ -2696,6 +2730,7 @@
 }
 
 /* Check icon — hidden by default */
+
 .nlf-htu-snippet__icon--ok {
 	position: absolute;
 	visibility: hidden;
@@ -2705,6 +2740,7 @@
 }
 
 /* Toast label — hidden by default */
+
 .nlf-htu-snippet__toast {
 	position: absolute;
 	right: var(--spacing-3);
@@ -2723,6 +2759,7 @@
 /* ------------------------------------------
    Copied state (.is-copied)
    ------------------------------------------ */
+
 .nlf-htu-snippet.is-copied .nlf-htu-snippet__row {
 	border-color: #86efac;
 	background: #f0fdf4;
@@ -2757,6 +2794,7 @@
 /* ------------------------------------------
    Gutenberg block hint
    ------------------------------------------ */
+
 .nlf-htu-block-hint {
 	display: flex;
 	align-items: center;
@@ -2789,11 +2827,11 @@
 
 /* ── Page wrapper ─────────────────────────── */
 
-.nlf-faq-admin-page .wrap {
+.post-type-nlf_faq_group .wrap {
 	font-family: var(--font-family-base);
 }
 
-.nlf-faq-admin-page .wrap > h1 {
+.post-type-nlf_faq_group .wrap > h1 {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-3);
@@ -2805,7 +2843,7 @@
 	padding: var(--spacing-4) 0;
 }
 
-.nlf-faq-admin-page .wrap > h1::before {
+.post-type-nlf_faq_group .wrap > h1::before {
 	content: '\f223';
 	display: inline-flex;
 	align-items: center;
@@ -2826,7 +2864,7 @@
 
 /* ── "Add New" button ─────────────────────── */
 
-.nlf-faq-admin-page .wrap .page-title-action {
+.post-type-nlf_faq_group .wrap .page-title-action {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--spacing-2);
@@ -2843,7 +2881,7 @@
 	line-height: var(--line-height-normal);
 }
 
-.nlf-faq-admin-page .wrap .page-title-action:hover {
+.post-type-nlf_faq_group .wrap .page-title-action:hover {
 	background: var(--color-primary-100);
 	border-color: var(--color-primary-500);
 	color: var(--color-primary-700);
@@ -2852,7 +2890,7 @@
 
 /* ── Table wrapper ────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table {
+.post-type-nlf_faq_group .wp-list-table {
 	border-collapse: separate;
 	border-spacing: 0;
 	border: 1px solid var(--color-slate-200);
@@ -2864,8 +2902,8 @@
 
 /* ── Table header ─────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table thead th,
-.nlf-faq-admin-page .wp-list-table thead td {
+.post-type-nlf_faq_group .wp-list-table thead th,
+.post-type-nlf_faq_group .wp-list-table thead td {
 	background: var(--color-slate-50);
 	border-bottom: 1px solid var(--color-slate-200);
 	font-size: var(--font-size-xs);
@@ -2878,24 +2916,24 @@
 	line-height: var(--line-height-normal);
 }
 
-.nlf-faq-admin-page .wp-list-table thead th a,
-.nlf-faq-admin-page .wp-list-table thead th a:visited {
+.post-type-nlf_faq_group .wp-list-table thead th a,
+.post-type-nlf_faq_group .wp-list-table thead th a:visited {
 	color: var(--color-slate-500);
 	text-decoration: none;
 }
 
-.nlf-faq-admin-page .wp-list-table thead th a:hover {
+.post-type-nlf_faq_group .wp-list-table thead th a:hover {
 	color: var(--color-slate-800);
 }
 
-.nlf-faq-admin-page .wp-list-table thead th .sorting-indicators .sorting-indicator {
+.post-type-nlf_faq_group .wp-list-table thead th .sorting-indicators .sorting-indicator {
 	color: var(--color-slate-400);
 }
 
 /* ── Table footer ─────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table tfoot th,
-.nlf-faq-admin-page .wp-list-table tfoot td {
+.post-type-nlf_faq_group .wp-list-table tfoot th,
+.post-type-nlf_faq_group .wp-list-table tfoot td {
 	background: var(--color-slate-50);
 	border-top: 1px solid var(--color-slate-200);
 	font-size: var(--font-size-xs);
@@ -2909,15 +2947,15 @@
 
 /* ── Table rows ───────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table tbody tr {
+.post-type-nlf_faq_group .wp-list-table tbody tr {
 	transition: background var(--transition-fast);
 }
 
-.nlf-faq-admin-page .wp-list-table tbody tr:hover {
+.post-type-nlf_faq_group .wp-list-table tbody tr:hover {
 	background: var(--color-slate-50);
 }
 
-.nlf-faq-admin-page .wp-list-table tbody td {
+.post-type-nlf_faq_group .wp-list-table tbody td {
 	padding: var(--spacing-4);
 	border-bottom: 1px solid var(--color-slate-100);
 	font-family: var(--font-family-base);
@@ -2927,40 +2965,42 @@
 	line-height: var(--line-height-normal);
 }
 
-.nlf-faq-admin-page .wp-list-table tbody tr:last-child td {
+.post-type-nlf_faq_group .wp-list-table tbody tr:last-child td {
 	border-bottom: none;
 }
 
 /* ── Title column ─────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table .column-title .row-title {
+.post-type-nlf_faq_group .wp-list-table .column-title .row-title {
 	font-size: var(--font-size-base);
 	font-weight: var(--font-weight-semibold);
 	color: var(--color-slate-900);
 	text-decoration: none;
 }
 
-.nlf-faq-admin-page .wp-list-table .column-title .row-title:hover {
+.post-type-nlf_faq_group .wp-list-table .column-title .row-title:hover {
 	color: var(--color-primary-600);
 }
 
 /* Row actions */
-.nlf-faq-admin-page .wp-list-table .row-actions span a {
+
+.post-type-nlf_faq_group .wp-list-table .row-actions span a {
 	color: var(--color-slate-500);
 	text-decoration: none;
 	transition: color var(--transition-fast);
 }
 
-.nlf-faq-admin-page .wp-list-table .row-actions span a:hover {
+.post-type-nlf_faq_group .wp-list-table .row-actions span a:hover {
 	color: var(--color-primary-600);
 }
 
-.nlf-faq-admin-page .wp-list-table .row-actions .trash a:hover {
+.post-type-nlf_faq_group .wp-list-table .row-actions .trash a:hover {
 	color: var(--color-error-600);
 }
 
 /* Post-state labels (Draft, etc.) */
-.nlf-faq-admin-page .wp-list-table .post-state {
+
+.post-type-nlf_faq_group .wp-list-table .post-state {
 	display: inline-flex;
 	align-items: center;
 	font-size: 10px;
@@ -2977,7 +3017,7 @@
 
 /* ── Shortcode column ─────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table .column-nlf_shortcode {
+.post-type-nlf_faq_group .wp-list-table .column-nlf_shortcode {
 	width: 260px;
 }
 
@@ -3059,7 +3099,7 @@
 
 /* ── Questions column ─────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table .column-nlf_questions {
+.post-type-nlf_faq_group .wp-list-table .column-nlf_questions {
 	width: 100px;
 	text-align: center;
 }
@@ -3096,7 +3136,7 @@
 
 /* ── Theme column ─────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table .column-nlf_theme {
+.post-type-nlf_faq_group .wp-list-table .column-nlf_theme {
 	width: 140px;
 }
 
@@ -3125,33 +3165,33 @@
 
 /* ── Tablenav (filters & pagination) ──────── */
 
-.nlf-faq-admin-page .tablenav {
+.post-type-nlf_faq_group .tablenav {
 	font-family: var(--font-family-base);
 }
 
-.nlf-faq-admin-page .tablenav .tablenav-pages a,
-.nlf-faq-admin-page .tablenav .tablenav-pages .current {
+.post-type-nlf_faq_group .tablenav .tablenav-pages a,
+.post-type-nlf_faq_group .tablenav .tablenav-pages .current {
 	font-family: var(--font-family-base);
 	border-radius: var(--radius-sm);
 }
 
 /* ── Checkbox styling ─────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table th.check-column,
-.nlf-faq-admin-page .wp-list-table td.check-column {
+.post-type-nlf_faq_group .wp-list-table th.check-column,
+.post-type-nlf_faq_group .wp-list-table td.check-column {
 	vertical-align: middle;
 }
 
 /* ── Date column ──────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table .column-date {
+.post-type-nlf_faq_group .wp-list-table .column-date {
 	width: 140px;
 	color: var(--color-slate-500);
 }
 
 /* ── Empty state ──────────────────────────── */
 
-.nlf-faq-admin-page .wp-list-table .no-items td {
+.post-type-nlf_faq_group .wp-list-table .no-items td {
 	text-align: center;
 	padding: var(--spacing-10) var(--spacing-6);
 	color: var(--color-slate-500);
@@ -3160,7 +3200,7 @@
 
 /* ── Search box ───────────────────────────── */
 
-.nlf-faq-admin-page .search-box input[type="search"] {
+.post-type-nlf_faq_group .search-box input[type="search"] {
 	border: 1px solid var(--color-slate-300);
 	border-radius: var(--radius-md);
 	padding: var(--spacing-2) var(--spacing-3);
@@ -3169,13 +3209,13 @@
 	transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
-.nlf-faq-admin-page .search-box input[type="search"]:focus {
+.post-type-nlf_faq_group .search-box input[type="search"]:focus {
 	border-color: var(--color-primary-500);
 	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	outline: none;
 }
 
-.nlf-faq-admin-page .search-box input[type="submit"] {
+.post-type-nlf_faq_group .search-box input[type="submit"] {
 	font-family: var(--font-family-base);
 	border-radius: var(--radius-md);
 }
@@ -3183,114 +3223,21 @@
 /* ── Responsive ───────────────────────────── */
 
 @media (max-width: 960px) {
-	.nlf-faq-admin-page .wp-list-table .column-nlf_shortcode {
+	.post-type-nlf_faq_group .wp-list-table .column-nlf_shortcode {
 		width: auto;
 	}
-	.nlf-faq-admin-page .wp-list-table .column-nlf_theme {
+	.post-type-nlf_faq_group .wp-list-table .column-nlf_theme {
 		display: none;
 	}
 }
 
 @media (max-width: 782px) {
-	.nlf-faq-admin-page .wp-list-table .column-nlf_questions {
+	.post-type-nlf_faq_group .wp-list-table .column-nlf_questions {
 		display: none;
 	}
 
-	.nlf-faq-admin-page .wp-list-table thead th,
-	.nlf-faq-admin-page .wp-list-table tbody td {
+	.post-type-nlf_faq_group .wp-list-table thead th,
+	.post-type-nlf_faq_group .wp-list-table tbody td {
 		padding: var(--spacing-3);
-	}
-}
-
-/* ── Dashboard Page ───────────────────────────────────────── */
-
-.nlf-faq-dashboard {
-	max-width: 900px;
-}
-
-.nlf-dashboard-hero {
-	display: flex;
-	align-items: center;
-	gap: 14px;
-	padding: 32px 0 24px;
-	border-bottom: 1px solid #e0e0e0;
-	margin-bottom: 32px;
-}
-
-.nlf-dashboard-hero__icon {
-	font-size: 36px;
-	width: 36px;
-	height: 36px;
-	color: #2271b1;
-}
-
-.nlf-dashboard-hero__title {
-	font-size: 24px;
-	font-weight: 600;
-	margin: 0;
-	color: #1d2327;
-}
-
-.nlf-dashboard-hero__desc {
-	margin: 4px 0 0;
-	color: #646970;
-	font-size: 14px;
-}
-
-.nlf-dashboard-cards {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 20px;
-}
-
-.nlf-dashboard-card {
-	display: block;
-	background: #fff;
-	border: 1px solid #e0e0e0;
-	border-radius: 6px;
-	padding: 24px;
-	text-decoration: none;
-	color: inherit;
-	transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.nlf-dashboard-card:hover {
-	border-color: #2271b1;
-	box-shadow: 0 2px 8px rgba(0,0,0,.08);
-	color: inherit;
-}
-
-.nlf-dashboard-card__icon {
-	font-size: 28px;
-	width: 28px;
-	height: 28px;
-	color: #2271b1;
-	margin-bottom: 12px;
-}
-
-.nlf-dashboard-card__title {
-	font-size: 15px;
-	font-weight: 600;
-	margin: 0 0 4px;
-	color: #1d2327;
-}
-
-.nlf-dashboard-card__meta {
-	font-size: 12px;
-	color: #2271b1;
-	font-weight: 500;
-	margin: 0 0 8px;
-}
-
-.nlf-dashboard-card__desc {
-	font-size: 13px;
-	color: #646970;
-	margin: 0;
-	line-height: 1.5;
-}
-
-@media (max-width: 782px) {
-	.nlf-dashboard-cards {
-		grid-template-columns: 1fr;
 	}
 }

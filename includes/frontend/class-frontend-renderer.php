@@ -11,7 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use WP_Post;
 
 /**
  * Front-end rendering and assets.
@@ -22,6 +21,15 @@ use WP_Post;
  * - No direct user input accepted without validation.
  */
 class Frontend_Renderer {
+
+	/**
+	 * Bootstrap all frontend hooks.
+	 */
+	public static function init() {
+		add_action( 'init', array( __CLASS__, 'register_shortcodes' ) );
+		add_action( 'init', array( __CLASS__, 'register_tracking_routes' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_styles' ) );
+	}
 
 	/**
 	 * Register shortcodes.
@@ -55,7 +63,7 @@ class Frontend_Renderer {
 		// Enqueue group-specific CSS if needed (will be done per group in shortcode)
 		wp_enqueue_script(
 			'nlf-faq-frontend',
-			NLF_FAQ_PLUGIN_URL . 'assets/js/frontend-faq.js',
+			nlf_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true
@@ -93,9 +101,9 @@ class Frontend_Renderer {
 			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'next-level-faq' ) ), 400 );
 		}
 
-		// Verify the group post exists and is the correct type.
-		$group_post = get_post( $group_id );
-		if ( ! $group_post || 'nlf_faq_group' !== $group_post->post_type ) {
+		// Verify the group exists in the custom table.
+		$group = \Krslys\NextLevelFaq\Groups_Repository::get_group_by_id( $group_id );
+		if ( ! $group ) {
 			wp_send_json_error( array( 'message' => __( 'Group not found.', 'next-level-faq' ) ), 404 );
 		}
 
@@ -138,17 +146,15 @@ class Frontend_Renderer {
 	/**
 	 * Enqueue group-specific CSS if custom styles are enabled.
 	 *
-	 * Reads the custom style toggle from post meta (_nlf_faq_group_use_custom_style)
-	 * to match where the admin Group CPT editor saves it.
-	 *
-	 * @param int $group_id Group post ID.
+	 * @param int $group_id Group ID.
 	 */
 	private static function maybe_enqueue_group_css( $group_id ) {
 		if ( ! $group_id ) {
 			return;
 		}
 
-		$use_custom_style = get_post_meta( $group_id, '_nlf_faq_group_use_custom_style', true );
+		$group = Groups_Repository::get_group_by_id( $group_id );
+		$use_custom_style = $group ? $group->use_custom_style : false;
 
 		if ( empty( $use_custom_style ) ) {
 			return;
@@ -203,9 +209,9 @@ class Frontend_Renderer {
 		$group_id = $atts['group'];
 
 		if ( 0 === $group_id && '' !== $atts['group_slug'] ) {
-			$group_post = get_page_by_path( $atts['group_slug'], OBJECT, 'nlf_faq_group' );
-			if ( $group_post instanceof WP_Post ) {
-				$group_id = (int) $group_post->ID;
+			$group_obj = Groups_Repository::get_group_by_slug( $atts['group_slug'] );
+			if ( $group_obj ) {
+				$group_id = (int) $group_obj->id;
 			}
 		}
 
@@ -214,13 +220,11 @@ class Frontend_Renderer {
 			self::maybe_enqueue_group_css( $group_id );
 		}
 
-		// Get group-specific settings from post meta (where the admin CPT editor saves them).
+		// Get group-specific settings from Groups_Repository.
 		$settings = array();
-		if ( $group_id ) {
-			$saved_settings = get_post_meta( $group_id, '_nlf_faq_group_settings', true );
-			if ( is_array( $saved_settings ) ) {
-				$settings = $saved_settings;
-			}
+		$group = $group_id ? Groups_Repository::get_group_by_id( $group_id ) : null;
+		if ( $group && ! empty( $group->display_settings ) ) {
+			$settings = $group->display_settings;
 		}
 		$defaults = array(
 			'accordion_mode'  => false,
@@ -234,16 +238,13 @@ class Frontend_Renderer {
 
 		$items = Repository::get_all_published_faqs( $group_id );
 
-		$use_custom_style = false;
-		if ( $group_id ) {
-			$use_custom_style = (bool) get_post_meta( $group_id, '_nlf_faq_group_use_custom_style', true );
-		}
+		$use_custom_style = $group ? $group->use_custom_style : false;
 
 		// Determine the effective options for inline styles.
 		// Priority: custom style CSS file > group theme > global preset.
 		$effective_options = $resolved_options;
 		if ( ! $use_custom_style && $group_id ) {
-			$group_theme_options = Group_CPT::resolve_group_theme_options( $group_id );
+			$group_theme_options = Group_Admin::resolve_group_theme_options( $group_id );
 			if ( is_array( $group_theme_options ) ) {
 				$effective_options = $group_theme_options;
 			}
@@ -257,7 +258,7 @@ class Frontend_Renderer {
 			$items = array();
 		}
 
-		$group_theme_slug = $group_id ? get_post_meta( $group_id, '_nlf_faq_group_theme', true ) : '';
+		$group_theme_slug = ( $group && isset( $group->theme_settings['theme'] ) ) ? $group->theme_settings['theme'] : '';
 
 		$cache_context = array(
 			'atts'             => array(

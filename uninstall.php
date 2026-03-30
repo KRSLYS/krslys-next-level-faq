@@ -22,7 +22,6 @@ $autoloader->register();
 // Import the Database class
 use Krslys\NextLevelFaq\Database;
 use Krslys\NextLevelFaq\Settings_Repository;
-
 /**
  * Drop all custom tables.
  */
@@ -34,32 +33,12 @@ Database::drop_tables();
 delete_option( 'nlf_faq_schema_version' );
 delete_option( 'nlf_faq_style_options' );
 delete_option( 'nlf_faq_presets_css_version' );
-
-/**
- * Clean up any remaining CPT posts (shouldn't exist, but just in case).
- */
-global $wpdb;
-
-$wpdb->query(
-	$wpdb->prepare(
-		"DELETE FROM {$wpdb->posts} WHERE post_type = %s",
-		'nlf_faq_group'
-	)
-);
-
-// Delete orphaned postmeta (no user input; table names come from $wpdb).
-// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- No user input, only core WP table references.
-$wpdb->query(
-	"DELETE pm FROM {$wpdb->postmeta} pm
-	LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-	WHERE p.ID IS NULL"
-);
-
+delete_option( 'nlf_faq_css_version' );
 /**
  * Delete generated CSS files from uploads directory using WP_Filesystem.
  */
 $uploads = wp_upload_dir();
-$css_dir = trailingslashit( $uploads['basedir'] ) . 'nlf-faq-styles';
+$css_dir = trailingslashit( $uploads['basedir'] ) . 'nlf-faq';
 
 if ( is_dir( $css_dir ) ) {
 	if ( ! function_exists( 'WP_Filesystem' ) ) {
@@ -78,6 +57,8 @@ if ( is_dir( $css_dir ) ) {
 /**
  * Clear any transients.
  */
+global $wpdb;
+
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
