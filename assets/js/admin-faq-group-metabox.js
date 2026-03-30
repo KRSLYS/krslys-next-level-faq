@@ -281,6 +281,19 @@
 		previewState.timers.set(context, timer);
 	}
 
+	// Read display settings from the live DOM (Settings tab fields).
+	function getDisplaySettingsFromDom() {
+		const get = (sel) => doc.querySelector(sel);
+		return {
+			accordion_mode:  !!(get('[name="nlf_faq_group_settings[accordion_mode]"]')?.checked),
+			initial_state:    get('[name="nlf_faq_group_settings[initial_state]"]')?.value    || 'all_closed',
+			animation_speed:  get('[name="nlf_faq_group_settings[animation_speed]"]')?.value  || 'normal',
+			show_search:     !!(get('[name="nlf_faq_group_settings[show_search]"]')?.checked),
+			show_counter:    !!(get('[name="nlf_faq_group_settings[show_counter]"]')?.checked),
+			smooth_scroll:   !!(get('[name="nlf_faq_group_settings[smooth_scroll]"]')?.checked),
+		};
+	}
+
 	// Read FAQ items from the live DOM (Content tab rows).
 	function getItemsFromDom() {
 		const rows = $$('#nlf-faq-group-questions-body .nlf-faq-question-row');
@@ -324,9 +337,8 @@
 				return;
 			}
 
-			const state    = (nlfGroupData && nlfGroupData.groupState) || {};
 			const items    = getItemsFromDom().filter((item) => item.status);
-			const settings = state.display_settings || {};
+			const settings = getDisplaySettingsFromDom();
 
 			if (!items.length) {
 				loading.style.display = 'none';
@@ -338,11 +350,9 @@
 				return;
 			}
 
-			// Resolve theme slug from the current UI selection.
+			// Resolve theme slug from the checked radio (always set by PHP or JS).
 			const selectedThemeInput = $('input[name="nlf_faq_group_theme"]:checked');
-			const themeSlug = selectedThemeInput
-				? selectedThemeInput.value
-				: ((state.theme_settings && state.theme_settings.theme) || 'default');
+			const themeSlug = selectedThemeInput ? selectedThemeInput.value : 'default';
 
 			const themes    = (nlfGroupData && nlfGroupData.themes) || {};
 			const themeData = themes[themeSlug] || themes['default'] || {};
@@ -514,7 +524,7 @@
 			theme:            selectedThemeInput ? selectedThemeInput.value : 'default',
 			use_custom_style: useCustomToggle ? useCustomToggle.checked : false,
 			custom_colors:    customColors,
-			display_settings: (nlfGroupData.groupState && nlfGroupData.groupState.display_settings) || {},
+			display_settings: getDisplaySettingsFromDom(),
 		};
 
 		output.value = JSON.stringify(liveState, null, 2);

@@ -320,16 +320,19 @@
 	/* ================================================================== */
 
 	function initLiveSync() {
-		const form   = $('#nlf-group-edit-form') || $('#post');
-		const output = $('#nlf-json-state-output');
+		const form = $('#nlf-group-edit-form') || $('#post');
 
-		if (!form || !output) {
+		if (!form) {
 			return;
 		}
 
 		let timer;
 		const schedule = () => {
 			clearTimeout(timer);
+			// Only write to the debug textarea if it exists (WP_DEBUG mode).
+			if (!$('#nlf-json-state-output')) {
+				return;
+			}
 			timer = setTimeout(updateDebugPanel, 300);
 		};
 
