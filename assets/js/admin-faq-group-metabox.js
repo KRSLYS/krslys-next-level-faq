@@ -347,28 +347,81 @@
 			const themes    = (nlfGroupData && nlfGroupData.themes) || {};
 			const themeData = themes[themeSlug] || themes['default'] || {};
 
-			// Start with pre-computed theme CSS vars; skip if custom style override is active.
 			const useCustomToggle = $('#nlf-use-custom-style-toggle');
-			let inlineStyle = (useCustomToggle && useCustomToggle.checked) ? '' : (themeData.inlineStyle || '');
+			const isCustom        = !!(useCustomToggle && useCustomToggle.checked);
 
-			// Overlay any custom color picker values.
-			const colorMap = {
-				primary:    '--nlf-faq-question-color',
-				secondary:  '--nlf-faq-answer-color',
-				accent:     '--nlf-faq-accent-color',
-				background: '--nlf-faq-container-bg',
-			};
-			$$('.nlf-theme-color').forEach((input) => {
-				const key = input.getAttribute('data-color-key');
-				const val = input.value.trim();
-				if (key && val && colorMap[key]) {
-					inlineStyle += ';' + colorMap[key] + ':' + val;
+			let inlineStyle;
+			let iconStyle;
+			let layout;
+
+			if (isCustom) {
+				// Read every nlf_faq_group_custom_styles[key] input and map to CSS vars.
+				// Mirrors the PHP normalize_options() logic: px values are divided by 16 for rem.
+				const getCustomVal = (key) => {
+					const el = $(`[name="nlf_faq_group_custom_styles[${key}]"]`);
+					return el ? el.value.trim() : '';
+				};
+				const pxToRem = (val) => {
+					const n = parseFloat(val);
+					return isNaN(n) ? '' : (n / 16).toFixed(3) + 'rem';
+				};
+
+				// animation select → --nlf-faq-answer-transition (mirrors normalize_options).
+				const anim = getCustomVal('animation') || 'slide';
+				let answerTransition;
+				if ('fade' === anim) {
+					answerTransition = 'max-height 200ms ease, opacity 250ms ease, transform 180ms ease';
+				} else if ('none' === anim) {
+					answerTransition = 'none';
+				} else {
+					answerTransition = 'max-height 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease, transform 220ms ease';
 				}
-			});
 
-			// Determine layout and icon classes.
-			const layout    = themeData.layout || 'flat';
-			const iconStyle = themeData.iconStyle || 'plus_minus';
+				const customProps = [
+					['--nlf-faq-container-bg',     getCustomVal('container_background')],
+					['--nlf-faq-border-color',      getCustomVal('container_border_color')],
+					['--nlf-faq-question-color',    getCustomVal('question_color')],
+					['--nlf-faq-answer-color',      getCustomVal('answer_color')],
+					['--nlf-faq-accent-color',      getCustomVal('accent_color')],
+					['--nlf-faq-border-radius',     pxToRem(getCustomVal('container_border_radius'))],
+					['--nlf-faq-padding',           pxToRem(getCustomVal('container_padding'))],
+					['--nlf-faq-question-size',     pxToRem(getCustomVal('question_font_size'))],
+					['--nlf-faq-answer-size',       pxToRem(getCustomVal('answer_font_size'))],
+					['--nlf-faq-answer-transition', answerTransition],
+				];
+
+				inlineStyle = customProps
+					.filter(([, val]) => val !== '')
+					.map(([prop, val]) => prop + ':' + val)
+					.join(';');
+
+				// icon_style select → CSS class modifier.
+				iconStyle = getCustomVal('icon_style') || 'plus_minus';
+
+				// Custom styles have no layout override — keep flat.
+				layout = 'flat';
+			} else {
+				// Use pre-computed theme CSS vars.
+				inlineStyle = themeData.inlineStyle || '';
+
+				// Overlay theme color picker overrides.
+				const colorMap = {
+					primary:    '--nlf-faq-question-color',
+					secondary:  '--nlf-faq-answer-color',
+					accent:     '--nlf-faq-accent-color',
+					background: '--nlf-faq-container-bg',
+				};
+				$$('.nlf-theme-color').forEach((input) => {
+					const key = input.getAttribute('data-color-key');
+					const val = input.value.trim();
+					if (key && val && colorMap[key]) {
+						inlineStyle += ';' + colorMap[key] + ':' + val;
+					}
+				});
+
+				iconStyle = themeData.iconStyle || 'plus_minus';
+				layout    = themeData.layout    || 'flat';
+			}
 			const classes   = ['nlf-faq', 'nlf-faq--preview'];
 			if ('flat' !== layout) {
 				classes.push('nlf-faq--layout-' + layout);
