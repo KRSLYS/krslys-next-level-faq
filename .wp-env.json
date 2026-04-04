@@ -1,8 +1,8 @@
 {
-	"core": "WordPress/WordPress#latest",
 	"plugins": [
 		"."
 	],
+	"testsEnvironment": false,
 	"config": {
 		"WP_DEBUG": true,
 		"WP_DEBUG_LOG": true,
