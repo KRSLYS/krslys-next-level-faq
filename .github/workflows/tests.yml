@@ -97,9 +97,14 @@ jobs:
 
       - name: Create .env for Playwright
         run: |
-          echo "WP_BASE_URL=http://localhost:8889" > .env
+          echo "WP_BASE_URL=http://localhost:8888" > .env
           echo "WP_ADMIN_USER=admin" >> .env
           echo "WP_ADMIN_PASS=password" >> .env
+
+      - name: Verify WordPress is responding
+        run: |
+          curl -sSf http://localhost:8888/wp-login.php -o /dev/null && echo "✅ WordPress is up on port 8888" || echo "❌ WordPress not responding on port 8888"
+          curl -sSf http://localhost:8889/wp-login.php -o /dev/null && echo "✅ WordPress is up on port 8889" || echo "❌ WordPress not responding on port 8889"
 
       - name: Run Playwright E2E tests
         run: npx playwright test
