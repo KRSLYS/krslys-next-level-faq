@@ -2,71 +2,14 @@
 
 const { test, expect } = require( '@playwright/test' );
 const { loginAsAdmin } = require( '../helpers/admin-auth' );
-
-// All test data is created/deleted through the admin UI — no REST API needed.
+const {
+	CLEANUP_ENABLED,
+	createGroupViaAjax,
+	deleteGroupViaAdmin,
+} = require( '../helpers/faq-group-helpers' );
 
 let testPageSlug;
 let testGroupId;
-
-/**
- * Create a test FAQ group with a question via the admin AJAX endpoint.
- * Uses cookie + nonce auth (same pattern as createTestPage).
- */
-async function createTestGroup( browser ) {
-	const ctx = await browser.newContext();
-	const page = await ctx.newPage();
-
-	// Log in and navigate to the group edit page to grab the nonce.
-	await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-group-edit&id=0' );
-
-	// Extract the nonce from the hidden form field.
-	const nonce = await page
-		.locator( '#nlf_faq_group_nonce' )
-		.inputValue()
-		.catch( () => '' );
-
-	if ( ! nonce ) {
-		await ctx.close();
-		return null;
-	}
-
-	// Submit the AJAX save request with a question and answer.
-	const result = await page.evaluate(
-		async ( { nonce: n } ) => {
-			const form = new URLSearchParams();
-			form.append( 'action', 'nlf_save_faq_group_ajax' );
-			form.append( 'nlf_faq_group_nonce', n );
-			form.append( 'group_id', '0' );
-			form.append( 'nlf_group_title', 'E2E Accordion Test Group' );
-			form.append( 'nlf_faq_group_question[]', 'What is Next Level FAQ?' );
-			form.append( 'nlf_faq_group_answer[]', 'It is a WordPress FAQ plugin.' );
-			form.append( 'nlf_faq_group_visible[0]', '1' );
-
-			form.append( 'nlf_faq_group_question[]', 'How do I install it?' );
-			form.append( 'nlf_faq_group_answer[]', 'Upload and activate the plugin.' );
-			form.append( 'nlf_faq_group_visible[1]', '1' );
-
-			form.append( 'nlf_faq_group_settings[show_search]', '1' );
-
-			const res = await fetch( '/wp-admin/admin-ajax.php', {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: form.toString(),
-			} );
-
-			return res.json();
-		},
-		{ nonce }
-	);
-
-	await ctx.close();
-
-	if ( result && result.success && result.data && result.data.group_id ) {
-		return String( result.data.group_id );
-	}
-	return null;
-}
 
 /**
  * Create a WordPress page containing the FAQ shortcode via the REST API using
@@ -129,7 +72,7 @@ async function createTestPage( browser, groupId ) {
  * Delete a WordPress page via the REST API (cookie + nonce auth).
  */
 async function deleteTestPage( browser, pageId ) {
-	if ( ! pageId ) return;
+	if ( ! pageId || ! CLEANUP_ENABLED ) return;
 	const ctx = await browser.newContext();
 	const page = await ctx.newPage();
 	await loginAsAdmin( page, '/wp-admin/' );
@@ -149,28 +92,6 @@ async function deleteTestPage( browser, pageId ) {
 	await ctx.close();
 }
 
-/**
- * Delete an FAQ group by extracting a valid nonce from the groups list page.
- */
-async function deleteTestGroup( browser, groupId ) {
-	if ( ! groupId ) return;
-	const ctx = await browser.newContext();
-	const page = await ctx.newPage();
-
-	await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
-
-	// Find the delete link for this group — it contains the correct nonce.
-	const deleteLink = page.locator( `a[href*="action=delete"][href*="id=${ groupId }"]` ).first();
-	if ( await deleteLink.isVisible( { timeout: 3000 } ).catch( () => false ) ) {
-		const href = await deleteLink.getAttribute( 'href' );
-		if ( href ) {
-			await page.goto( href );
-			await page.waitForLoadState( 'domcontentloaded' );
-		}
-	}
-
-	await ctx.close();
-}
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -180,7 +101,12 @@ test.describe( 'FAQ accordion – frontend', () => {
 	let pageId;
 
 	test.beforeAll( async ( { browser } ) => {
-		testGroupId = await createTestGroup( browser );
+		testGroupId = await createGroupViaAjax( browser, {
+			title: `E2E Accordion Test ${ Date.now() }`,
+			question: 'What is Next Level FAQ?',
+			answer: 'It is a WordPress FAQ plugin.',
+			settings: { show_search: '1' },
+		} );
 
 		if ( testGroupId ) {
 			const result = await createTestPage( browser, testGroupId );
@@ -191,7 +117,7 @@ test.describe( 'FAQ accordion – frontend', () => {
 
 	test.afterAll( async ( { browser } ) => {
 		await deleteTestPage( browser, pageId );
-		await deleteTestGroup( browser, testGroupId );
+		await deleteGroupViaAdmin( browser, testGroupId );
 	} );
 
 	test.beforeEach( async ( { page } ) => {

@@ -412,6 +412,17 @@ class Group_Admin {
 					type="button"
 					role="tab"
 					class="nlf-faq-tab-button"
+					data-tab="settings"
+					id="tab-settings"
+					aria-selected="false"
+					aria-controls="panel-settings">
+					<span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
+					<span class="nlf-tab-label"><?php esc_html_e( 'Settings', 'next-level-faq' ); ?></span>
+				</button>
+				<button
+					type="button"
+					role="tab"
+					class="nlf-faq-tab-button"
 					data-tab="appearance"
 					id="tab-appearance"
 					aria-selected="false"
@@ -446,6 +457,26 @@ class Group_Admin {
 					aria-labelledby="tab-content"
 					tabindex="0">
 					<?php self::render_content_tab( $group_id, $items ); ?>
+				</div>
+
+				<!-- Settings Tab (Behavior & Display) -->
+				<div
+					class="nlf-faq-tab-panel"
+					data-tab="settings"
+					id="panel-settings"
+					role="tabpanel"
+					aria-labelledby="tab-settings"
+					tabindex="0"
+					hidden>
+					<div class="nlf-section">
+						<div class="nlf-section-header">
+							<h3><?php esc_html_e( 'Behavior & Display Settings', 'next-level-faq' ); ?></h3>
+							<p class="description">
+								<?php esc_html_e( 'Control how users interact with your FAQs.', 'next-level-faq' ); ?>
+							</p>
+						</div>
+						<?php self::render_settings_fields(); ?>
+					</div>
 				</div>
 
 				<!-- Appearance Tab (Themes + Style) -->
@@ -983,17 +1014,6 @@ class Group_Admin {
 				</p>
 			</div>
 			<?php self::render_faq_items_table( $items ); ?>
-		</div>
-
-		<!-- Settings Section -->
-		<div class="nlf-section nlf-section-bordered">
-			<div class="nlf-section-header">
-				<h3><?php esc_html_e( 'Behavior & Display Settings', 'next-level-faq' ); ?></h3>
-				<p class="description">
-					<?php esc_html_e( 'Control how users interact with your FAQs.', 'next-level-faq' ); ?>
-				</p>
-			</div>
-			<?php self::render_settings_fields(); ?>
 		</div>
 
 		<?php
