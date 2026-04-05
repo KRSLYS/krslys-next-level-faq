@@ -73,7 +73,6 @@ module.exports = {
 
 	entry: {
 		'assets/js/frontend-faq':            path.resolve( __dirname, 'assets/js/frontend-faq.js' ),
-		'assets/js/admin-faq-style':         path.resolve( __dirname, 'assets/js/admin-faq-style.js' ),
 		'assets/js/admin-faq-group-metabox': path.resolve( __dirname, 'assets/js/admin-faq-group-metabox.js' ),
 		'assets/js/admin-state-collector':   path.resolve( __dirname, 'assets/js/admin-state-collector.js' ),
 		'assets/js/admin-faq-questions':     path.resolve( __dirname, 'assets/js/admin-faq-questions.js' ),
