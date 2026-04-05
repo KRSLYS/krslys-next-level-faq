@@ -29,11 +29,6 @@ class Admin_Settings {
 	const TOP_MENU_SLUG = 'nlf-faq';
 
 	/**
-	 * Style page slug.
-	 */
-	const STYLE_SLUG = 'nlf-faq-style';
-
-	/**
 	 * Questions page slug.
 	 */
 	const QUESTIONS_SLUG = 'nlf-faq-questions';
@@ -52,11 +47,9 @@ class Admin_Settings {
 		}
 
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
-		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'admin_post_nlf_faq_export', array( __CLASS__, 'handle_export' ) );
 		add_action( 'admin_post_nlf_faq_import', array( __CLASS__, 'handle_import' ) );
-		add_action( 'wp_ajax_nlf_save_settings_ajax', array( __CLASS__, 'handle_ajax_save_settings' ) );
 	}
 
 	/**
@@ -94,132 +87,11 @@ class Admin_Settings {
 
 		add_submenu_page(
 			self::TOP_MENU_SLUG,
-			__( 'FAQ Style & Layout', 'next-level-faq' ),
-			__( 'Style & Layout', 'next-level-faq' ),
-			'manage_options',
-			self::STYLE_SLUG,
-			array( __CLASS__, 'render_style_page' )
-		);
-
-		add_submenu_page(
-			self::TOP_MENU_SLUG,
 			__( 'FAQ Tools', 'next-level-faq' ),
 			__( 'Tools', 'next-level-faq' ),
 			'manage_options',
 			self::TOOLS_SLUG,
 			array( __CLASS__, 'render_tools_page' )
-		);
-	}
-
-	/**
-	 * Register settings.
-	 */
-	public static function register_settings() {
-		register_setting(
-			'nlf_faq_style_group',
-			Options::OPTION_KEY,
-			array(
-				'sanitize_callback' => array( __CLASS__, 'sanitize_and_save_to_repository' ),
-			)
-		);
-
-		// Register AJAX handler for instant save
-		add_action( 'wp_ajax_nlf_save_settings_ajax', array( __CLASS__, 'handle_ajax_save_settings' ) );
-	}
-
-	/**
-	 * Sanitize and save settings to custom table.
-	 *
-	 * @param array $input Raw input.
-	 * @return array Sanitized input (still needed for WordPress form flow).
-	 */
-	public static function sanitize_and_save_to_repository( $input ) {
-		$sanitized = Options::sanitize( $input );
-		
-		// Save to custom settings table
-		Settings_Repository::update_setting( Settings_Repository::KEY_GLOBAL_STYLES, $sanitized );
-		
-		// Trigger action for CSS regeneration
-		do_action( 'nlf_faq_settings_updated', $sanitized, null );
-		
-		return $sanitized;
-	}
-
-	/**
-	 * Handle AJAX save request for settings.
-	 *
-	 * SECURITY:
-	 * - Nonce verification
-	 * - Capability check
-	 * - Input sanitization via Options::sanitize()
-	 */
-	public static function handle_ajax_save_settings() {
-		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'nlf_save_settings' ) ) {
-			wp_send_json_error(
-				array( 'message' => __( 'Security check failed. Please refresh the page and try again.', 'next-level-faq' ) ),
-				403
-			);
-		}
-
-		// Check capability
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error(
-				array( 'message' => __( 'You do not have permission to save settings.', 'next-level-faq' ) ),
-				403
-			);
-		}
-
-		// Get and sanitize input
-		$raw_input = isset( $_POST[ Options::OPTION_KEY ] ) ? wp_unslash( $_POST[ Options::OPTION_KEY ] ) : array();
-		
-		if ( ! is_array( $raw_input ) ) {
-			wp_send_json_error(
-				array( 'message' => __( 'Invalid settings data.', 'next-level-faq' ) ),
-				400
-			);
-		}
-
-		// Sanitize using Options class
-		$sanitized = Options::sanitize( $raw_input );
-
-		// Ensure tables exist before saving.
-		if ( ! Database::tables_exist() ) {
-			Database::create_tables( true ); // Force creation
-			
-			// Double check after creation
-			if ( ! Database::tables_exist() ) {
-				wp_send_json_error(
-					array( 'message' => __( 'Database tables could not be created. Please check database permissions.', 'next-level-faq' ) ),
-					500
-				);
-			}
-		}
-
-		// Save to custom settings table
-		$saved = Settings_Repository::update_setting( Settings_Repository::KEY_GLOBAL_STYLES, $sanitized );
-
-		if ( ! $saved ) {
-			wp_send_json_error(
-				array( 'message' => __( 'Failed to save settings. Please try again.', 'next-level-faq' ) ),
-				500
-			);
-		}
-
-		// Regenerate CSS
-		if ( class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
-			Style_Generator::generate_and_save();
-		}
-
-		// Trigger action for extensions/integrations
-		do_action( 'nlf_faq_settings_updated', $sanitized, null );
-
-		// Send success response
-		wp_send_json_success(
-			array(
-				'message' => __( 'Settings saved successfully!', 'next-level-faq' ),
-				'data'    => $sanitized,
-			)
 		);
 	}
 
@@ -239,7 +111,6 @@ class Admin_Settings {
 
 		$allowed_pages = array(
 			self::TOP_MENU_SLUG,
-			self::STYLE_SLUG,
 			self::QUESTIONS_SLUG,
 			self::TOOLS_SLUG,
 			'nlf-faq-groups',
@@ -255,57 +126,6 @@ class Admin_Settings {
 			array(),
 			NLF_FAQ_CSS_VERSION
 		);
-
-		// Enqueue generated CSS for style page preview.
-		if ( self::STYLE_SLUG === $page ) {
-			$css_path = Style_Generator::get_css_file_path();
-			$css_url  = Style_Generator::get_css_file_url();
-			if ( $css_url && $css_path && file_exists( $css_path ) ) {
-				wp_enqueue_style(
-					'nlf-faq-generated',
-					esc_url_raw( $css_url ),
-					array( 'nlf-faq-admin' ),
-					filemtime( $css_path )
-				);
-			}
-		}
-
-		// Enqueue WordPress color picker for style page only.
-		if ( self::STYLE_SLUG === $page ) {
-			wp_enqueue_style( 'wp-color-picker' );
-			wp_enqueue_script(
-				'nlf-faq-admin',
-				nlf_asset_url( 'assets/js/admin-faq-style.js' ),
-				array( 'jquery', 'wp-color-picker' ),
-				NLF_FAQ_VERSION,
-				true
-			);
-		} else {
-			wp_enqueue_script(
-				'nlf-faq-admin',
-				nlf_asset_url( 'assets/js/admin-faq-style.js' ),
-				array( 'jquery' ),
-				NLF_FAQ_VERSION,
-				true
-			);
-		}
-
-		wp_localize_script(
-			'nlf-faq-admin',
-			'nlfFaqAdmin',
-			array(
-				'i18n' => array(
-					'saving' => __( 'Saving…', 'next-level-faq' ),
-					'saved'  => __( 'Saved', 'next-level-faq' ),
-				),
-				'presets'        => Options::get_preset_registry(),
-				'activePreset'   => Options::get_active_preset_slug( Options::get_options() ),
-				'defaultPreset'  => Options::get_default_preset_slug(),
-				'optionKey'      => Options::OPTION_KEY,
-				'currentOptions' => Options::get_resolved_options(),
-				'saveNonce'      => wp_create_nonce( 'nlf_save_settings' ),
-			)
-		);
 	}
 
 	/**
@@ -320,7 +140,6 @@ class Admin_Settings {
 
 		$group_count = \Krslys\NextLevelFaq\Groups_Repository::count_groups();
 		$groups_url  = admin_url( 'admin.php?page=nlf-faq-groups' );
-		$style_url   = admin_url( 'admin.php?page=' . self::STYLE_SLUG );
 		$tools_url   = admin_url( 'admin.php?page=' . self::TOOLS_SLUG );
 		?>
 		<div class="wrap nlf-faq-admin nlf-faq-dashboard">
@@ -348,12 +167,6 @@ class Admin_Settings {
 					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'next-level-faq' ); ?></p>
 				</a>
 
-				<a href="<?php echo esc_url( $style_url ); ?>" class="nlf-dashboard-card">
-					<span class="dashicons dashicons-admin-appearance nlf-dashboard-card__icon"></span>
-					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Style & Layout', 'next-level-faq' ); ?></h2>
-					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Customize colors, typography, and layout with a live preview.', 'next-level-faq' ); ?></p>
-				</a>
-
 				<a href="<?php echo esc_url( $tools_url ); ?>" class="nlf-dashboard-card">
 					<span class="dashicons dashicons-admin-tools nlf-dashboard-card__icon"></span>
 					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Tools', 'next-level-faq' ); ?></h2>
@@ -365,344 +178,6 @@ class Admin_Settings {
 		</div>
 		<?php
 	}
-
-	/**
-	 * Render style settings page.
-	 *
-	 * SECURITY: Capability check at start of function.
-	 */
-	public static function render_style_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		$options       = Options::get_resolved_options();
-		$presets       = Options::get_preset_registry();
-		$active_preset = Options::get_active_preset_slug( $options );
-		?>
-		<div class="wrap nlf-faq-admin">
-			<h1><?php esc_html_e( 'Next Level FAQ – Style & Layout', 'next-level-faq' ); ?></h1>
-
-			<div class="nlf-faq-admin__layout">
-				<div class="nlf-faq-admin__left">
-					<div class="nlf-section">
-						<div class="nlf-section-header">
-							<h2><?php esc_html_e( 'Theme presets', 'next-level-faq' ); ?></h2>
-							<p class="description"><?php esc_html_e( 'Pick a curated starting point, then fine-tune colors, spacing, and typography below.', 'next-level-faq' ); ?></p>
-						</div>
-						<?php
-						$layout_labels = array(
-							'flat'     => __( 'Flat', 'next-level-faq' ),
-							'cards'    => __( 'Cards', 'next-level-faq' ),
-							'bordered' => __( 'Bordered', 'next-level-faq' ),
-							'clean'    => __( 'Clean', 'next-level-faq' ),
-							'striped'  => __( 'Striped', 'next-level-faq' ),
-						);
-						?>
-						<div class="nlf-theme-grid" id="nlf-preset-grid" data-current-preset="<?php echo esc_attr( $active_preset ); ?>">
-							<?php foreach ( $presets as $slug => $preset ) :
-								$values    = $preset['values'];
-								$p_layout  = $values['layout'] ?? 'flat';
-								$is_cards  = 'cards' === $p_layout;
-								$p_radius  = ( $values['container_border_radius'] ?? 8 ) . 'px';
-								$has_shadow = ! empty( $values['shadow'] ) && false !== $values['shadow'];
-								$p_shadow  = $has_shadow ? '0 2px 8px rgba(0,0,0,0.08)' : 'none';
-							?>
-								<label class="nlf-theme-card nlf-preset-card <?php echo esc_attr( $active_preset === $slug ? 'active' : '' ); ?>">
-									<input type="radio"
-										name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[preset]"
-										value="<?php echo esc_attr( $slug ); ?>"
-										<?php checked( $active_preset, $slug ); ?>
-										data-preset-choice
-									/>
-									<span class="screen-reader-text"><?php echo esc_html( $preset['name'] ); ?></span>
-									<div class="nlf-theme-preview nlf-theme-preview--<?php echo esc_attr( $p_layout ); ?>" style="
-										background: <?php echo $is_cards ? 'transparent' : esc_attr( $values['container_background'] ); ?>;
-										border-color: <?php echo $is_cards ? 'transparent' : esc_attr( $values['container_border_color'] ); ?>;
-										border-radius: <?php echo esc_attr( $p_radius ); ?>;
-										box-shadow: <?php echo $is_cards ? 'none' : esc_attr( $p_shadow ); ?>;
-										color: <?php echo esc_attr( $values['answer_color'] ); ?>;">
-										<div class="nlf-theme-preview-item" style="
-											background: <?php echo $is_cards ? esc_attr( $values['container_background'] ) : 'transparent'; ?>;
-											border: <?php echo $is_cards ? '1px solid ' . esc_attr( $values['container_border_color'] ) : 'none'; ?>;
-											border-radius: <?php echo $is_cards ? esc_attr( $p_radius ) : '0'; ?>;
-											border-bottom: <?php echo ! $is_cards ? '1px solid ' . esc_attr( $values['container_border_color'] ) : 'none'; ?>;
-											box-shadow: <?php echo $is_cards ? esc_attr( $p_shadow ) : 'none'; ?>;
-											padding: 8px <?php echo $is_cards ? '10px' : '2px'; ?>;
-										">
-											<div class="nlf-theme-preview-question" style="color: <?php echo esc_attr( $values['question_color'] ); ?>;">
-												<?php esc_html_e( 'Sample question?', 'next-level-faq' ); ?>
-											</div>
-											<div class="nlf-theme-preview-answer">
-												<?php esc_html_e( 'Sample answer text...', 'next-level-faq' ); ?>
-											</div>
-										</div>
-										<div class="nlf-theme-preview-item nlf-theme-preview-item--collapsed" style="
-											background: <?php echo $is_cards ? esc_attr( $values['container_background'] ) : 'transparent'; ?>;
-											border: <?php echo $is_cards ? '1px solid ' . esc_attr( $values['container_border_color'] ) : 'none'; ?>;
-											border-radius: <?php echo $is_cards ? esc_attr( $p_radius ) : '0'; ?>;
-											padding: 8px <?php echo $is_cards ? '10px' : '2px'; ?>;
-										">
-											<div class="nlf-theme-preview-question" style="color: <?php echo esc_attr( $values['question_color'] ); ?>; opacity: 0.65;">
-												<?php esc_html_e( 'Another question?', 'next-level-faq' ); ?>
-											</div>
-										</div>
-										<div class="nlf-theme-preview-accent" style="background: <?php echo esc_attr( $values['accent_color'] ); ?>;"></div>
-									</div>
-									<div class="nlf-theme-name"><?php echo esc_html( $preset['name'] ); ?></div>
-									<p class="description" style="margin:0; padding: 0 var(--spacing-3) var(--spacing-3);"><?php echo esc_html( $preset['description'] ); ?></p>
-									<span class="nlf-theme-layout-tag" style="margin: 0 var(--spacing-3) var(--spacing-3);"><?php echo esc_html( $layout_labels[ $p_layout ] ?? $p_layout ); ?></span>
-								</label>
-							<?php endforeach; ?>
-						</div>
-					</div>
-
-				<form method="post" action="options.php" id="nlf-faq-style-form">
-					<?php
-					settings_fields( 'nlf_faq_style_group' );
-					
-					// Force redirect back to this specific page after save.
-					// Override the default _wp_http_referer that settings_fields() creates.
-					$settings_redirect = add_query_arg(
-						array(
-							'page' => self::STYLE_SLUG,
-						),
-						admin_url( 'admin.php' )
-					);
-					?>
-					<input type="hidden" name="_wp_http_referer" value="<?php echo esc_url( $settings_redirect ); ?>" />
-					
-					<!-- Hidden field to persist preset selection (synced via JS) -->
-					<input type="hidden" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[preset]" id="nlf-faq-hidden-preset" value="<?php echo esc_attr( $active_preset ); ?>" />
-
-					<h2><?php esc_html_e( 'Layout & Container', 'next-level-faq' ); ?></h2>
-
-						<table class="form-table" role="presentation">
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_container_background"><?php esc_html_e( 'Container background', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="text" class="nlf-color-field" id="nlf_faq_container_background" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[container_background]" value="<?php echo esc_attr( $options['container_background'] ); ?>" data-preview-prop="container_background">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_container_border_color"><?php esc_html_e( 'Border color', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="text" class="nlf-color-field" id="nlf_faq_container_border_color" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[container_border_color]" value="<?php echo esc_attr( $options['container_border_color'] ); ?>" data-preview-prop="container_border_color">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_container_border_radius"><?php esc_html_e( 'Border radius (px)', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="number" min="0" id="nlf_faq_container_border_radius" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[container_border_radius]" value="<?php echo esc_attr( $options['container_border_radius'] ); ?>" data-preview-prop="container_border_radius">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_container_padding"><?php esc_html_e( 'Padding (px)', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="number" min="0" id="nlf_faq_container_padding" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[container_padding]" value="<?php echo esc_attr( $options['container_padding'] ); ?>" data-preview-prop="container_padding">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Shadow', 'next-level-faq' ); ?></th>
-								<td>
-									<label>
-										<input type="checkbox" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[shadow]" value="1" <?php checked( $options['shadow'], true ); ?> data-preview-prop="shadow">
-										<?php esc_html_e( 'Enable subtle card shadow', 'next-level-faq' ); ?>
-									</label>
-								</td>
-							</tr>
-						</table>
-
-						<h2><?php esc_html_e( 'Question', 'next-level-faq' ); ?></h2>
-						<table class="form-table" role="presentation">
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_question_color"><?php esc_html_e( 'Question color', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="text" class="nlf-color-field" id="nlf_faq_question_color" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[question_color]" value="<?php echo esc_attr( $options['question_color'] ); ?>" data-preview-prop="question_color">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_question_font_size"><?php esc_html_e( 'Font size (px)', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="number" min="10" id="nlf_faq_question_font_size" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[question_font_size]" value="<?php echo esc_attr( $options['question_font_size'] ); ?>" data-preview-prop="question_font_size">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_question_font_weight"><?php esc_html_e( 'Font weight', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="number" step="100" min="100" max="900" id="nlf_faq_question_font_weight" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[question_font_weight]" value="<?php echo esc_attr( $options['question_font_weight'] ); ?>" data-preview-prop="question_font_weight">
-								</td>
-							</tr>
-						</table>
-
-						<h2><?php esc_html_e( 'Answer', 'next-level-faq' ); ?></h2>
-						<table class="form-table" role="presentation">
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_answer_color"><?php esc_html_e( 'Answer color', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="text" class="nlf-color-field" id="nlf_faq_answer_color" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[answer_color]" value="<?php echo esc_attr( $options['answer_color'] ); ?>" data-preview-prop="answer_color">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_answer_font_size"><?php esc_html_e( 'Font size (px)', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="number" min="10" id="nlf_faq_answer_font_size" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[answer_font_size]" value="<?php echo esc_attr( $options['answer_font_size'] ); ?>" data-preview-prop="answer_font_size">
-								</td>
-							</tr>
-						</table>
-
-						<h2><?php esc_html_e( 'Accent & Behavior', 'next-level-faq' ); ?></h2>
-						<table class="form-table" role="presentation">
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_accent_color"><?php esc_html_e( 'Accent color', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="text" class="nlf-color-field" id="nlf_faq_accent_color" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[accent_color]" value="<?php echo esc_attr( $options['accent_color'] ); ?>" data-preview-prop="accent_color">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_icon_style"><?php esc_html_e( 'Icon style', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-								<select id="nlf_faq_icon_style" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[icon_style]" data-preview-prop="icon_style">
-									<option value="plus_minus" <?php selected( $options['icon_style'], 'plus_minus' ); ?>><?php esc_html_e( 'Plus / Minus', 'next-level-faq' ); ?></option>
-									<option value="chevron" <?php selected( $options['icon_style'], 'chevron' ); ?>><?php esc_html_e( 'Chevron', 'next-level-faq' ); ?></option>
-									<option value="arrow" <?php selected( $options['icon_style'], 'arrow' ); ?>><?php esc_html_e( 'Arrow', 'next-level-faq' ); ?></option>
-								</select>
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_gap_between_items"><?php esc_html_e( 'Gap between items (px)', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-									<input type="number" min="0" id="nlf_faq_gap_between_items" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[gap_between_items]" value="<?php echo esc_attr( $options['gap_between_items'] ); ?>" data-preview-prop="gap_between_items">
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="nlf_faq_animation"><?php esc_html_e( 'Animation', 'next-level-faq' ); ?></label>
-								</th>
-								<td>
-								<select id="nlf_faq_animation" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[animation]" data-preview-prop="animation">
-									<option value="slide" <?php selected( $options['animation'], 'slide' ); ?>><?php esc_html_e( 'Slide', 'next-level-faq' ); ?></option>
-									<option value="fade" <?php selected( $options['animation'], 'fade' ); ?>><?php esc_html_e( 'Fade', 'next-level-faq' ); ?></option>
-									<option value="none" <?php selected( $options['animation'], 'none' ); ?>><?php esc_html_e( 'None', 'next-level-faq' ); ?></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<label for="nlf_faq_layout"><?php esc_html_e( 'Layout style', 'next-level-faq' ); ?></label>
-							</th>
-							<td>
-								<select id="nlf_faq_layout" name="<?php echo esc_attr( Options::OPTION_KEY ); ?>[layout]" data-preview-prop="layout">
-									<option value="flat" <?php selected( $options['layout'] ?? 'flat', 'flat' ); ?>><?php esc_html_e( 'Flat (dividers)', 'next-level-faq' ); ?></option>
-									<option value="cards" <?php selected( $options['layout'] ?? 'flat', 'cards' ); ?>><?php esc_html_e( 'Cards (floating)', 'next-level-faq' ); ?></option>
-									<option value="bordered" <?php selected( $options['layout'] ?? 'flat', 'bordered' ); ?>><?php esc_html_e( 'Bordered (stacked)', 'next-level-faq' ); ?></option>
-									<option value="clean" <?php selected( $options['layout'] ?? 'flat', 'clean' ); ?>><?php esc_html_e( 'Clean (no dividers)', 'next-level-faq' ); ?></option>
-									<option value="striped" <?php selected( $options['layout'] ?? 'flat', 'striped' ); ?>><?php esc_html_e( 'Striped (alternating)', 'next-level-faq' ); ?></option>
-								</select>
-							</td>
-						</tr>
-					</table>
-
-						<?php submit_button( __( 'Save Styles', 'next-level-faq' ) ); ?>
-					</form>
-				</div>
-
-				<div class="nlf-faq-admin__right">
-					<?php Admin_UI_Components::mobile_preview_notice(); ?>
-					<h2><?php esc_html_e( 'Live Preview', 'next-level-faq' ); ?></h2>
-					<p class="description"><?php esc_html_e( 'Preview shows how your FAQ will look with the current style settings.', 'next-level-faq' ); ?></p>
-
-					<div id="nlf-faq-preview-root"
-						data-container-background="<?php echo esc_attr( $options['container_background'] ); ?>"
-						data-container-border-color="<?php echo esc_attr( $options['container_border_color'] ); ?>"
-						data-container-border-radius="<?php echo esc_attr( $options['container_border_radius'] ); ?>"
-						data-container-padding="<?php echo esc_attr( $options['container_padding'] ); ?>"
-						data-question-color="<?php echo esc_attr( $options['question_color'] ); ?>"
-						data-question-font-size="<?php echo esc_attr( $options['question_font_size'] ); ?>"
-						data-question-font-weight="<?php echo esc_attr( $options['question_font_weight'] ); ?>"
-						data-answer-color="<?php echo esc_attr( $options['answer_color'] ); ?>"
-						data-answer-font-size="<?php echo esc_attr( $options['answer_font_size'] ); ?>"
-						data-accent-color="<?php echo esc_attr( $options['accent_color'] ); ?>"
-						data-gap-between-items="<?php echo esc_attr( $options['gap_between_items'] ); ?>"
-						data-shadow="<?php echo esc_attr( is_string( $options['shadow'] ) ? $options['shadow'] : ( $options['shadow'] ? 'md' : 'none' ) ); ?>"
-						data-icon-style="<?php echo esc_attr( $options['icon_style'] ); ?>"
-						data-animation="<?php echo esc_attr( $options['animation'] ); ?>"
-						data-layout="<?php echo esc_attr( $options['layout'] ?? 'flat' ); ?>"
-						data-preset="<?php echo esc_attr( $active_preset ); ?>"
-					>
-						<?php
-						$preview_layout = $options['layout'] ?? 'flat';
-						$preview_icon   = $options['icon_style'] ?? 'plus_minus';
-						$preview_classes = array( 'nlf-faq', 'nlf-faq--preview' );
-						if ( 'flat' !== $preview_layout ) {
-							$preview_classes[] = 'nlf-faq--layout-' . sanitize_html_class( $preview_layout );
-						}
-						if ( 'chevron' === $preview_icon ) {
-							$preview_classes[] = 'nlf-faq--icon-chevron';
-						} elseif ( 'arrow' === $preview_icon ) {
-							$preview_classes[] = 'nlf-faq--icon-arrow';
-						}
-						?>
-						<div class="<?php echo esc_attr( implode( ' ', $preview_classes ) ); ?>">
-							<div class="nlf-faq__item is-open">
-								<div class="nlf-faq__question">
-									<span><?php esc_html_e( 'How quickly can I customize my FAQs?', 'next-level-faq' ); ?></span>
-									<span class="nlf-faq__icon" aria-hidden="true"></span>
-								</div>
-								<div class="nlf-faq__answer">
-									<p><?php esc_html_e( 'Changes you make here are applied instantly and reflected on the front-end as soon as you save.', 'next-level-faq' ); ?></p>
-								</div>
-							</div>
-							<div class="nlf-faq__item">
-								<div class="nlf-faq__question">
-									<span><?php esc_html_e( 'Can I match my brand colors?', 'next-level-faq' ); ?></span>
-									<span class="nlf-faq__icon" aria-hidden="true"></span>
-								</div>
-								<div class="nlf-faq__answer">
-									<p><?php esc_html_e( 'Yes. Configure colors, typography, spacing, and animations to align with your brand.', 'next-level-faq' ); ?></p>
-								</div>
-							</div>
-							<div class="nlf-faq__item">
-								<div class="nlf-faq__question">
-									<span><?php esc_html_e( 'Do all layout styles work the same way?', 'next-level-faq' ); ?></span>
-									<span class="nlf-faq__icon" aria-hidden="true"></span>
-								</div>
-								<div class="nlf-faq__answer">
-									<p><?php esc_html_e( 'Each layout has its own visual personality while keeping the same interactive behavior.', 'next-level-faq' ); ?></p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
 
 	/**
 	 * Render export/import tools page.
