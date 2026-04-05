@@ -38,10 +38,6 @@ class AdminSettingsTest extends WpTestCase {
 		$this->assertSame( 'nlf-faq', Admin_Settings::TOP_MENU_SLUG );
 	}
 
-	public function test_style_slug_constant(): void {
-		$this->assertSame( 'nlf-faq-style', Admin_Settings::STYLE_SLUG );
-	}
-
 	public function test_questions_slug_constant(): void {
 		$this->assertSame( 'nlf-faq-questions', Admin_Settings::QUESTIONS_SLUG );
 	}
@@ -71,7 +67,7 @@ class AdminSettingsTest extends WpTestCase {
 	// init() — admin context hook registration
 	// -----------------------------------------------------------------------
 
-	public function test_init_registers_exactly_six_hooks(): void {
+	public function test_init_registers_exactly_four_hooks(): void {
 		Functions\when( 'is_admin' )->justReturn( true );
 
 		$add_action_count = 0;
@@ -81,7 +77,7 @@ class AdminSettingsTest extends WpTestCase {
 
 		Admin_Settings::init();
 
-		$this->assertSame( 6, $add_action_count, 'init() should register exactly 6 action hooks' );
+		$this->assertSame( 4, $add_action_count, 'init() should register exactly 4 action hooks' );
 	}
 
 	public function test_init_registers_all_expected_hooks(): void {
@@ -95,10 +91,10 @@ class AdminSettingsTest extends WpTestCase {
 		Admin_Settings::init();
 
 		$this->assertContains( 'admin_menu', $registered );
-		$this->assertContains( 'admin_init', $registered );
 		$this->assertContains( 'admin_enqueue_scripts', $registered );
 		$this->assertContains( 'admin_post_nlf_faq_export', $registered );
 		$this->assertContains( 'admin_post_nlf_faq_import', $registered );
-		$this->assertContains( 'wp_ajax_nlf_save_settings_ajax', $registered );
+		$this->assertNotContains( 'admin_init', $registered );
+		$this->assertNotContains( 'wp_ajax_nlf_save_settings_ajax', $registered );
 	}
 }
