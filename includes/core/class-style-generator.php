@@ -107,7 +107,7 @@ class Style_Generator {
 	/* ---- Typography Sizes ---- */
 	--nlf-faq-question-size: <?php echo esc_html( $c['question_font_rem'] ); ?>rem;
 	--nlf-faq-answer-size: <?php echo esc_html( $c['answer_font_rem'] ); ?>rem;
-	--nlf-faq-question-weight: <?php echo intval( $o['question_font_weight'] ); ?>;
+	--nlf-faq-question-weight: <?php echo esc_html( intval( $o['question_font_weight'] ) ); ?>;
 
 	/* ---- Elevation ---- */
 	--nlf-faq-shadow: <?php echo esc_html( $c['shadow_css'] ); ?>;

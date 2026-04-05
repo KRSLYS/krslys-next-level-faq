@@ -57,19 +57,19 @@ class Admin_UI_Components {
 				<span class="dashicons dashicons-lightbulb"></span>
 			</div>
 			<div class="nlf-onboarding-content">
-				<h3><?php esc_html_e( 'Let’s build your FAQ group', 'next-level-faq' ); ?></h3>
-				<p><?php esc_html_e( 'Follow these quick steps to publish your first FAQ section.', 'next-level-faq' ); ?></p>
+				<h3><?php esc_html_e( 'Let’s build your FAQ group', 'krslys-next-level-faq' ); ?></h3>
+				<p><?php esc_html_e( 'Follow these quick steps to publish your first FAQ section.', 'krslys-next-level-faq' ); ?></p>
 				<ol>
-					<li><strong><?php esc_html_e( 'Add questions', 'next-level-faq' ); ?></strong> — <?php esc_html_e( 'Capture what customers ask most often.', 'next-level-faq' ); ?></li>
-					<li><strong><?php esc_html_e( 'Customize the look', 'next-level-faq' ); ?></strong> — <?php esc_html_e( 'Match your brand colors and typography.', 'next-level-faq' ); ?></li>
-					<li><strong><?php esc_html_e( 'Preview & publish', 'next-level-faq' ); ?></strong> — <?php esc_html_e( 'Review the live preview before publishing.', 'next-level-faq' ); ?></li>
+					<li><strong><?php esc_html_e( 'Add questions', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Capture what customers ask most often.', 'krslys-next-level-faq' ); ?></li>
+					<li><strong><?php esc_html_e( 'Customize the look', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Match your brand colors and typography.', 'krslys-next-level-faq' ); ?></li>
+					<li><strong><?php esc_html_e( 'Preview & publish', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Review the live preview before publishing.', 'krslys-next-level-faq' ); ?></li>
 				</ol>
 				<div class="nlf-onboarding-actions">
 					<button type="button" class="button button-primary button-hero nlf-onboarding-start">
-						<?php esc_html_e( 'Start adding questions', 'next-level-faq' ); ?>
+						<?php esc_html_e( 'Start adding questions', 'krslys-next-level-faq' ); ?>
 					</button>
 					<button type="button" class="button button-secondary" data-switch-tab="appearance">
-						<?php esc_html_e( 'Explore appearance options', 'next-level-faq' ); ?> →
+						<?php esc_html_e( 'Explore appearance options', 'krslys-next-level-faq' ); ?> →
 					</button>
 				</div>
 			</div>
@@ -119,7 +119,10 @@ class Admin_UI_Components {
 					<button type="button"
 						class="<?php echo esc_attr( $button_class ); ?>"
 						<?php echo ! empty( $args['primary']['id'] ) ? 'id="' . esc_attr( $args['primary']['id'] ) . '"' : ''; ?>
-						<?php echo ! empty( $args['primary']['data'] ) ? self::build_data_attributes( $args['primary']['data'] ) : ''; ?>>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- build_data_attributes() escapes internally via esc_attr().
+						echo ! empty( $args['primary']['data'] ) ? self::build_data_attributes( $args['primary']['data'] ) : '';
+						?>>
 						<?php echo esc_html( $args['primary']['label'] ); ?>
 					</button>
 				<?php endif; ?>
@@ -127,7 +130,10 @@ class Admin_UI_Components {
 				<?php if ( $args['secondary'] ) : ?>
 					<button type="button"
 						class="button button-secondary"
-						<?php echo ! empty( $args['secondary']['data'] ) ? self::build_data_attributes( $args['secondary']['data'] ) : ''; ?>>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- build_data_attributes() escapes internally via esc_attr().
+						echo ! empty( $args['secondary']['data'] ) ? self::build_data_attributes( $args['secondary']['data'] ) : '';
+						?>>
 						<?php echo esc_html( $args['secondary']['label'] ); ?>
 					</button>
 				<?php endif; ?>
@@ -148,11 +154,11 @@ class Admin_UI_Components {
 					<span class="dashicons dashicons-laptop"></span>
 				</div>
 				<div class="nlf-preview-mobile-notice__content">
-					<h4 class="nlf-preview-mobile-notice__title"><?php esc_html_e( 'Preview requires a larger screen', 'next-level-faq' ); ?></h4>
-					<p class="nlf-preview-mobile-notice__desc"><?php esc_html_e( 'The live preview needs more space to display accurately. Your changes are saved automatically.', 'next-level-faq' ); ?></p>
+					<h4 class="nlf-preview-mobile-notice__title"><?php esc_html_e( 'Preview requires a larger screen', 'krslys-next-level-faq' ); ?></h4>
+					<p class="nlf-preview-mobile-notice__desc"><?php esc_html_e( 'The live preview needs more space to display accurately. Your changes are saved automatically.', 'krslys-next-level-faq' ); ?></p>
 					<span class="nlf-preview-mobile-notice__hint">
 						<span class="dashicons dashicons-saved"></span>
-						<?php esc_html_e( 'Open on desktop or tablet to preview', 'next-level-faq' ); ?>
+						<?php esc_html_e( 'Open on desktop or tablet to preview', 'krslys-next-level-faq' ); ?>
 					</span>
 				</div>
 			</div>

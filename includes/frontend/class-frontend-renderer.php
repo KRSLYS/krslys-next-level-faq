@@ -95,16 +95,16 @@ class Frontend_Renderer {
 
 		$group_id    = isset( $_POST['group_id'] ) ? absint( $_POST['group_id'] ) : 0;
 		$question_id = isset( $_POST['question_id'] ) ? absint( $_POST['question_id'] ) : 0;
-		$state       = isset( $_POST['state'] ) ? sanitize_key( $_POST['state'] ) : '';
+		$state       = isset( $_POST['state'] ) ? sanitize_key( wp_unslash( $_POST['state'] ) ) : '';
 
 		if ( $group_id <= 0 || $question_id <= 0 ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'next-level-faq' ) ), 400 );
+			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'krslys-next-level-faq' ) ), 400 );
 		}
 
 		// Verify the group exists in the custom table.
 		$group = \Krslys\NextLevelFaq\Groups_Repository::get_group_by_id( $group_id );
 		if ( ! $group ) {
-			wp_send_json_error( array( 'message' => __( 'Group not found.', 'next-level-faq' ) ), 404 );
+			wp_send_json_error( array( 'message' => __( 'Group not found.', 'krslys-next-level-faq' ) ), 404 );
 		}
 
 		// Track stats in Settings_Repository or group metadata
@@ -193,7 +193,7 @@ class Frontend_Renderer {
 		$atts = self::sanitize_shortcode_atts(
 			shortcode_atts(
 				array(
-					'title'      => __( 'Frequently Asked Questions', 'next-level-faq' ),
+					'title'      => __( 'Frequently Asked Questions', 'krslys-next-level-faq' ),
 					'group'      => '',
 					'group_slug' => '',
 					'preset'     => '',
@@ -298,8 +298,8 @@ class Frontend_Renderer {
 		<div class="<?php echo esc_attr( implode( ' ', $faq_classes ) ); ?>"
 			data-group-id="<?php echo esc_attr( $group_id ); ?>"
 			data-animation-speed="<?php echo esc_attr( $settings['animation_speed'] ?? 'normal' ); ?>"
-			data-accordion="<?php echo ! empty( $settings['accordion_mode'] ) ? '1' : '0'; ?>"
-			data-smooth-scroll="<?php echo ! empty( $settings['smooth_scroll'] ) ? '1' : '0'; ?>"
+			data-accordion="<?php echo esc_attr( ! empty( $settings['accordion_mode'] ) ? '1' : '0' ); ?>"
+			data-smooth-scroll="<?php echo esc_attr( ! empty( $settings['smooth_scroll'] ) ? '1' : '0' ); ?>"
 			data-preset="<?php echo esc_attr( $preset_slug ); ?>"
 			<?php if ( $inline_style ) : ?>
 				style="<?php echo esc_attr( $inline_style ); ?>"
@@ -311,7 +311,7 @@ class Frontend_Renderer {
 
 			<?php if ( ! empty( $settings['show_search'] ) ) : ?>
 				<div class="nlf-faq-search">
-					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'next-level-faq' ); ?>" />
+					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'krslys-next-level-faq' ); ?>" />
 				</div>
 			<?php endif; ?>
 
@@ -352,7 +352,7 @@ class Frontend_Renderer {
 				<?php endforeach; ?>
 			<?php else : ?>
 				<p class="nlf-faq__empty">
-					<?php esc_html_e( 'No FAQs found yet. Add some FAQs in the admin to populate this section.', 'next-level-faq' ); ?>
+					<?php esc_html_e( 'No FAQs found yet. Add some FAQs in the admin to populate this section.', 'krslys-next-level-faq' ); ?>
 				</p>
 			<?php endif; ?>
 		</div>

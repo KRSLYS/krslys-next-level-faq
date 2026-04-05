@@ -35,13 +35,12 @@ class Groups_Repository {
 		
 		$table = Database::get_groups_table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE id = %d",
+			"SELECT * FROM {$table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 			(int) $id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$group = $wpdb->get_row( $sql );
 
 		if ( ! $group ) {
@@ -62,11 +61,12 @@ class Groups_Repository {
 		$table = Database::get_groups_table();
 
 		$sql = $wpdb->prepare(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 			"SELECT * FROM {$table} WHERE slug = %s",
 			sanitize_title( $slug )
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$group = $wpdb->get_row( $sql );
 
 		if ( ! $group ) {
@@ -98,10 +98,10 @@ class Groups_Repository {
 		$orderby = in_array( $orderby, $allowed_orderby, true ) ? $orderby : 'created_at';
 		$order = 'ASC' === strtoupper( $order ) ? 'ASC' : 'DESC';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name, where clause, orderby and order are validated.
 		$sql = "SELECT * FROM {$table} {$where} ORDER BY {$orderby} {$order}";
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$groups = $wpdb->get_results( $sql );
 
 		if ( empty( $groups ) ) {
@@ -159,6 +159,7 @@ class Groups_Repository {
 
 		$format = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table.
 		$result = $wpdb->insert( $table, $insert_data, $format );
 
 		if ( false === $result ) {
@@ -243,6 +244,7 @@ class Groups_Repository {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$result = $wpdb->update(
 			$table,
 			$update_data,
@@ -274,6 +276,7 @@ class Groups_Repository {
 
 		// Delete the group
 		$table = Database::get_groups_table();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$result = $wpdb->delete(
 			$table,
 			array( 'id' => (int) $id ),
@@ -359,7 +362,7 @@ class Groups_Repository {
 				$where .= $wpdb->prepare( ' AND id != %d', (int) $exclude_id );
 			}
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 			$exists = $wpdb->get_var( "SELECT id FROM {$table} {$where}" );
 
 			if ( ! $exists ) {
@@ -506,14 +509,16 @@ class Groups_Repository {
 
 		if ( null !== $status ) {
 			$sql = $wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT COUNT(*) FROM {$table} WHERE status = %s",
 				sanitize_key( $status )
 			);
 		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 			$sql = "SELECT COUNT(*) FROM {$table}";
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		return (int) $wpdb->get_var( $sql );
 	}
 }

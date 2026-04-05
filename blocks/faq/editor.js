@@ -18,7 +18,7 @@
 			const groups       = blockData.groups || [];
 			const groupOptions = groups.map( function ( g ) {
 				return {
-					label: g.title || __( '(no title)', 'next-level-faq' ),
+					label: g.title || __( '(no title)', 'krslys-next-level-faq' ),
 					value: g.id,
 				};
 			} );
@@ -38,14 +38,14 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __( 'FAQ Settings', 'next-level-faq' ), initialOpen: true },
+						{ title: __( 'FAQ Settings', 'krslys-next-level-faq' ), initialOpen: true },
 						el( TextControl, {
-							label:    __( 'Title', 'next-level-faq' ),
+							label:    __( 'Title', 'krslys-next-level-faq' ),
 							value:    title || '',
 							onChange: function ( value ) { setAttributes( { title: value } ); },
 						} ),
 						el( SelectControl, {
-							label:    __( 'FAQ Group', 'next-level-faq' ),
+							label:    __( 'FAQ Group', 'krslys-next-level-faq' ),
 							value:    groupId || 0,
 							options:  groupOptions,
 							onChange: function ( value ) {
@@ -66,7 +66,7 @@
 									rel:     'noreferrer noopener',
 									icon:    'edit',
 								},
-								__( 'Edit FAQ Group', 'next-level-faq' )
+								__( 'Edit FAQ Group', 'krslys-next-level-faq' )
 							)
 						)
 					)
@@ -89,7 +89,7 @@
 									Placeholder,
 									{
 										icon:  'editor-help',
-										label: __( 'Next Level FAQ', 'next-level-faq' ),
+										label: __( 'Next Level FAQ', 'krslys-next-level-faq' ),
 									},
 									el( Spinner )
 								);

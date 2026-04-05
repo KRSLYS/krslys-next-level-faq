@@ -6,7 +6,7 @@
  * Version:     1.0.0
  * Author:      Krslys
  * Author URI:  https://krslys.com
- * Text Domain: next-level-faq
+ * Text Domain: krslys-next-level-faq
  * Domain Path: /languages
  * License:     GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -34,8 +34,8 @@ require_once NLF_FAQ_PLUGIN_DIR . 'includes/Autoloader.php';
 require_once NLF_FAQ_PLUGIN_DIR . 'includes/core/functions.php';
 
 // Initialize autoloader.
-$autoloader = new \Krslys\NextLevelFaq\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
-$autoloader->register();
+$nlf_autoloader = new \Krslys\NextLevelFaq\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
+$nlf_autoloader->register();
 
 /**
  * Main plugin class.

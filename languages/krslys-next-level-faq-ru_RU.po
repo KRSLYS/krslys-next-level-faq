@@ -1,4 +1,4 @@
-# Ukrainian translation for Next Level FAQ.
+# Russian translation for Next Level FAQ.
 # Copyright (C) 2026 Krslys
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
@@ -6,16 +6,16 @@ msgstr ""
 "Project-Id-Version: Next Level FAQ 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/krslys-next-level-faq\n"
 "Last-Translator: Krslys <info@krslys.com>\n"
-"Language-Team: Ukrainian\n"
-"Language: uk\n"
+"Language-Team: Russian\n"
+"Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-03-30T01:11:12+03:00\n"
-"PO-Revision-Date: 2026-03-30 01:35+0300\n"
+"PO-Revision-Date: 2026-03-30 01:30+0300\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: next-level-faq\n"
+"X-Domain: krslys-next-level-faq\n"
 
 #. Plugin Name of the plugin
 #: krslys-next-level-faq.php
@@ -31,7 +31,7 @@ msgstr "https://krslys.com/plugins/next-level-faq/"
 #. Description of the plugin
 #: krslys-next-level-faq.php
 msgid "Flexible FAQ plugin with customizable styling and live preview."
-msgstr "Гнучкий плагін FAQ з налаштовуваним оформленням та попереднім переглядом у реальному часі."
+msgstr "Гибкий плагин FAQ с настраиваемым оформлением и предпросмотром в реальном времени."
 
 #. Author of the plugin
 #: krslys-next-level-faq.php
@@ -49,67 +49,67 @@ msgstr "FAQ"
 
 #: includes/admin/class-admin-settings.php:78
 msgid "FAQ Style & Layout"
-msgstr "Стиль та макет FAQ"
+msgstr "Стиль и макет FAQ"
 
 #: includes/admin/class-admin-settings.php:79
 msgid "Style & Layout"
-msgstr "Стиль та макет"
+msgstr "Стиль и макет"
 
 #: includes/admin/class-admin-settings.php:87
 msgid "FAQ Tools"
-msgstr "Інструменти FAQ"
+msgstr "Инструменты FAQ"
 
 #: includes/admin/class-admin-settings.php:88
 #: includes/admin/class-admin-settings.php:666
 msgid "Tools"
-msgstr "Інструменти"
+msgstr "Инструменты"
 
 #: includes/admin/class-admin-settings.php:141
 #: includes/admin/class-group-admin.php:752
 #: includes/admin/class-group-cpt.php:2021
 msgid "Security check failed. Please refresh the page and try again."
-msgstr "Помилка перевірки безпеки. Будь ласка, оновіть сторінку та спробуйте знову."
+msgstr "Ошибка проверки безопасности. Пожалуйста, обновите страницу и попробуйте снова."
 
 #: includes/admin/class-admin-settings.php:149
 msgid "You do not have permission to save settings."
-msgstr "У вас немає дозволу на збереження налаштувань."
+msgstr "У вас нет прав для сохранения настроек."
 
 #: includes/admin/class-admin-settings.php:159
 msgid "Invalid settings data."
-msgstr "Недійсні дані налаштувань."
+msgstr "Недопустимые данные настроек."
 
 #: includes/admin/class-admin-settings.php:176
 msgid "Database tables could not be created. Please check database permissions."
-msgstr "Не вдалося створити таблиці бази даних. Будь ласка, перевірте права доступу до бази даних."
+msgstr "Не удалось создать таблицы базы данных. Пожалуйста, проверьте права доступа к базе данных."
 
 #: includes/admin/class-admin-settings.php:196
 msgid "Failed to save settings. Please try again."
-msgstr "Не вдалося зберегти налаштування. Будь ласка, спробуйте знову."
+msgstr "Не удалось сохранить настройки. Пожалуйста, попробуйте снова."
 
 #: includes/admin/class-admin-settings.php:216
 msgid "Settings saved successfully!"
-msgstr "Налаштування успішно збережено!"
+msgstr "Настройки успешно сохранены!"
 
 #: includes/admin/class-admin-settings.php:293
 #: includes/admin/class-group-cpt.php:332
 msgid "Saving…"
-msgstr "Збереження…"
+msgstr "Сохранение…"
 
 #: includes/admin/class-admin-settings.php:294
 msgid "Saved"
-msgstr "Збережено"
+msgstr "Сохранено"
 
 #: includes/admin/class-admin-settings.php:321
 msgid "Next Level FAQ – Style & Layout"
-msgstr "Next Level FAQ – Стиль та макет"
+msgstr "Next Level FAQ – Стиль и макет"
 
 #: includes/admin/class-admin-settings.php:327
 msgid "Theme presets"
-msgstr "Попередні налаштування тем"
+msgstr "Предустановки тем"
 
 #: includes/admin/class-admin-settings.php:328
 msgid "Pick a curated starting point, then fine-tune colors, spacing, and typography below."
-msgstr "Оберіть готову відправну точку, а потім налаштуйте кольори, відступи та типографіку нижче."
+msgstr "Выберите готовую отправную точку, затем настройте цвета, отступы и типографику ниже."
 
 #: includes/admin/class-admin-settings.php:332
 #: includes/admin/class-group-admin.php:1402
@@ -121,41 +121,41 @@ msgstr "Плоский"
 #: includes/admin/class-group-admin.php:1403
 #: includes/admin/class-group-cpt.php:724
 msgid "Cards"
-msgstr "Картки"
+msgstr "Карточки"
 
 #: includes/admin/class-admin-settings.php:334
 #: includes/admin/class-group-admin.php:1404
 #: includes/admin/class-group-cpt.php:725
 msgid "Bordered"
-msgstr "З рамкою"
+msgstr "С рамкой"
 
 #: includes/admin/class-admin-settings.php:335
 #: includes/admin/class-group-admin.php:1405
 #: includes/admin/class-group-cpt.php:726
 msgid "Clean"
-msgstr "Чистий"
+msgstr "Чистый"
 
 #: includes/admin/class-admin-settings.php:336
 #: includes/admin/class-group-admin.php:1406
 #: includes/admin/class-group-cpt.php:727
 msgid "Striped"
-msgstr "Смугастий"
+msgstr "Полосатый"
 
 #: includes/admin/class-admin-settings.php:371
 msgid "Sample question?"
-msgstr "Приклад запитання?"
+msgstr "Пример вопроса?"
 
 #: includes/admin/class-admin-settings.php:374
 msgid "Sample answer text..."
-msgstr "Приклад тексту відповіді..."
+msgstr "Пример текста ответа..."
 
 #: includes/admin/class-admin-settings.php:384
 msgid "Another question?"
-msgstr "Ще одне запитання?"
+msgstr "Ещё один вопрос?"
 
 #: includes/admin/class-admin-settings.php:415
 msgid "Layout & Container"
-msgstr "Макет та контейнер"
+msgstr "Макет и контейнер"
 
 #: includes/admin/class-admin-settings.php:420
 msgid "Container background"
@@ -163,25 +163,25 @@ msgstr "Фон контейнера"
 
 #: includes/admin/class-admin-settings.php:428
 msgid "Border color"
-msgstr "Колір рамки"
+msgstr "Цвет рамки"
 
 #: includes/admin/class-admin-settings.php:436
 msgid "Border radius (px)"
-msgstr "Заокруглення рамки (пікс.)"
+msgstr "Скругление рамки (пикс.)"
 
 #: includes/admin/class-admin-settings.php:444
 #: includes/admin/class-group-admin.php:1695
 #: includes/admin/class-group-cpt.php:1236
 msgid "Padding (px)"
-msgstr "Внутрішній відступ (пікс.)"
+msgstr "Внутренний отступ (пикс.)"
 
 #: includes/admin/class-admin-settings.php:451
 msgid "Shadow"
-msgstr "Тінь"
+msgstr "Тень"
 
 #: includes/admin/class-admin-settings.php:455
 msgid "Enable subtle card shadow"
-msgstr "Увімкнути легку тінь картки"
+msgstr "Включить лёгкую тень карточки"
 
 #: includes/admin/class-admin-settings.php:461
 #: includes/admin/class-group-admin.php:1213
@@ -191,20 +191,20 @@ msgstr "Увімкнути легку тінь картки"
 #: includes/admin/class-group-cpt.php:597
 #: includes/admin/class-group-cpt.php:1244
 msgid "Question"
-msgstr "Запитання"
+msgstr "Вопрос"
 
 #: includes/admin/class-admin-settings.php:465
 msgid "Question color"
-msgstr "Колір запитання"
+msgstr "Цвет вопроса"
 
 #: includes/admin/class-admin-settings.php:473
 #: includes/admin/class-admin-settings.php:501
 msgid "Font size (px)"
-msgstr "Розмір шрифту (пікс.)"
+msgstr "Размер шрифта (пикс.)"
 
 #: includes/admin/class-admin-settings.php:481
 msgid "Font weight"
-msgstr "Насиченість шрифту"
+msgstr "Насыщенность шрифта"
 
 #: includes/admin/class-admin-settings.php:489
 #: includes/admin/class-group-admin.php:1217
@@ -214,29 +214,29 @@ msgstr "Насиченість шрифту"
 #: includes/admin/class-group-cpt.php:601
 #: includes/admin/class-group-cpt.php:1264
 msgid "Answer"
-msgstr "Відповідь"
+msgstr "Ответ"
 
 #: includes/admin/class-admin-settings.php:493
 msgid "Answer color"
-msgstr "Колір відповіді"
+msgstr "Цвет ответа"
 
 #: includes/admin/class-admin-settings.php:509
 msgid "Accent & Behavior"
-msgstr "Акцент та поведінка"
+msgstr "Акцент и поведение"
 
 #: includes/admin/class-admin-settings.php:513
 msgid "Accent color"
-msgstr "Акцентний колір"
+msgstr "Акцентный цвет"
 
 #: includes/admin/class-admin-settings.php:521
 msgid "Icon style"
-msgstr "Стиль іконки"
+msgstr "Стиль иконки"
 
 #: includes/admin/class-admin-settings.php:525
 #: includes/admin/class-group-admin.php:1759
 #: includes/admin/class-group-cpt.php:1300
 msgid "Plus / Minus"
-msgstr "Плюс / Мінус"
+msgstr "Плюс / Минус"
 
 #: includes/admin/class-admin-settings.php:526
 #: includes/admin/class-group-admin.php:1760
@@ -246,35 +246,35 @@ msgstr "Шеврон"
 
 #: includes/admin/class-admin-settings.php:527
 msgid "Arrow"
-msgstr "Стрілка"
+msgstr "Стрелка"
 
 #: includes/admin/class-admin-settings.php:533
 msgid "Gap between items (px)"
-msgstr "Відстань між елементами (пікс.)"
+msgstr "Расстояние между элементами (пикс.)"
 
 #: includes/admin/class-admin-settings.php:541
 #: includes/admin/class-group-admin.php:1766
 #: includes/admin/class-group-cpt.php:1307
 msgid "Animation"
-msgstr "Анімація"
+msgstr "Анимация"
 
 #: includes/admin/class-admin-settings.php:545
 #: includes/admin/class-group-admin.php:1770
 #: includes/admin/class-group-cpt.php:1311
 msgid "Slide"
-msgstr "Ковзання"
+msgstr "Скольжение"
 
 #: includes/admin/class-admin-settings.php:546
 #: includes/admin/class-group-admin.php:1771
 #: includes/admin/class-group-cpt.php:1312
 msgid "Fade"
-msgstr "Згасання"
+msgstr "Затухание"
 
 #: includes/admin/class-admin-settings.php:547
 #: includes/admin/class-group-admin.php:1772
 #: includes/admin/class-group-cpt.php:1313
 msgid "None"
-msgstr "Немає"
+msgstr "Нет"
 
 #: includes/admin/class-admin-settings.php:553
 msgid "Layout style"
@@ -282,227 +282,227 @@ msgstr "Стиль макета"
 
 #: includes/admin/class-admin-settings.php:557
 msgid "Flat (dividers)"
-msgstr "Плоский (з роздільниками)"
+msgstr "Плоский (с разделителями)"
 
 #: includes/admin/class-admin-settings.php:558
 msgid "Cards (floating)"
-msgstr "Картки (плаваючі)"
+msgstr "Карточки (плавающие)"
 
 #: includes/admin/class-admin-settings.php:559
 msgid "Bordered (stacked)"
-msgstr "З рамкою (складені)"
+msgstr "С рамкой (составные)"
 
 #: includes/admin/class-admin-settings.php:560
 msgid "Clean (no dividers)"
-msgstr "Чистий (без роздільників)"
+msgstr "Чистый (без разделителей)"
 
 #: includes/admin/class-admin-settings.php:561
 msgid "Striped (alternating)"
-msgstr "Смугастий (чергований)"
+msgstr "Полосатый (чередующийся)"
 
 #: includes/admin/class-admin-settings.php:567
 msgid "Save Styles"
-msgstr "Зберегти стилі"
+msgstr "Сохранить стили"
 
 #: includes/admin/class-admin-settings.php:573
 #: includes/admin/class-group-admin.php:1363
 #: includes/admin/class-group-cpt.php:684
 msgid "Live Preview"
-msgstr "Попередній перегляд"
+msgstr "Предпросмотр"
 
 #: includes/admin/class-admin-settings.php:574
 msgid "Preview shows how your FAQ will look with the current style settings."
-msgstr "Попередній перегляд показує, як ваш FAQ виглядатиме з поточними налаштуваннями стилю."
+msgstr "Предпросмотр показывает, как ваш FAQ будет выглядеть с текущими настройками стиля."
 
 #: includes/admin/class-admin-settings.php:610
 msgid "How quickly can I customize my FAQs?"
-msgstr "Як швидко я можу налаштувати свої FAQ?"
+msgstr "Как быстро я могу настроить свои FAQ?"
 
 #: includes/admin/class-admin-settings.php:614
 msgid "Changes you make here are applied instantly and reflected on the front-end as soon as you save."
-msgstr "Зміни, зроблені тут, застосовуються миттєво та відображаються на сайті одразу після збереження."
+msgstr "Изменения, сделанные здесь, применяются мгновенно и отображаются на сайте сразу после сохранения."
 
 #: includes/admin/class-admin-settings.php:619
 msgid "Can I match my brand colors?"
-msgstr "Чи можу я використовувати фірмові кольори?"
+msgstr "Могу ли я использовать фирменные цвета?"
 
 #: includes/admin/class-admin-settings.php:623
 msgid "Yes. Configure colors, typography, spacing, and animations to align with your brand."
-msgstr "Так. Налаштуйте кольори, типографіку, відступи та анімації відповідно до вашого бренду."
+msgstr "Да. Настройте цвета, типографику, отступы и анимации в соответствии с вашим брендом."
 
 #: includes/admin/class-admin-settings.php:628
 msgid "Do all layout styles work the same way?"
-msgstr "Чи всі стилі макета працюють однаково?"
+msgstr "Все стили макета работают одинаково?"
 
 #: includes/admin/class-admin-settings.php:632
 msgid "Each layout has its own visual personality while keeping the same interactive behavior."
-msgstr "Кожен макет має свій візуальний характер, зберігаючи при цьому однакову інтерактивну поведінку."
+msgstr "Каждый макет имеет свой визуальный характер, сохраняя при этом одинаковое интерактивное поведение."
 
 #: includes/admin/class-admin-settings.php:667
 msgid "Manage, backup, and migrate your FAQ data with powerful utilities."
-msgstr "Керуйте даними FAQ, створюйте резервні копії та переносьте дані за допомогою потужних утиліт."
+msgstr "Управляйте данными FAQ, создавайте резервные копии и переносите данные с помощью мощных утилит."
 
 #: includes/admin/class-admin-settings.php:678
 msgid "Data Management"
-msgstr "Керування даними"
+msgstr "Управление данными"
 
 #: includes/admin/class-admin-settings.php:679
 msgid "Export and import your FAQ content, themes, and settings."
-msgstr "Експортуйте та імпортуйте вміст FAQ, теми та налаштування."
+msgstr "Экспортируйте и импортируйте содержимое FAQ, темы и настройки."
 
 #: includes/admin/class-admin-settings.php:693
 msgid "Export"
-msgstr "Експорт"
+msgstr "Экспорт"
 
 #: includes/admin/class-admin-settings.php:694
 msgid "Download a JSON file for backups or site migration."
-msgstr "Завантажте JSON-файл для резервного копіювання або перенесення сайту."
+msgstr "Скачайте JSON-файл для резервного копирования или переноса сайта."
 
 #: includes/admin/class-admin-settings.php:704
 msgid "Export scope"
-msgstr "Область експорту"
+msgstr "Область экспорта"
 
 #: includes/admin/class-admin-settings.php:707
 msgid "All groups (full backup)"
-msgstr "Усі групи (повна резервна копія)"
+msgstr "Все группы (полная резервная копия)"
 
 #: includes/admin/class-admin-settings.php:719
 msgid "Include style settings"
-msgstr "Включити налаштування стилів"
+msgstr "Включить настройки стилей"
 
 #: includes/admin/class-admin-settings.php:723
 msgid "Include FAQ entries"
-msgstr "Включити записи FAQ"
+msgstr "Включить записи FAQ"
 
 #: includes/admin/class-admin-settings.php:728
 msgid "Exports the selected group with all its questions, theme, and settings."
-msgstr "Експортує обрану групу з усіма запитаннями, темою та налаштуваннями."
+msgstr "Экспортирует выбранную группу со всеми вопросами, темой и настройками."
 
 #: includes/admin/class-admin-settings.php:731
 msgid "Download Export"
-msgstr "Завантажити експорт"
+msgstr "Скачать экспорт"
 
 #: includes/admin/class-admin-settings.php:744
 #: includes/admin/class-admin-settings.php:813
 msgid "Import"
-msgstr "Імпорт"
+msgstr "Импорт"
 
 #: includes/admin/class-admin-settings.php:745
 msgid "Upload a JSON file to restore FAQ data from a backup."
-msgstr "Завантажте JSON-файл для відновлення даних FAQ із резервної копії."
+msgstr "Загрузите JSON-файл для восстановления данных FAQ из резервной копии."
 
 #: includes/admin/class-admin-settings.php:755
 msgid "Import target"
-msgstr "Ціль імпорту"
+msgstr "Цель импорта"
 
 #: includes/admin/class-admin-settings.php:758
 msgid "Global (all FAQ data)"
-msgstr "Глобально (усі дані FAQ)"
+msgstr "Глобально (все данные FAQ)"
 
 #: includes/admin/class-admin-settings.php:759
 msgid "Duplicate as new group"
-msgstr "Дублювати як нову групу"
+msgstr "Дублировать как новую группу"
 
 #: includes/admin/class-admin-settings.php:769
 msgid "Creates a brand-new group from the exported file with all its questions, theme, and settings."
-msgstr "Створює нову групу з експортованого файлу з усіма запитаннями, темою та налаштуваннями."
+msgstr "Создаёт новую группу из экспортированного файла со всеми вопросами, темой и настройками."
 
 #: includes/admin/class-admin-settings.php:774
 msgid "Upload file"
-msgstr "Завантажити файл"
+msgstr "Загрузить файл"
 
 #: includes/admin/class-admin-settings.php:781
 msgid "Drag & drop your file here or"
-msgstr "Перетягніть файл сюди або"
+msgstr "Перетащите файл сюда или"
 
 #: includes/admin/class-admin-settings.php:782
 msgid "browse"
-msgstr "оберіть"
+msgstr "выберите"
 
 #: includes/admin/class-admin-settings.php:784
 msgid "Accepts .json files only"
-msgstr "Приймаються лише файли .json"
+msgstr "Принимаются только файлы .json"
 
 #: includes/admin/class-admin-settings.php:795
 msgid "Remove file"
-msgstr "Видалити файл"
+msgstr "Удалить файл"
 
 #: includes/admin/class-admin-settings.php:802
 msgid "Replace existing items before import"
-msgstr "Замінити наявні елементи перед імпортом"
+msgstr "Заменить существующие элементы перед импортом"
 
 #: includes/admin/class-admin-settings.php:809
 msgid "Apply imported theme and styles to this group"
-msgstr "Застосувати імпортовану тему та стилі до цієї групи"
+msgstr "Применить импортированную тему и стили к этой группе"
 
 #: includes/admin/class-admin-settings.php:826
 msgid "More Tools"
-msgstr "Додаткові інструменти"
+msgstr "Дополнительные инструменты"
 
 #: includes/admin/class-admin-settings.php:827
 msgid "Powerful utilities coming in future updates."
-msgstr "Потужні утиліти з'являться у майбутніх оновленнях."
+msgstr "Мощные утилиты появятся в будущих обновлениях."
 
 #: includes/admin/class-admin-settings.php:840
 msgid "Reset"
-msgstr "Скидання"
+msgstr "Сброс"
 
 #: includes/admin/class-admin-settings.php:841
 #: includes/admin/class-admin-settings.php:857
 msgid "Soon"
-msgstr "Незабаром"
+msgstr "Скоро"
 
 #: includes/admin/class-admin-settings.php:843
 msgid "Selectively reset FAQ data, styles, or all plugin settings at once."
-msgstr "Вибіркове скидання даних FAQ, стилів або всіх налаштувань плагіна одразу."
+msgstr "Выборочный сброс данных FAQ, стилей или всех настроек плагина сразу."
 
 #: includes/admin/class-admin-settings.php:856
 msgid "Diagnostics"
-msgstr "Діагностика"
+msgstr "Диагностика"
 
 #: includes/admin/class-admin-settings.php:859
 msgid "Analyze your FAQ setup and get optimization suggestions."
-msgstr "Аналізуйте налаштування FAQ та отримуйте рекомендації з оптимізації."
+msgstr "Анализируйте настройку FAQ и получайте рекомендации по оптимизации."
 
 #: includes/admin/class-admin-settings.php:969
 msgid "You do not have permission to export FAQs."
-msgstr "У вас немає дозволу на експорт FAQ."
+msgstr "У вас нет прав для экспорта FAQ."
 
 #: includes/admin/class-admin-settings.php:984
 msgid "Unable to export this group. It may not exist."
-msgstr "Не вдалося експортувати цю групу. Можливо, вона не існує."
+msgstr "Не удалось экспортировать эту группу. Возможно, она не существует."
 
 #: includes/admin/class-admin-settings.php:1009
 msgid "Select at least one component to export."
-msgstr "Оберіть принаймні один компонент для експорту."
+msgstr "Выберите хотя бы один компонент для экспорта."
 
 #: includes/admin/class-admin-settings.php:1030
 msgid "All groups"
-msgstr "Усі групи"
+msgstr "Все группы"
 
 #: includes/admin/class-admin-settings.php:1068
 msgid "You do not have permission to import FAQs."
-msgstr "У вас немає дозволу на імпорт FAQ."
+msgstr "У вас нет прав для импорта FAQ."
 
 #: includes/admin/class-admin-settings.php:1080
 msgid "Upload an export file before running import."
-msgstr "Завантажте файл експорту перед виконанням імпорту."
+msgstr "Загрузите файл экспорта перед выполнением импорта."
 
 #: includes/admin/class-admin-settings.php:1091
 msgid "Import file is too large. Please keep exports under 2MB."
-msgstr "Файл імпорту занадто великий. Будь ласка, обмежте розмір експорту до 2 МБ."
+msgstr "Файл импорта слишком большой. Пожалуйста, ограничьте размер экспорта до 2 МБ."
 
 #: includes/admin/class-admin-settings.php:1093
 msgid "Only JSON files exported by this plugin are allowed."
-msgstr "Дозволено лише JSON-файли, експортовані цим плагіном."
+msgstr "Допускаются только JSON-файлы, экспортированные этим плагином."
 
 #: includes/admin/class-admin-settings.php:1102
 msgid "The uploaded file is not a valid export."
-msgstr "Завантажений файл не є дійсним експортом."
+msgstr "Загруженный файл не является допустимым экспортом."
 
 #: includes/admin/class-admin-settings.php:1115
 msgid "This file does not contain any FAQ data to duplicate."
-msgstr "Цей файл не містить даних FAQ для дублювання."
+msgstr "Этот файл не содержит данных FAQ для дублирования."
 
 #. translators: %s: original FAQ group title.
 #: includes/admin/class-admin-settings.php:1128
@@ -511,154 +511,154 @@ msgstr "Цей файл не містить даних FAQ для дублюва
 #: includes/admin/class-group-cpt.php:1127
 #, php-format
 msgid "%s (Copy)"
-msgstr "%s (Копія)"
+msgstr "%s (Копия)"
 
 #: includes/admin/class-admin-settings.php:1129
 msgid "Imported Group (Copy)"
-msgstr "Імпортована група (Копія)"
+msgstr "Импортированная группа (Копия)"
 
 #. translators: %d: FAQ group ID
 #: includes/admin/class-admin-settings.php:1183
 #, php-format
 msgid "Group #%d (Copy)"
-msgstr "Група #%d (Копія)"
+msgstr "Группа #%d (Копия)"
 
 #: includes/admin/class-admin-settings.php:1237
 msgid "Failed to create any new groups."
-msgstr "Не вдалося створити нові групи."
+msgstr "Не удалось создать новые группы."
 
 #. translators: 1: number of groups created, 2: number of items
 #: includes/admin/class-admin-settings.php:1244
 #, php-format
 msgid "%1$d new group created with %2$d FAQ items. Saved as draft."
 msgid_plural "%1$d new groups created with %2$d FAQ items. All saved as drafts."
-msgstr[0] "%1$d нова група створена з %2$d елементами FAQ. Збережено як чернетку."
-msgstr[1] "%1$d нові групи створено з %2$d елементами FAQ. Збережено як чернетки."
-msgstr[2] "%1$d нових груп створено з %2$d елементами FAQ. Збережено як чернетки."
+msgstr[0] "%1$d новая группа создана с %2$d элементами FAQ. Сохранена как черновик."
+msgstr[1] "%1$d новые группы созданы с %2$d элементами FAQ. Сохранены как черновики."
+msgstr[2] "%1$d новых групп создано с %2$d элементами FAQ. Сохранены как черновики."
 
 #: includes/admin/class-admin-settings.php:1265
 msgid "The selected group does not exist."
-msgstr "Обрана група не існує."
+msgstr "Выбранная группа не существует."
 
 #. translators: %d: number of imported FAQs
 #: includes/admin/class-admin-settings.php:1313
 #, php-format
 msgid "%d FAQ item imported into group."
 msgid_plural "%d FAQ items imported into group."
-msgstr[0] "%d елемент FAQ імпортовано до групи."
-msgstr[1] "%d елементи FAQ імпортовано до групи."
-msgstr[2] "%d елементів FAQ імпортовано до групи."
+msgstr[0] "%d элемент FAQ импортирован в группу."
+msgstr[1] "%d элемента FAQ импортированы в группу."
+msgstr[2] "%d элементов FAQ импортировано в группу."
 
 #: includes/admin/class-admin-settings.php:1319
 msgid "Group theme and styles applied."
-msgstr "Тему та стилі групи застосовано."
+msgstr "Тема и стили группы применены."
 
 #: includes/admin/class-admin-settings.php:1323
 msgid "No items were imported. The file may be empty or contain no valid entries."
-msgstr "Нічого не було імпортовано. Файл може бути порожнім або не містити дійсних записів."
+msgstr "Ничего не было импортировано. Файл может быть пустым или не содержать допустимых записей."
 
 #: includes/admin/class-admin-settings.php:1382
 msgid "Nothing was imported. Ensure the file contains FAQ entries or style settings."
-msgstr "Нічого не було імпортовано. Переконайтеся, що файл містить записи FAQ або налаштування стилів."
+msgstr "Ничего не было импортировано. Убедитесь, что файл содержит записи FAQ или настройки стилей."
 
 #. translators: %d: number of imported FAQs
 #: includes/admin/class-admin-settings.php:1392
 #, php-format
 msgid "%d FAQ item imported."
 msgid_plural "%d FAQ items imported."
-msgstr[0] "%d елемент FAQ імпортовано."
-msgstr[1] "%d елементи FAQ імпортовано."
-msgstr[2] "%d елементів FAQ імпортовано."
+msgstr[0] "%d элемент FAQ импортирован."
+msgstr[1] "%d элемента FAQ импортированы."
+msgstr[2] "%d элементов FAQ импортировано."
 
 #: includes/admin/class-admin-settings.php:1398
 msgid "Style settings synced."
-msgstr "Налаштування стилів синхронізовано."
+msgstr "Настройки стилей синхронизированы."
 
 #: includes/admin/class-admin-settings.php:1644
 msgid "The uploaded file exceeds the maximum allowed size."
-msgstr "Завантажений файл перевищує максимально допустимий розмір."
+msgstr "Загруженный файл превышает максимально допустимый размер."
 
 #: includes/admin/class-admin-settings.php:1646
 msgid "The uploaded file was only partially uploaded. Please try again."
-msgstr "Завантажений файл було завантажено лише частково. Будь ласка, спробуйте знову."
+msgstr "Загруженный файл был загружен лишь частично. Пожалуйста, попробуйте снова."
 
 #: includes/admin/class-admin-settings.php:1648
 msgid "No file was uploaded."
-msgstr "Файл не було завантажено."
+msgstr "Файл не был загружен."
 
 #: includes/admin/class-admin-settings.php:1650
 msgid "Server configuration error: missing a temporary folder."
-msgstr "Помилка конфігурації сервера: відсутня тимчасова тека."
+msgstr "Ошибка конфигурации сервера: отсутствует временная папка."
 
 #: includes/admin/class-admin-settings.php:1652
 msgid "Server error: failed to write file to disk."
-msgstr "Помилка сервера: не вдалося записати файл на диск."
+msgstr "Ошибка сервера: не удалось записать файл на диск."
 
 #: includes/admin/class-admin-settings.php:1654
 msgid "A PHP extension stopped the file upload."
-msgstr "Розширення PHP зупинило завантаження файлу."
+msgstr "Расширение PHP остановило загрузку файла."
 
 #: includes/admin/class-admin-settings.php:1656
 msgid "Unexpected upload error occurred."
-msgstr "Виникла непередбачена помилка завантаження."
+msgstr "Произошла непредвиденная ошибка загрузки."
 
 #. translators: %d: FAQ group ID
 #: includes/admin/class-admin-settings.php:1932
 #, php-format
 msgid "Group #%d"
-msgstr "Група #%d"
+msgstr "Группа #%d"
 
 #: includes/admin/class-admin-ui-components.php:60
 msgid "Let's build your FAQ group"
-msgstr "Створімо вашу групу FAQ"
+msgstr "Давайте создадим вашу группу FAQ"
 
 #: includes/admin/class-admin-ui-components.php:61
 msgid "Follow these quick steps to publish your first FAQ section."
-msgstr "Виконайте ці прості кроки, щоб опублікувати свій перший розділ FAQ."
+msgstr "Выполните эти простые шаги, чтобы опубликовать свой первый раздел FAQ."
 
 #: includes/admin/class-admin-ui-components.php:63
 msgid "Add questions"
-msgstr "Додайте запитання"
+msgstr "Добавьте вопросы"
 
 #: includes/admin/class-admin-ui-components.php:63
 msgid "Capture what customers ask most often."
-msgstr "Запишіть найпоширеніші запитання клієнтів."
+msgstr "Запишите наиболее частые вопросы клиентов."
 
 #: includes/admin/class-admin-ui-components.php:64
 msgid "Customize the look"
-msgstr "Налаштуйте зовнішній вигляд"
+msgstr "Настройте внешний вид"
 
 #: includes/admin/class-admin-ui-components.php:64
 msgid "Match your brand colors and typography."
-msgstr "Підберіть фірмові кольори та типографіку."
+msgstr "Подберите фирменные цвета и типографику."
 
 #: includes/admin/class-admin-ui-components.php:65
 msgid "Preview & publish"
-msgstr "Попередній перегляд та публікація"
+msgstr "Предпросмотр и публикация"
 
 #: includes/admin/class-admin-ui-components.php:65
 msgid "Review the live preview before publishing."
-msgstr "Перевірте попередній перегляд перед публікацією."
+msgstr "Проверьте предпросмотр перед публикацией."
 
 #: includes/admin/class-admin-ui-components.php:69
 msgid "Start adding questions"
-msgstr "Почніть додавати запитання"
+msgstr "Начните добавлять вопросы"
 
 #: includes/admin/class-admin-ui-components.php:72
 msgid "Explore appearance options"
-msgstr "Ознайомтеся з налаштуваннями зовнішнього вигляду"
+msgstr "Изучите настройки внешнего вида"
 
 #: includes/admin/class-admin-ui-components.php:151
 msgid "Preview requires a larger screen"
-msgstr "Для попереднього перегляду потрібен більший екран"
+msgstr "Для предпросмотра нужен экран большего размера"
 
 #: includes/admin/class-admin-ui-components.php:152
 msgid "The live preview needs more space to display accurately. Your changes are saved automatically."
-msgstr "Для коректного відображення попереднього перегляду потрібно більше простору. Ваші зміни зберігаються автоматично."
+msgstr "Для корректного отображения предпросмотра требуется больше пространства. Ваши изменения сохраняются автоматически."
 
 #: includes/admin/class-admin-ui-components.php:155
 msgid "Open on desktop or tablet to preview"
-msgstr "Відкрийте на комп'ютері або планшеті для попереднього перегляду"
+msgstr "Откройте на компьютере или планшете для предпросмотра"
 
 #: includes/admin/class-group-admin.php:60
 #: includes/admin/class-group-admin.php:61
@@ -667,7 +667,7 @@ msgstr "Відкрийте на комп'ютері або планшеті дл
 #: includes/admin/class-group-cpt.php:112
 #: includes/admin/class-group-cpt.php:117
 msgid "FAQ Groups"
-msgstr "Групи FAQ"
+msgstr "Группы FAQ"
 
 #: includes/admin/class-group-admin.php:70
 #: includes/admin/class-group-admin.php:71
@@ -675,7 +675,7 @@ msgstr "Групи FAQ"
 #: includes/admin/class-group-admin.php:284
 #: includes/admin/class-group-cpt.php:110
 msgid "Edit FAQ Group"
-msgstr "Редагувати групу FAQ"
+msgstr "Редактировать группу FAQ"
 
 #: includes/admin/class-group-admin.php:122
 #: includes/admin/class-group-admin.php:144
@@ -684,397 +684,397 @@ msgstr "Редагувати групу FAQ"
 #: includes/admin/class-group-cpt.php:1768
 #: includes/admin/class-group-list-table.php:104
 msgid "Security check failed."
-msgstr "Помилка перевірки безпеки."
+msgstr "Ошибка проверки безопасности."
 
 #: includes/admin/class-group-admin.php:126
 msgid "You do not have permission to delete this group."
-msgstr "У вас немає дозволу на видалення цієї групи."
+msgstr "У вас нет прав для удаления этой группы."
 
 #: includes/admin/class-group-admin.php:148
 #: includes/admin/class-group-cpt.php:1112
 msgid "You do not have permission to duplicate this group."
-msgstr "У вас немає дозволу на дублювання цієї групи."
+msgstr "У вас нет прав для дублирования этой группы."
 
 #: includes/admin/class-group-admin.php:154
 #: includes/admin/class-group-cpt.php:1118
 msgid "FAQ group not found."
-msgstr "Групу FAQ не знайдено."
+msgstr "Группа FAQ не найдена."
 
 #: includes/admin/class-group-admin.php:171
 #: includes/admin/class-group-cpt.php:1135
 msgid "Failed to create duplicate."
-msgstr "Не вдалося створити дублікат."
+msgstr "Не удалось создать дубликат."
 
 #: includes/admin/class-group-admin.php:227
 msgid "FAQ group deleted."
-msgstr "Групу FAQ видалено."
+msgstr "Группа FAQ удалена."
 
 #: includes/admin/class-group-admin.php:230
 msgid "FAQ group duplicated. You can now edit it."
-msgstr "Групу FAQ продубльовано. Тепер ви можете її редагувати."
+msgstr "Группа FAQ продублирована. Теперь вы можете её редактировать."
 
 #: includes/admin/class-group-admin.php:244
 #: includes/admin/class-group-cpt.php:108
 msgid "Add New"
-msgstr "Додати"
+msgstr "Добавить"
 
 #: includes/admin/class-group-admin.php:266
 #: includes/admin/class-group-cpt.php:109
 msgid "Add New FAQ Group"
-msgstr "Додати нову групу FAQ"
+msgstr "Добавить новую группу FAQ"
 
 #: includes/admin/class-group-admin.php:280
 msgid "Saving..."
-msgstr "Збереження..."
+msgstr "Сохранение..."
 
 #: includes/admin/class-group-admin.php:281
 #: includes/admin/class-group-cpt.php:333
 msgid "Saved!"
-msgstr "Збережено!"
+msgstr "Сохранено!"
 
 #: includes/admin/class-group-admin.php:282
 #: includes/admin/class-group-admin.php:362
 msgid "Update"
-msgstr "Оновити"
+msgstr "Обновить"
 
 #: includes/admin/class-group-admin.php:283
 msgid "Please enter a title for this FAQ group."
-msgstr "Будь ласка, введіть заголовок для цієї групи FAQ."
+msgstr "Пожалуйста, введите заголовок для этой группы FAQ."
 
 #: includes/admin/class-group-admin.php:285
 #: includes/admin/class-group-admin.php:301
 msgid "FAQ group created."
-msgstr "Групу FAQ створено."
+msgstr "Группа FAQ создана."
 
 #: includes/admin/class-group-admin.php:298
 #: includes/admin/class-group-cpt.php:2000
 msgid "FAQ group updated. Your changes are now live."
-msgstr "Групу FAQ оновлено. Ваші зміни вже діють."
+msgstr "Группа FAQ обновлена. Ваши изменения вступили в силу."
 
 #: includes/admin/class-group-admin.php:304
 #: includes/admin/class-group-cpt.php:1996
 msgid "FAQ group duplicated. Review and publish when ready."
-msgstr "Групу FAQ продубльовано. Перевірте та опублікуйте, коли буде готово."
+msgstr "Группа FAQ продублирована. Проверьте и опубликуйте, когда будет готово."
 
 #: includes/admin/class-group-admin.php:307
 msgid "Title is required. Please enter a title for this FAQ group."
-msgstr "Заголовок обов'язковий. Будь ласка, введіть заголовок для цієї групи FAQ."
+msgstr "Заголовок обязателен. Пожалуйста, введите заголовок для этой группы FAQ."
 
 #: includes/admin/class-group-admin.php:324
 msgid "Back to Groups"
-msgstr "Назад до груп"
+msgstr "Назад к группам"
 
 #: includes/admin/class-group-admin.php:334
 msgid "Group title"
-msgstr "Заголовок групи"
+msgstr "Заголовок группы"
 
 #: includes/admin/class-group-admin.php:335
 msgid "Enter group title here"
-msgstr "Введіть заголовок групи"
+msgstr "Введите заголовок группы"
 
 #: includes/admin/class-group-admin.php:356
 #: includes/admin/class-group-admin.php:362
 msgid "Publish"
-msgstr "Опублікувати"
+msgstr "Опубликовать"
 
 #: includes/admin/class-group-admin.php:373
 #: includes/admin/class-group-cpt.php:168
 msgid "How To Use"
-msgstr "Як використовувати"
+msgstr "Как использовать"
 
 #: includes/admin/class-group-admin.php:388
 msgid "Show JSON State"
-msgstr "Показати стан JSON"
+msgstr "Показать JSON-состояние"
 
 #: includes/admin/class-group-admin.php:391
 msgid "Copy JSON"
-msgstr "Копіювати JSON"
+msgstr "Копировать JSON"
 
 #: includes/admin/class-group-admin.php:411
 #: includes/admin/class-group-cpt.php:159
 #: includes/admin/class-group-cpt.php:374
 msgid "FAQ Group Configuration"
-msgstr "Налаштування групи FAQ"
+msgstr "Настройка группы FAQ"
 
 #: includes/admin/class-group-admin.php:421
 #: includes/admin/class-group-cpt.php:384
 msgid "Content"
-msgstr "Вміст"
+msgstr "Содержимое"
 
 #: includes/admin/class-group-admin.php:432
 #: includes/admin/class-group-cpt.php:395
 msgid "Appearance"
-msgstr "Зовнішній вигляд"
+msgstr "Внешний вид"
 
 #: includes/admin/class-group-admin.php:443
 #: includes/admin/class-group-cpt.php:406
 msgid "Preview"
-msgstr "Попередній перегляд"
+msgstr "Предпросмотр"
 
 #: includes/admin/class-group-admin.php:627
 msgid "You do not have permission to save this group."
-msgstr "У вас немає дозволу на збереження цієї групи."
+msgstr "У вас нет прав для сохранения этой группы."
 
 #: includes/admin/class-group-admin.php:672
 #: includes/admin/class-group-admin.php:806
 msgid "Untitled FAQ Group"
-msgstr "Група FAQ без заголовка"
+msgstr "Группа FAQ без заголовка"
 
 #: includes/admin/class-group-admin.php:679
 #: includes/admin/class-group-admin.php:813
 msgid "Failed to create FAQ group."
-msgstr "Не вдалося створити групу FAQ."
+msgstr "Не удалось создать группу FAQ."
 
 #: includes/admin/class-group-admin.php:760
 #: includes/admin/class-group-cpt.php:2039
 msgid "You do not have permission to edit this FAQ group."
-msgstr "У вас немає дозволу на редагування цієї групи FAQ."
+msgstr "У вас нет прав для редактирования этой группы FAQ."
 
 #: includes/admin/class-group-admin.php:772
 msgid "Title is required."
-msgstr "Заголовок обов'язковий."
+msgstr "Заголовок обязателен."
 
 #: includes/admin/class-group-admin.php:823
 #: includes/admin/class-group-cpt.php:2048
 msgid "Invalid FAQ group."
-msgstr "Недійсна група FAQ."
+msgstr "Недопустимая группа FAQ."
 
 #: includes/admin/class-group-admin.php:881
 #: includes/admin/class-group-cpt.php:2086
 msgid "FAQ group saved successfully!"
-msgstr "Групу FAQ успішно збережено!"
+msgstr "Группа FAQ успешно сохранена!"
 
 #: includes/admin/class-group-admin.php:904
 #: includes/admin/class-group-cpt.php:1773
 msgid "Permission denied."
-msgstr "Доступ заборонено."
+msgstr "Доступ запрещён."
 
 #: includes/admin/class-group-admin.php:910
 #: includes/admin/class-group-cpt.php:1779
 msgid "Invalid group ID."
-msgstr "Недійсний ID групи."
+msgstr "Недопустимый ID группы."
 
 #: includes/admin/class-group-admin.php:919
 #: includes/admin/class-group-cpt.php:1788
 msgid "No FAQ items found. Add some items in the FAQ Items tab."
-msgstr "Елементи FAQ не знайдено. Додайте елементи на вкладці \"Елементи FAQ\"."
+msgstr "Элементы FAQ не найдены. Добавьте элементы на вкладке «Элементы FAQ»."
 
 #: includes/admin/class-group-admin.php:1017
 #: includes/admin/class-group-cpt.php:1889
 #: includes/frontend/class-frontend-renderer.php:314
 msgid "Search FAQs..."
-msgstr "Пошук по FAQ..."
+msgstr "Поиск по FAQ..."
 
 #: includes/admin/class-group-admin.php:1151
 #: includes/admin/class-group-cpt.php:469
 msgid "FAQ Items"
-msgstr "Елементи FAQ"
+msgstr "Элементы FAQ"
 
 #: includes/admin/class-group-admin.php:1153
 #: includes/admin/class-group-admin.php:1184
 #: includes/admin/class-group-cpt.php:471
 #: includes/admin/class-group-cpt.php:502
 msgid "Add questions and answers that your visitors commonly ask."
-msgstr "Додайте запитання та відповіді, які найчастіше ставлять ваші відвідувачі."
+msgstr "Добавьте вопросы и ответы, которые чаще всего задают ваши посетители."
 
 #: includes/admin/class-group-admin.php:1162
 #: includes/admin/class-group-cpt.php:480
 msgid "Behavior & Display Settings"
-msgstr "Налаштування поведінки та відображення"
+msgstr "Настройки поведения и отображения"
 
 #: includes/admin/class-group-admin.php:1164
 #: includes/admin/class-group-cpt.php:482
 msgid "Control how users interact with your FAQs."
-msgstr "Керуйте тим, як користувачі взаємодіють з вашими FAQ."
+msgstr "Управляйте тем, как пользователи взаимодействуют с вашими FAQ."
 
 #: includes/admin/class-group-admin.php:1183
 #: includes/admin/class-group-cpt.php:501
 msgid "No questions yet"
-msgstr "Запитань поки немає"
+msgstr "Вопросов пока нет"
 
 #: includes/admin/class-group-admin.php:1186
 #: includes/admin/class-group-cpt.php:504
 msgid "Add Your First Question"
-msgstr "Додайте своє перше запитання"
+msgstr "Добавьте свой первый вопрос"
 
 #: includes/admin/class-group-admin.php:1201
 #: includes/admin/class-group-cpt.php:519
 msgid "Question & Answer"
-msgstr "Запитання та відповідь"
+msgstr "Вопрос и ответ"
 
 #: includes/admin/class-group-admin.php:1202
 #: includes/admin/class-group-cpt.php:520
 msgid "Options"
-msgstr "Параметри"
+msgstr "Параметры"
 
 #: includes/admin/class-group-admin.php:1214
 #: includes/admin/class-group-admin.php:1280
 #: includes/admin/class-group-cpt.php:532
 #: includes/admin/class-group-cpt.php:598
 msgid "Enter your question..."
-msgstr "Введіть ваше запитання..."
+msgstr "Введите ваш вопрос..."
 
 #: includes/admin/class-group-admin.php:1232
 #: includes/admin/class-group-admin.php:1286
 #: includes/admin/class-group-cpt.php:550
 #: includes/admin/class-group-cpt.php:604
 msgid "Remove"
-msgstr "Видалити"
+msgstr "Удалить"
 
 #: includes/admin/class-group-admin.php:1241
 #: includes/admin/class-group-admin.php:1295
 #: includes/admin/class-group-cpt.php:559
 #: includes/admin/class-group-cpt.php:613
 msgid "Open by default"
-msgstr "Відкрито за замовчуванням"
+msgstr "Открыто по умолчанию"
 
 #: includes/admin/class-group-admin.php:1247
 #: includes/admin/class-group-admin.php:1301
 #: includes/admin/class-group-cpt.php:565
 #: includes/admin/class-group-cpt.php:619
 msgid "Show"
-msgstr "Показати"
+msgstr "Показать"
 
 #: includes/admin/class-group-admin.php:1253
 #: includes/admin/class-group-admin.php:1307
 #: includes/admin/class-group-cpt.php:571
 #: includes/admin/class-group-cpt.php:625
 msgid "Highlight"
-msgstr "Виділити"
+msgstr "Выделить"
 
 #: includes/admin/class-group-admin.php:1266
 #: includes/admin/class-group-cpt.php:584
 msgid "Add Question"
-msgstr "Додати запитання"
+msgstr "Добавить вопрос"
 
 #: includes/admin/class-group-admin.php:1284
 #: includes/admin/class-group-cpt.php:602
 msgid "Enter your answer..."
-msgstr "Введіть вашу відповідь..."
+msgstr "Введите ваш ответ..."
 
 #: includes/admin/class-group-admin.php:1332
 #: includes/admin/class-group-cpt.php:653
 msgid "Theme Presets"
-msgstr "Попередні налаштування тем"
+msgstr "Предустановки тем"
 
 #: includes/admin/class-group-admin.php:1334
 #: includes/admin/class-group-cpt.php:655
 msgid "Choose a pre-designed theme to quickly style your FAQs."
-msgstr "Оберіть готову тему для швидкого оформлення FAQ."
+msgstr "Выберите готовую тему для быстрого оформления FAQ."
 
 #: includes/admin/class-group-admin.php:1343
 #: includes/admin/class-group-cpt.php:664
 msgid "Advanced Style Overrides"
-msgstr "Розширені перевизначення стилів"
+msgstr "Расширенные переопределения стилей"
 
 #: includes/admin/class-group-admin.php:1345
 #: includes/admin/class-group-cpt.php:666
 msgid "Fine-tune every detail or override global styles for this group."
-msgstr "Налаштуйте кожну деталь або перевизначте глобальні стилі для цієї групи."
+msgstr "Настройте каждую деталь или переопределите глобальные стили для этой группы."
 
 #: includes/admin/class-group-admin.php:1353
 #: includes/admin/class-group-cpt.php:674
 msgid "Reset Theme"
-msgstr "Скинути тему"
+msgstr "Сбросить тему"
 
 #: includes/admin/class-group-admin.php:1356
 #: includes/admin/class-group-cpt.php:677
 msgid "Reset Styles"
-msgstr "Скинути стилі"
+msgstr "Сбросить стили"
 
 #: includes/admin/class-group-admin.php:1367
 #: includes/admin/class-group-admin.php:1819
 #: includes/admin/class-group-cpt.php:688
 #: includes/admin/class-group-cpt.php:1360
 msgid "Auto refresh"
-msgstr "Автооновлення"
+msgstr "Автообновление"
 
 #: includes/admin/class-group-admin.php:1371
 #: includes/admin/class-group-cpt.php:692
 msgid "Refresh"
-msgstr "Оновити"
+msgstr "Обновить"
 
 #: includes/admin/class-group-admin.php:1375
 #: includes/admin/class-group-cpt.php:696
 msgid "Changes update instantly as you tweak styles."
-msgstr "Зміни оновлюються миттєво при налаштуванні стилів."
+msgstr "Изменения обновляются мгновенно при настройке стилей."
 
 #: includes/admin/class-group-admin.php:1378
 #: includes/admin/class-group-cpt.php:699
 msgid "Add at least one question to see the live preview."
-msgstr "Додайте принаймні одне запитання, щоб побачити попередній перегляд."
+msgstr "Добавьте хотя бы один вопрос, чтобы увидеть предпросмотр."
 
 #: includes/admin/class-group-admin.php:1380
 #: includes/admin/class-group-cpt.php:701
 msgid "Add questions first"
-msgstr "Спочатку додайте запитання"
+msgstr "Сначала добавьте вопросы"
 
 #: includes/admin/class-group-admin.php:1409
 #: includes/admin/class-group-cpt.php:730
 msgid "Choose a theme preset"
-msgstr "Оберіть попереднє налаштування теми"
+msgstr "Выберите предустановку темы"
 
 #: includes/admin/class-group-admin.php:1435
 #: includes/admin/class-group-cpt.php:756
 msgid "Sample Question?"
-msgstr "Приклад запитання?"
+msgstr "Пример вопроса?"
 
 #: includes/admin/class-group-admin.php:1438
 #: includes/admin/class-group-cpt.php:759
 msgid "Preview answer text..."
-msgstr "Приклад тексту відповіді..."
+msgstr "Пример текста ответа..."
 
 #: includes/admin/class-group-admin.php:1449
 #: includes/admin/class-group-cpt.php:770
 msgid "Another Question?"
-msgstr "Ще одне запитання?"
+msgstr "Ещё один вопрос?"
 
 #: includes/admin/class-group-admin.php:1460
 #: includes/admin/class-group-cpt.php:781
 msgid "Applied"
-msgstr "Застосовано"
+msgstr "Применено"
 
 #: includes/admin/class-group-admin.php:1468
 #: includes/admin/class-group-cpt.php:789
 msgid "Customize Colors"
-msgstr "Налаштувати кольори"
+msgstr "Настроить цвета"
 
 #: includes/admin/class-group-admin.php:1470
 #: includes/admin/class-group-cpt.php:791
 msgid "Override theme colors with your own custom values."
-msgstr "Перевизначте кольори теми власними значеннями."
+msgstr "Переопределите цвета темы собственными значениями."
 
 #: includes/admin/class-group-admin.php:1475
 #: includes/admin/class-group-cpt.php:796
 msgid "Primary Color"
-msgstr "Основний колір"
+msgstr "Основной цвет"
 
 #: includes/admin/class-group-admin.php:1483
 #: includes/admin/class-group-cpt.php:804
 msgid "Secondary Color"
-msgstr "Додатковий колір"
+msgstr "Дополнительный цвет"
 
 #: includes/admin/class-group-admin.php:1491
 #: includes/admin/class-group-admin.php:1747
 #: includes/admin/class-group-cpt.php:812
 #: includes/admin/class-group-cpt.php:1288
 msgid "Accent Color"
-msgstr "Акцентний колір"
+msgstr "Акцентный цвет"
 
 #: includes/admin/class-group-admin.php:1499
 #: includes/admin/class-group-cpt.php:820
 msgid "Background Color"
-msgstr "Колір фону"
+msgstr "Цвет фона"
 
 #: includes/admin/class-group-admin.php:1518
 #: includes/admin/class-group-cpt.php:839
 msgid "How should users interact?"
-msgstr "Як користувачі повинні взаємодіяти?"
+msgstr "Как пользователи должны взаимодействовать?"
 
 #: includes/admin/class-group-admin.php:1523
 #: includes/admin/class-group-cpt.php:844
 msgid "Accordion Mode"
-msgstr "Режим акордеону"
+msgstr "Режим аккордеона"
 
 #: includes/admin/class-group-admin.php:1524
 #: includes/admin/class-group-admin.php:1543
@@ -1089,52 +1089,52 @@ msgstr "Режим акордеону"
 #: includes/admin/class-group-cpt.php:927
 #: includes/admin/class-group-cpt.php:946
 msgid "Learn more"
-msgstr "Дізнатися більше"
+msgstr "Подробнее"
 
 #: includes/admin/class-group-admin.php:1532
 #: includes/admin/class-group-cpt.php:853
 msgid "Only allow one item to be open at a time"
-msgstr "Дозволити відкриття лише одного елемента одночасно"
+msgstr "Разрешить открытие только одного элемента одновременно"
 
 #: includes/admin/class-group-admin.php:1535
 #: includes/admin/class-group-cpt.php:856
 msgid "When enabled, opening one item automatically closes all others. Perfect for keeping your FAQ section compact."
-msgstr "При увімкненні відкриття одного елемента автоматично закриває всі інші. Ідеально для компактного відображення розділу FAQ."
+msgstr "При включении открытие одного элемента автоматически закрывает все остальные. Идеально для компактного отображения раздела FAQ."
 
 #: includes/admin/class-group-admin.php:1542
 #: includes/admin/class-group-cpt.php:863
 msgid "Initial State"
-msgstr "Початковий стан"
+msgstr "Начальное состояние"
 
 #: includes/admin/class-group-admin.php:1550
 #: includes/admin/class-group-cpt.php:871
 msgid "All Closed"
-msgstr "Усі закриті"
+msgstr "Все закрыты"
 
 #: includes/admin/class-group-admin.php:1551
 #: includes/admin/class-group-cpt.php:872
 msgid "First Item Open"
-msgstr "Перший елемент відкритий"
+msgstr "Первый элемент открыт"
 
 #: includes/admin/class-group-admin.php:1552
 #: includes/admin/class-group-cpt.php:873
 msgid "Custom (Use item settings)"
-msgstr "Користувацьке (використовувати налаштування елементів)"
+msgstr "Пользовательское (использовать настройки элементов)"
 
 #: includes/admin/class-group-admin.php:1555
 #: includes/admin/class-group-cpt.php:876
 msgid "Choose how items should appear when the page loads. \"Custom\" uses the \"Open by default\" setting for each item."
-msgstr "Оберіть, як елементи відображатимуться при завантаженні сторінки. \"Користувацьке\" використовує налаштування \"Відкрито за замовчуванням\" для кожного елемента."
+msgstr "Выберите, как элементы будут отображаться при загрузке страницы. «Пользовательское» использует настройку «Открыто по умолчанию» для каждого элемента."
 
 #: includes/admin/class-group-admin.php:1562
 #: includes/admin/class-group-cpt.php:883
 msgid "Animation Speed"
-msgstr "Швидкість анімації"
+msgstr "Скорость анимации"
 
 #: includes/admin/class-group-admin.php:1570
 #: includes/admin/class-group-cpt.php:891
 msgid "Fast (150ms)"
-msgstr "Швидко (150 мс)"
+msgstr "Быстро (150 мс)"
 
 #: includes/admin/class-group-admin.php:1571
 #: includes/admin/class-group-cpt.php:892
@@ -1144,72 +1144,72 @@ msgstr "Нормально (300 мс)"
 #: includes/admin/class-group-admin.php:1572
 #: includes/admin/class-group-cpt.php:893
 msgid "Slow (500ms)"
-msgstr "Повільно (500 мс)"
+msgstr "Медленно (500 мс)"
 
 #: includes/admin/class-group-admin.php:1575
 #: includes/admin/class-group-cpt.php:896
 msgid "Controls how quickly items expand and collapse. Normal works well for most sites."
-msgstr "Керує швидкістю розкриття та згортання елементів. Нормальна швидкість підходить для більшості сайтів."
+msgstr "Управляет скоростью раскрытия и сворачивания элементов. Нормальная скорость подходит для большинства сайтов."
 
 #: includes/admin/class-group-admin.php:1581
 #: includes/admin/class-group-cpt.php:902
 msgid "What should users see?"
-msgstr "Що повинні бачити користувачі?"
+msgstr "Что должны видеть пользователи?"
 
 #: includes/admin/class-group-admin.php:1586
 #: includes/admin/class-group-cpt.php:907
 msgid "Search Box"
-msgstr "Поле пошуку"
+msgstr "Поле поиска"
 
 #: includes/admin/class-group-admin.php:1595
 #: includes/admin/class-group-cpt.php:916
 msgid "Show search box above FAQ items"
-msgstr "Показати поле пошуку над елементами FAQ"
+msgstr "Показать поле поиска над элементами FAQ"
 
 #: includes/admin/class-group-admin.php:1598
 #: includes/admin/class-group-cpt.php:919
 msgid "Adds a live search box that filters questions and answers as visitors type."
-msgstr "Додає поле пошуку, яке фільтрує запитання та відповіді під час введення тексту відвідувачами."
+msgstr "Добавляет поле поиска, которое фильтрует вопросы и ответы по мере ввода текста посетителями."
 
 #: includes/admin/class-group-admin.php:1605
 #: includes/admin/class-group-cpt.php:926
 msgid "Item Counter"
-msgstr "Нумерація елементів"
+msgstr "Нумерация элементов"
 
 #: includes/admin/class-group-admin.php:1614
 #: includes/admin/class-group-cpt.php:935
 msgid "Display item numbers (e.g., 1., 2., 3.)"
-msgstr "Відображати номери елементів (напр., 1., 2., 3.)"
+msgstr "Отображать номера элементов (напр., 1., 2., 3.)"
 
 #: includes/admin/class-group-admin.php:1617
 #: includes/admin/class-group-cpt.php:938
 msgid "Shows numbered labels before each question for easy reference."
-msgstr "Показує нумеровані мітки перед кожним запитанням для зручної навігації."
+msgstr "Показывает нумерованные метки перед каждым вопросом для удобства навигации."
 
 #: includes/admin/class-group-admin.php:1624
 #: includes/admin/class-group-cpt.php:945
 msgid "Smooth Scroll"
-msgstr "Плавне прокручування"
+msgstr "Плавная прокрутка"
 
 #: includes/admin/class-group-admin.php:1633
 #: includes/admin/class-group-cpt.php:954
 msgid "Scroll to item when opened via URL hash"
-msgstr "Прокрутити до елемента при відкритті через URL-хеш"
+msgstr "Прокрутка к элементу при открытии через URL-хэш"
 
 #: includes/admin/class-group-admin.php:1636
 #: includes/admin/class-group-cpt.php:957
 msgid "Smoothly scrolls opened items into view, helpful when linking directly to specific questions."
-msgstr "Плавно прокручує до відкритого елемента, корисно при прямих посиланнях на конкретні запитання."
+msgstr "Плавно прокручивает к открытому элементу, полезно при прямых ссылках на конкретные вопросы."
 
 #: includes/admin/class-group-admin.php:1659
 #: includes/admin/class-group-cpt.php:1200
 msgid "Use custom styles for this group"
-msgstr "Використовувати власні стилі для цієї групи"
+msgstr "Использовать пользовательские стили для этой группы"
 
 #: includes/admin/class-group-admin.php:1662
 #: includes/admin/class-group-cpt.php:1203
 msgid "Enable this to override global styles with group-specific styling."
-msgstr "Увімкніть для перевизначення глобальних стилів стилями, специфічними для групи."
+msgstr "Включите для переопределения глобальных стилей стилями, специфичными для группы."
 
 #: includes/admin/class-group-admin.php:1667
 #: includes/admin/class-group-cpt.php:1208
@@ -1224,143 +1224,143 @@ msgstr "Фон"
 #: includes/admin/class-group-admin.php:1679
 #: includes/admin/class-group-cpt.php:1220
 msgid "Border Color"
-msgstr "Колір рамки"
+msgstr "Цвет рамки"
 
 #: includes/admin/class-group-admin.php:1687
 #: includes/admin/class-group-cpt.php:1228
 msgid "Border Radius (px)"
-msgstr "Заокруглення рамки (пікс.)"
+msgstr "Скругление рамки (пикс.)"
 
 #: includes/admin/class-group-admin.php:1707
 #: includes/admin/class-group-admin.php:1727
 #: includes/admin/class-group-cpt.php:1248
 #: includes/admin/class-group-cpt.php:1268
 msgid "Color"
-msgstr "Колір"
+msgstr "Цвет"
 
 #: includes/admin/class-group-admin.php:1715
 #: includes/admin/class-group-admin.php:1735
 #: includes/admin/class-group-cpt.php:1256
 #: includes/admin/class-group-cpt.php:1276
 msgid "Font Size (px)"
-msgstr "Розмір шрифту (пікс.)"
+msgstr "Размер шрифта (пикс.)"
 
 #: includes/admin/class-group-admin.php:1743
 #: includes/admin/class-group-cpt.php:1284
 msgid "Accent & Animation"
-msgstr "Акцент та анімація"
+msgstr "Акцент и анимация"
 
 #: includes/admin/class-group-admin.php:1755
 #: includes/admin/class-group-cpt.php:1296
 msgid "Icon Style"
-msgstr "Стиль іконки"
+msgstr "Стиль иконки"
 
 #: includes/admin/class-group-admin.php:1797
 #: includes/admin/class-group-cpt.php:1338
 msgid "Preview will appear after you add items"
-msgstr "Попередній перегляд з'явиться після додавання елементів"
+msgstr "Предпросмотр появится после добавления элементов"
 
 #: includes/admin/class-group-admin.php:1798
 #: includes/admin/class-group-cpt.php:1339
 msgid "Add at least one question in the Content tab, then return here to see how it looks."
-msgstr "Додайте принаймні одне запитання на вкладці \"Вміст\", потім поверніться сюди, щоб побачити результат."
+msgstr "Добавьте хотя бы один вопрос на вкладке «Содержимое», затем вернитесь сюда, чтобы увидеть результат."
 
 #: includes/admin/class-group-admin.php:1800
 #: includes/admin/class-group-cpt.php:1341
 msgid "Go to Content Tab"
-msgstr "Перейти на вкладку \"Вміст\""
+msgstr "Перейти на вкладку «Содержимое»"
 
 #: includes/admin/class-group-admin.php:1805
 #: includes/admin/class-group-cpt.php:1346
 msgid "Preview device"
-msgstr "Пристрій попереднього перегляду"
+msgstr "Устройство предпросмотра"
 
 #: includes/admin/class-group-admin.php:1806
 #: includes/admin/class-group-cpt.php:1347
 msgid "Desktop view"
-msgstr "Вигляд на ПК"
+msgstr "Вид на ПК"
 
 #: includes/admin/class-group-admin.php:1809
 #: includes/admin/class-group-cpt.php:1350
 msgid "Tablet view"
-msgstr "Вигляд на планшеті"
+msgstr "Вид на планшете"
 
 #: includes/admin/class-group-admin.php:1812
 #: includes/admin/class-group-cpt.php:1353
 msgid "Mobile view"
-msgstr "Вигляд на мобільному"
+msgstr "Вид на мобильном"
 
 #: includes/admin/class-group-admin.php:1823
 #: includes/admin/class-group-cpt.php:1364
 msgid "Refresh Preview"
-msgstr "Оновити попередній перегляд"
+msgstr "Обновить предпросмотр"
 
 #: includes/admin/class-group-admin.php:1830
 #: includes/admin/class-group-cpt.php:1371
 msgid "Save the group to see all changes reflected in the preview."
-msgstr "Збережіть групу, щоб побачити всі зміни у попередньому перегляді."
+msgstr "Сохраните группу, чтобы увидеть все изменения в предпросмотре."
 
 #: includes/admin/class-group-admin.php:1852
 #: includes/admin/class-group-cpt.php:1393
 msgid "Default"
-msgstr "За замовчуванням"
+msgstr "По умолчанию"
 
 #: includes/admin/class-group-admin.php:1853
 #: includes/admin/class-group-cpt.php:1394
 msgid "Refined baseline with soft shadows. Fits any site."
-msgstr "Вишукана базова тема з м'якими тінями. Підходить для будь-якого сайту."
+msgstr "Утончённая базовая тема с мягкими тенями. Подходит для любого сайта."
 
 #: includes/admin/class-group-admin.php:1881
 #: includes/admin/class-group-cpt.php:1422
 #: includes/core/class-presets.php:66
 msgid "Modern"
-msgstr "Сучасний"
+msgstr "Современный"
 
 #: includes/admin/class-group-admin.php:1882
 #: includes/admin/class-group-cpt.php:1423
 msgid "Floating cards with indigo accent. Clean and airy."
-msgstr "Плаваючі картки з індиго-акцентом. Чистий та повітряний стиль."
+msgstr "Плавающие карточки с индиго-акцентом. Чистый и воздушный стиль."
 
 #: includes/admin/class-group-admin.php:1910
 #: includes/admin/class-group-cpt.php:1451
 msgid "Elegant"
-msgstr "Елегантний"
+msgstr "Элегантный"
 
 #: includes/admin/class-group-admin.php:1911
 #: includes/admin/class-group-cpt.php:1452
 msgid "Warm tones with connected bordered items."
-msgstr "Теплі тони з поєднаними елементами в рамках."
+msgstr "Тёплые тона с соединёнными элементами в рамках."
 
 #: includes/admin/class-group-admin.php:1939
 #: includes/admin/class-group-cpt.php:1480
 #: includes/core/class-presets.php:43
 msgid "Minimal"
-msgstr "Мінімалістичний"
+msgstr "Минималистичный"
 
 #: includes/admin/class-group-admin.php:1940
 #: includes/admin/class-group-cpt.php:1481
 msgid "Stripped to essentials. Content speaks for itself."
-msgstr "Лише найнеобхідніше. Вміст говорить сам за себе."
+msgstr "Только самое необходимое. Содержимое говорит само за себя."
 
 #: includes/admin/class-group-admin.php:1968
 #: includes/admin/class-group-cpt.php:1509
 msgid "Bold"
-msgstr "Жирний"
+msgstr "Жирный"
 
 #: includes/admin/class-group-admin.php:1969
 #: includes/admin/class-group-cpt.php:1510
 msgid "Strong cards with emerald accent. High visual impact."
-msgstr "Виразні картки зі смарагдовим акцентом. Високий візуальний вплив."
+msgstr "Выразительные карточки с изумрудным акцентом. Высокая визуальная выразительность."
 
 #: includes/admin/class-group-admin.php:1997
 #: includes/admin/class-group-cpt.php:1538
 msgid "Professional"
-msgstr "Професійний"
+msgstr "Профессиональный"
 
 #: includes/admin/class-group-admin.php:1998
 #: includes/admin/class-group-cpt.php:1539
 msgid "Structured alternating rows. Enterprise-ready."
-msgstr "Структуровані чергові рядки. Готово для корпоративного використання."
+msgstr "Структурированные чередующиеся строки. Готово для корпоративного использования."
 
 #: includes/admin/class-group-admin.php:2050
 #: includes/admin/class-group-cpt.php:197
@@ -1374,7 +1374,7 @@ msgstr "Шорткод"
 #: includes/admin/class-group-cpt.php:203
 #: includes/admin/class-group-cpt.php:213
 msgid "Copied!"
-msgstr "Скопійовано!"
+msgstr "Скопировано!"
 
 #: includes/admin/class-group-admin.php:2060
 #: includes/admin/class-group-cpt.php:207
@@ -1384,42 +1384,42 @@ msgstr "PHP-шаблон"
 #: includes/admin/class-group-admin.php:2072
 #: includes/admin/class-group-cpt.php:219
 msgid "Also available as a Gutenberg block."
-msgstr "Також доступний як блок Gutenberg."
+msgstr "Также доступен как блок Gutenberg."
 
 #: includes/admin/class-group-cpt.php:107
 #: blocks/faq/editor.js:97
 msgid "FAQ Group"
-msgstr "Група FAQ"
+msgstr "Группа FAQ"
 
 #: includes/admin/class-group-cpt.php:111
 msgid "New FAQ Group"
-msgstr "Нова група FAQ"
+msgstr "Новая группа FAQ"
 
 #: includes/admin/class-group-cpt.php:113
 msgid "View FAQ Group"
-msgstr "Переглянути групу FAQ"
+msgstr "Просмотр группы FAQ"
 
 #: includes/admin/class-group-cpt.php:114
 msgid "Search FAQ Groups"
-msgstr "Пошук груп FAQ"
+msgstr "Поиск групп FAQ"
 
 #: includes/admin/class-group-cpt.php:115
 msgid "No FAQ groups found"
-msgstr "Груп FAQ не знайдено"
+msgstr "Группы FAQ не найдены"
 
 #: includes/admin/class-group-cpt.php:116
 msgid "No FAQ groups found in Trash"
-msgstr "У кошику немає груп FAQ"
+msgstr "В корзине нет групп FAQ"
 
 #: includes/admin/class-group-cpt.php:990
 #: includes/admin/class-group-list-table.php:165
 msgid "Duplicate"
-msgstr "Дублювати"
+msgstr "Дублировать"
 
 #: includes/admin/class-group-cpt.php:1014
 #: includes/admin/class-group-list-table.php:48
 msgid "Questions"
-msgstr "Запитання"
+msgstr "Вопросы"
 
 #: includes/admin/class-group-cpt.php:1015
 #: includes/admin/class-group-list-table.php:49
@@ -1429,31 +1429,31 @@ msgstr "Тема"
 #: includes/admin/class-group-cpt.php:1039
 #: includes/admin/class-group-list-table.php:193
 msgid "Copy shortcode"
-msgstr "Копіювати шорткод"
+msgstr "Копировать шорткод"
 
 #: includes/admin/class-group-cpt.php:1064
 #: includes/admin/class-group-list-table.php:223
 msgid "Hidden from frontend"
-msgstr "Приховано на сайті"
+msgstr "Скрыто на сайте"
 
 #: includes/admin/class-group-cpt.php:1066
 #: includes/admin/class-group-list-table.php:225
 msgid "hidden"
-msgstr "приховано"
+msgstr "скрыто"
 
 #: includes/admin/class-group-cpt.php:1104
 msgid "Invalid request."
-msgstr "Недійсний запит."
+msgstr "Недопустимый запрос."
 
 #. translators: %s: Source group title.
 #: includes/admin/class-group-cpt.php:1993
 #, php-format
 msgid "FAQ group duplicated from \"%s\". Review and publish when ready."
-msgstr "Групу FAQ продубльовано з \"%s\". Перевірте та опублікуйте, коли буде готово."
+msgstr "Группа FAQ продублирована из «%s». Проверьте и опубликуйте, когда будет готово."
 
 #: includes/admin/class-group-cpt.php:2031
 msgid "Invalid post ID."
-msgstr "Недійсний ID запису."
+msgstr "Недопустимый ID записи."
 
 #: includes/admin/class-group-list-table.php:46
 #: blocks/faq/editor.js:79
@@ -1467,35 +1467,35 @@ msgstr "Дата"
 #: includes/admin/class-group-list-table.php:73
 #: includes/admin/class-group-list-table.php:166
 msgid "Delete"
-msgstr "Видалити"
+msgstr "Удалить"
 
 #: includes/admin/class-group-list-table.php:164
 msgid "Edit"
-msgstr "Редагувати"
+msgstr "Редактировать"
 
 #: includes/admin/class-group-list-table.php:166
 msgid "Are you sure?"
-msgstr "Ви впевнені?"
+msgstr "Вы уверены?"
 
 #: includes/admin/class-group-list-table.php:290
 msgid "No FAQ groups found."
-msgstr "Груп FAQ не знайдено."
+msgstr "Группы FAQ не найдены."
 
 #: includes/core/class-presets.php:44
 msgid "Clean and subtle. Works with any design."
-msgstr "Чистий та стриманий. Підходить до будь-якого дизайну."
+msgstr "Чистый и сдержанный. Подходит к любому дизайну."
 
 #: includes/core/class-presets.php:67
 msgid "Floating cards with indigo accent and soft elevation."
-msgstr "Плаваючі картки з індиго-акцентом та м'яким підняттям."
+msgstr "Плавающие карточки с индиго-акцентом и мягким подъёмом."
 
 #: includes/core/class-presets.php:89
 msgid "Card"
-msgstr "Картка"
+msgstr "Карточка"
 
 #: includes/core/class-presets.php:90
 msgid "Stacked connected items with clean borders."
-msgstr "Складені поєднані елементи з чистими рамками."
+msgstr "Составные соединённые элементы с чистыми рамками."
 
 #: includes/core/class-presets.php:112
 msgid "Outline"
@@ -1503,7 +1503,7 @@ msgstr "Контур"
 
 #: includes/core/class-presets.php:113
 msgid "No borders. Answers marked with left accent bar."
-msgstr "Без рамок. Відповіді виділені лівою акцентною смужкою."
+msgstr "Без рамок. Ответы выделены левой акцентной полосой."
 
 #: includes/core/class-presets.php:135
 msgid "Contrast"
@@ -1511,32 +1511,32 @@ msgstr "Контраст"
 
 #: includes/core/class-presets.php:136
 msgid "Dark surface with orange accent. Bold statement."
-msgstr "Темна поверхня з помаранчевим акцентом. Яскрава заява."
+msgstr "Тёмная поверхность с оранжевым акцентом. Яркое заявление."
 
 #: includes/frontend/class-frontend-renderer.php:101
 msgid "Invalid tracking payload."
-msgstr "Недійсні дані відстеження."
+msgstr "Недопустимые данные отслеживания."
 
 #: includes/frontend/class-frontend-renderer.php:107
 msgid "Group not found."
-msgstr "Групу не знайдено."
+msgstr "Группа не найдена."
 
 #: includes/frontend/class-frontend-renderer.php:196
 #: blocks/faq/editor.js:115
 msgid "Frequently Asked Questions"
-msgstr "Часті запитання"
+msgstr "Часто задаваемые вопросы"
 
 #: includes/frontend/class-frontend-renderer.php:355
 msgid "No FAQs found yet. Add some FAQs in the admin to populate this section."
-msgstr "FAQ ще не знайдено. Додайте FAQ в панелі адміністратора, щоб заповнити цей розділ."
+msgstr "FAQ пока не найдены. Добавьте FAQ в панели администратора, чтобы заполнить этот раздел."
 
 #: blocks/faq/editor.js:24
 msgid "Use global preset"
-msgstr "Використовувати глобальне попереднє налаштування"
+msgstr "Использовать глобальную предустановку"
 
 #: blocks/faq/editor.js:60
 msgid "All FAQs (default)"
-msgstr "Усі FAQ (за замовчуванням)"
+msgstr "Все FAQ (по умолчанию)"
 
 #: blocks/faq/editor.js:63
 msgid "(no title)"
@@ -1544,31 +1544,31 @@ msgstr "(без заголовка)"
 
 #: blocks/faq/editor.js:77
 msgid "FAQ Settings"
-msgstr "Налаштування FAQ"
+msgstr "Настройки FAQ"
 
 #: blocks/faq/editor.js:86
 msgid "Preset"
-msgstr "Попереднє налаштування"
+msgstr "Предустановка"
 
 #: blocks/faq/editor.js:92
 msgid "Choose which preset to apply to this block. Leave blank to use the global preset."
-msgstr "Оберіть, яке попереднє налаштування застосувати до цього блоку. Залиште порожнім для використання глобального."
+msgstr "Выберите, какую предустановку применить к этому блоку. Оставьте пустым для использования глобальной предустановки."
 
 #: blocks/faq/editor.js:121
 msgid "This block will display the selected FAQ group on the front-end."
-msgstr "Цей блок відображатиме обрану групу FAQ на сайті."
+msgstr "Этот блок отобразит выбранную группу FAQ на сайте."
 
 #: blocks/faq/editor.js:122
 msgid "No specific group selected. Default FAQs will be shown."
-msgstr "Конкретна група не обрана. Будуть показані FAQ за замовчуванням."
+msgstr "Конкретная группа не выбрана. Будут показаны FAQ по умолчанию."
 
 #: blocks/faq/editor.js:128
 msgid "Preset: "
-msgstr "Попереднє налаштування: "
+msgstr "Предустановка: "
 
 #: blocks/faq/editor.js:129
 msgid "Using global preset"
-msgstr "Використовується глобальне попереднє налаштування"
+msgstr "Используется глобальная предустановка"
 
 #: blocks/faq/block.json
 msgctxt "block title"
@@ -1578,7 +1578,7 @@ msgstr "Next Level FAQ"
 #: blocks/faq/block.json
 msgctxt "block description"
 msgid "Display a styled FAQ section using the Next Level FAQ styles."
-msgstr "Відображає стилізований розділ FAQ з використанням стилів Next Level FAQ."
+msgstr "Отображает стилизованный раздел FAQ с использованием стилей Next Level FAQ."
 
 #: blocks/faq/block.json
 msgctxt "block keyword"
@@ -1588,9 +1588,9 @@ msgstr "faq"
 #: blocks/faq/block.json
 msgctxt "block keyword"
 msgid "accordion"
-msgstr "акордеон"
+msgstr "аккордеон"
 
 #: blocks/faq/block.json
 msgctxt "block keyword"
 msgid "help"
-msgstr "допомога"
+msgstr "помощь"

@@ -71,7 +71,7 @@ class Block_Registrar {
 			)
 		);
 
-		wp_set_script_translations( 'nlf-faq-block-editor', 'next-level-faq', NLF_FAQ_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'nlf-faq-block-editor', 'krslys-next-level-faq', NLF_FAQ_PLUGIN_DIR . 'languages' );
 	}
 
 	/**
