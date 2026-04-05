@@ -42,6 +42,12 @@ async function createTestGroup( browser ) {
 			form.append( 'nlf_faq_group_answer[]', 'It is a WordPress FAQ plugin.' );
 			form.append( 'nlf_faq_group_visible[0]', '1' );
 
+			form.append( 'nlf_faq_group_question[]', 'How do I install it?' );
+			form.append( 'nlf_faq_group_answer[]', 'Upload and activate the plugin.' );
+			form.append( 'nlf_faq_group_visible[1]', '1' );
+
+			form.append( 'nlf_faq_group_settings[show_search]', '1' );
+
 			const res = await fetch( '/wp-admin/admin-ajax.php', {
 				method: 'POST',
 				credentials: 'same-origin',

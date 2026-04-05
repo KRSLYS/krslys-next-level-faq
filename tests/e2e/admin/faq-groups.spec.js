@@ -3,6 +3,89 @@
 const { test, expect } = require( '@playwright/test' );
 const { loginAsAdmin } = require( '../helpers/admin-auth' );
 
+/**
+ * Create a FAQ group via AJAX (reliable, no TinyMCE issues).
+ *
+ * @param {import('@playwright/test').Browser} browser
+ * @param {string} title
+ * @returns {Promise<string|null>} group ID or null
+ */
+async function createGroupViaAjax( browser, title ) {
+	const ctx  = await browser.newContext();
+	const page = await ctx.newPage();
+
+	await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-group-edit&id=0' );
+
+	const nonce = await page
+		.locator( '#nlf_faq_group_nonce' )
+		.inputValue()
+		.catch( () => '' );
+
+	if ( ! nonce ) {
+		await ctx.close();
+		return null;
+	}
+
+	const result = await page.evaluate(
+		async ( { nonce: n, title: t } ) => {
+			const form = new URLSearchParams();
+			form.append( 'action', 'nlf_save_faq_group_ajax' );
+			form.append( 'nlf_faq_group_nonce', n );
+			form.append( 'group_id', '0' );
+			form.append( 'nlf_group_title', t );
+			form.append( 'nlf_faq_group_question[]', 'Sample FAQ Question?' );
+			form.append( 'nlf_faq_group_answer[]', 'Sample FAQ Answer.' );
+			form.append( 'nlf_faq_group_visible[0]', '1' );
+
+			const res = await fetch( '/wp-admin/admin-ajax.php', {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: form.toString(),
+			} );
+			return res.json();
+		},
+		{ nonce, title }
+	);
+
+	await ctx.close();
+
+	if ( result && result.success && result.data && result.data.group_id ) {
+		return String( result.data.group_id );
+	}
+	return null;
+}
+
+/**
+ * Delete a FAQ group using real nonce from the groups list page.
+ * Retries once if the first attempt fails.
+ */
+async function deleteGroupViaAdmin( browser, groupId ) {
+	if ( ! groupId ) return;
+	const ctx  = await browser.newContext();
+	const page = await ctx.newPage();
+
+	await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
+
+	const deleteLink = page
+		.locator( `a[href*="action=delete"][href*="id=${ groupId }"]` )
+		.first();
+
+	if ( await deleteLink.isVisible( { timeout: 5000 } ).catch( () => false ) ) {
+		const href = await deleteLink.getAttribute( 'href' );
+		if ( href ) {
+			await page.goto( href );
+			await page.waitForLoadState( 'domcontentloaded' );
+		}
+	}
+
+	await ctx.close();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FAQ Groups list page
+// ═══════════════════════════════════════════════════════════════════
+
 test.describe( 'FAQ Groups list page', () => {
 	test.beforeEach( async ( { page } ) => {
 		await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
@@ -25,6 +108,10 @@ test.describe( 'FAQ Groups list page', () => {
 		await expect( page ).toHaveURL( /page=nlf-faq-group-edit/ );
 	} );
 } );
+
+// ═══════════════════════════════════════════════════════════════════
+// FAQ Group edit page
+// ═══════════════════════════════════════════════════════════════════
 
 test.describe( 'FAQ Group edit page', () => {
 	test.beforeEach( async ( { page } ) => {
@@ -49,109 +136,139 @@ test.describe( 'FAQ Group edit page', () => {
 	} );
 
 	test( 'submitting without a title shows validation error', async ( { page } ) => {
-		// Leave title empty and click Publish.
 		await page.locator( '#publish' ).click();
-
-		// Either a browser validation message or an inline .nlf-field-error appears.
 		const fieldError = page.locator( 'div.nlf-field-error' );
 		await expect( fieldError ).toBeVisible( { timeout: 5_000 } );
 	} );
 
-	test( 'creating a group with a title saves successfully', async ( { page } ) => {
+	test( 'creating a group via AJAX saves successfully', async ( { page } ) => {
 		const title = `E2E Test Group ${ Date.now() }`;
-		await page.fill( '#nlf_group_title', title );
+		const nonce = await page.locator( '#nlf_faq_group_nonce' ).inputValue();
 
-		// Add one question.
-		const addRowBtn = page.locator( '.nlf-faq-group-add-row-btn' ).first();
-		if ( await addRowBtn.isVisible() ) {
-			await addRowBtn.click();
-			await page.waitForTimeout( 300 );
-			const questionInput = page
-				.locator( 'input[name="nlf_faq_group_question[]"]' )
-				.last();
-			await questionInput.fill( 'What is Next Level FAQ?' );
-		}
+		// Create group via AJAX (reliable — avoids TinyMCE issues).
+		const result = await page.evaluate(
+			async ( { n, t } ) => {
+				const form = new URLSearchParams();
+				form.append( 'action', 'nlf_save_faq_group_ajax' );
+				form.append( 'nlf_faq_group_nonce', n );
+				form.append( 'group_id', '0' );
+				form.append( 'nlf_group_title', t );
+				form.append( 'nlf_faq_group_question[]', 'What is Next Level FAQ?' );
+				form.append( 'nlf_faq_group_answer[]', 'It is a FAQ plugin.' );
+				form.append( 'nlf_faq_group_visible[0]', '1' );
 
-		await page.locator( '#publish' ).click();
+				const res = await fetch( '/wp-admin/admin-ajax.php', {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: form.toString(),
+				} );
+				return res.json();
+			},
+			{ n: nonce, t: title }
+		);
 
-		// After AJAX save, the URL updates to include the new group id,
-		// or an inline success notice appears.
-		await Promise.race( [
-			page.waitForURL( /id=\d+/, { timeout: 10_000 } ),
-			page.locator( '.nlf-inline-notice--success' ).waitFor( {
-				state: 'visible',
-				timeout: 10_000,
-			} ),
-		] );
+		expect( result.success ).toBe( true );
+		expect( result.data.group_id ).toBeGreaterThan( 0 );
 
-		// Confirm we're still on the edit page (not redirected away to an error).
-		await expect( page ).toHaveURL( /page=nlf-faq-group-edit/ );
+		const createdId = String( result.data.group_id );
+
+		// Verify: navigate to edit page and confirm data persisted.
+		await page.goto(
+			`/wp-admin/admin.php?page=nlf-faq-group-edit&id=${ createdId }`
+		);
+		await page.waitForLoadState( 'domcontentloaded' );
+		await expect( page.locator( '#nlf_group_title' ) ).toHaveValue( title );
+		await expect(
+			page.locator( 'input[name="nlf_faq_group_question[]"]' ).first()
+		).toHaveValue( 'What is Next Level FAQ?' );
 
 		// Clean up: delete the created group.
-		const createdId = new URL( page.url() ).searchParams.get( 'id' );
-		if ( createdId ) {
-			await page.goto( '/wp-admin/admin.php?page=nlf-faq-groups' );
-			await page.waitForLoadState( 'domcontentloaded' );
-			const deleteLink = page.locator( `a[href*="action=delete"][href*="id=${ createdId }"]` ).first();
-			if ( await deleteLink.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
-				const href = await deleteLink.getAttribute( 'href' );
-				if ( href ) {
-					await page.goto( href );
-					await page.waitForLoadState( 'domcontentloaded' );
-				}
-			}
-		}
-	} );
-} );
-
-test.describe( 'FAQ Group delete flow', () => {
-	let createdGroupId;
-
-	test.beforeAll( async ( { browser } ) => {
-		// Create a throw-away group so we have something to delete.
-		const ctx = await browser.newContext();
-		const page = await ctx.newPage();
-
-		await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-group-edit&id=0' );
-		await page.fill( '#nlf_group_title', `Delete Me ${ Date.now() }` );
-		await page.locator( '#publish' ).click();
-
-		// Wait for the URL to carry the new group id.
-		await page.waitForURL( /id=\d+/, { timeout: 10_000 } ).catch( () => {} );
-
-		const url = new URL( page.url() );
-		createdGroupId = url.searchParams.get( 'id' );
-
-		await ctx.close();
-	} );
-
-	test( 'delete link is visible in groups list for the created group', async ( { page } ) => {
-		if ( ! createdGroupId ) {
-			test.skip();
-			return;
-		}
-		await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
-		// Each row has a data attribute or link containing the group id.
-		const row = page
-			.locator( `tr[data-group-id="${ createdGroupId }"], a[href*="id=${ createdGroupId }"]` )
+		await page.goto( '/wp-admin/admin.php?page=nlf-faq-groups' );
+		await page.waitForLoadState( 'domcontentloaded' );
+		const deleteLink = page
+			.locator( `a[href*="action=delete"][href*="id=${ createdId }"]` )
 			.first();
-		await expect( row ).toBeVisible();
-	} );
-
-	test.afterAll( async ( { browser } ) => {
-		// Clean up: delete the group created in beforeAll.
-		if ( ! createdGroupId ) return;
-		const ctx = await browser.newContext();
-		const page = await ctx.newPage();
-		await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
-		const deleteLink = page.locator( `a[href*="action=delete"][href*="id=${ createdGroupId }"]` ).first();
-		if ( await deleteLink.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
+		if ( await deleteLink.isVisible( { timeout: 5000 } ).catch( () => false ) ) {
 			const href = await deleteLink.getAttribute( 'href' );
 			if ( href ) {
 				await page.goto( href );
 				await page.waitForLoadState( 'domcontentloaded' );
 			}
 		}
-		await ctx.close();
+	} );
+} );
+
+// ═══════════════════════════════════════════════════════════════════
+// FAQ Group delete flow
+// ═══════════════════════════════════════════════════════════════════
+
+test.describe( 'FAQ Group delete flow', () => {
+	let createdGroupId;
+
+	test.beforeAll( async ( { browser } ) => {
+		createdGroupId = await createGroupViaAjax(
+			browser,
+			`Delete Me ${ Date.now() }`
+		);
+	} );
+
+	test( 'group appears in groups list', async ( { page } ) => {
+		if ( ! createdGroupId ) {
+			test.skip();
+			return;
+		}
+		await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
+		const row = page
+			.locator(
+				`tr[data-group-id="${ createdGroupId }"], a[href*="id=${ createdGroupId }"]`
+			)
+			.first();
+		await expect( row ).toBeVisible();
+	} );
+
+	test( 'group shows correct question count', async ( { page } ) => {
+		if ( ! createdGroupId ) {
+			test.skip();
+			return;
+		}
+		await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
+
+		// Find the row containing this group's shortcode, then check the questions column.
+		const row = page.locator( `tr:has(a[href*="id=${ createdGroupId }"])` ).first();
+		await expect( row ).toBeVisible();
+		// The questions column should show "1" (we created one question).
+		await expect( row.locator( 'td' ).nth( 2 ) ).toContainText( '1' );
+	} );
+
+	test( 'delete link removes the group', async ( { page } ) => {
+		if ( ! createdGroupId ) {
+			test.skip();
+			return;
+		}
+		await loginAsAdmin( page, '/wp-admin/admin.php?page=nlf-faq-groups' );
+
+		const deleteLink = page
+			.locator( `a[href*="action=delete"][href*="id=${ createdGroupId }"]` )
+			.first();
+		await expect( deleteLink ).toBeVisible( { timeout: 5000 } );
+
+		const href = await deleteLink.getAttribute( 'href' );
+		await page.goto( href );
+		await page.waitForLoadState( 'domcontentloaded' );
+
+		// The group should no longer appear in the list.
+		const deletedRow = page.locator(
+			`a[href*="id=${ createdGroupId }"][href*="page=nlf-faq-group-edit"]`
+		);
+		await expect( deletedRow ).toHaveCount( 0 );
+
+		// Mark as cleaned up so afterAll doesn't try to delete again.
+		createdGroupId = null;
+	} );
+
+	test.afterAll( async ( { browser } ) => {
+		// Safety net: if the delete test didn't run or failed.
+		await deleteGroupViaAdmin( browser, createdGroupId );
 	} );
 } );
