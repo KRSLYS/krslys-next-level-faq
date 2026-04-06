@@ -71,8 +71,8 @@ class Database {
 	public static function create_tables( $force = false ) {
 		$current_version = get_option( 'nlf_faq_schema_version', '0.0.0' );
 
-		// Only run if schema version changed or forced
-		if ( ! $force && version_compare( $current_version, self::SCHEMA_VERSION, '>=' ) ) {
+		// Only run if schema version changed, forced, or migration needed.
+		if ( ! $force && version_compare( $current_version, self::SCHEMA_VERSION, '>=' ) && ! self::needs_migration() ) {
 			return;
 		}
 
@@ -111,11 +111,13 @@ class Database {
 			display_settings longtext,
 			custom_styles longtext,
 			use_custom_style tinyint(1) NOT NULL DEFAULT 0,
+			type varchar(20) NOT NULL DEFAULT 'faq',
 			status varchar(20) NOT NULL DEFAULT 'active',
 			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			PRIMARY KEY  (id),
 			UNIQUE KEY slug (slug),
+			KEY type (type),
 			KEY status (status),
 			KEY created_at (created_at)
 		) {$charset_collate};";
@@ -219,6 +221,22 @@ class Database {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check if a schema migration is needed (e.g. new columns).
+	 *
+	 * @return bool
+	 */
+	private static function needs_migration() {
+		global $wpdb;
+
+		$table = self::get_groups_table();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema introspection on custom table.
+		$column = $wpdb->get_var( "SHOW COLUMNS FROM `{$table}` LIKE 'type'" );
+
+		return empty( $column );
 	}
 
 	/**

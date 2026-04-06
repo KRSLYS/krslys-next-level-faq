@@ -89,7 +89,7 @@ class Group_Admin {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Page routing for body class only.
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
-		if ( in_array( $page, array( 'nlf-faq-groups', 'nlf-faq-group-edit' ), true ) ) {
+		if ( in_array( $page, array( 'nlf-faq-groups', 'nlf-accordion-groups', 'nlf-faq-group-edit' ), true ) ) {
 			$classes .= ' nlf-faq-admin-page';
 		}
 
@@ -101,9 +101,13 @@ class Group_Admin {
 	 */
 	private static function handle_list_actions() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Page routing check only; nonce verified below for state-changing actions.
-		if ( ! isset( $_GET['page'] ) || 'nlf-faq-groups' !== $_GET['page'] ) {
+		if ( ! isset( $_GET['page'] ) || ! in_array( $_GET['page'], array( 'nlf-faq-groups', 'nlf-accordion-groups' ), true ) ) {
 			return;
 		}
+
+		// Determine which list page we are on.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Page routing check only.
+		$current_list_page = sanitize_key( wp_unslash( $_GET['page'] ) );
 
 		// Delete action.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified immediately below.
@@ -123,7 +127,7 @@ class Group_Admin {
 			Groups_Repository::delete_group( $group_id );
 
 			wp_safe_redirect( add_query_arg( array(
-				'page'             => 'nlf-faq-groups',
+				'page'             => $current_list_page,
 				'nlf_group_notice' => 'deleted',
 			), admin_url( 'admin.php' ) ) );
 			exit;
@@ -149,12 +153,15 @@ class Group_Admin {
 				wp_die( esc_html__( 'FAQ group not found.', 'krslys-next-level-faq' ) );
 			}
 
+			$duplicate_type = 'nlf-accordion-groups' === $current_list_page ? 'accordion' : 'faq';
+
 			$new_id = Groups_Repository::create_group( array(
 				'title'            => sprintf(
 					/* translators: %s: original FAQ group title. */
 					__( '%s (Copy)', 'krslys-next-level-faq' ),
 					$original->title
 				),
+				'type'             => $duplicate_type,
 				'theme_settings'   => $original->theme_settings,
 				'display_settings' => $original->display_settings,
 				'custom_styles'    => $original->custom_styles,
@@ -189,6 +196,7 @@ class Group_Admin {
 			wp_safe_redirect( add_query_arg( array(
 				'page'             => 'nlf-faq-group-edit',
 				'id'               => $new_id,
+				'type'             => $duplicate_type,
 				'nlf_group_notice' => 'duplicated',
 			), admin_url( 'admin.php' ) ) );
 			exit;
@@ -200,17 +208,21 @@ class Group_Admin {
 	 * ───────────────────────────────────────────── */
 
 	/**
-	 * Render the FAQ Groups list table page.
+	 * Render the FAQ/Accordion Groups list table page.
+	 *
+	 * @param string $type Content type ('faq' or 'accordion').
 	 */
-	public static function render_list_page() {
+	public static function render_list_page( $type = 'faq' ) {
 		if ( ! class_exists( '\WP_List_Table' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 		}
 
-		$list_table = new Group_List_Table();
+		$list_table = new Group_List_Table( $type );
 		$list_table->prepare_items();
 
-		$add_url = admin_url( 'admin.php?page=nlf-faq-group-edit&id=0' );
+		$add_url    = admin_url( 'admin.php?page=nlf-faq-group-edit&id=0&type=' . $type );
+		$list_slug  = 'accordion' === $type ? 'nlf-accordion-groups' : 'nlf-faq-groups';
+		$page_label = 'accordion' === $type ? __( 'Accordion Groups', 'krslys-next-level-faq' ) : __( 'FAQ Groups', 'krslys-next-level-faq' );
 
 		// Render notices.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice parameter, not used for data modification.
@@ -219,13 +231,24 @@ class Group_Admin {
 			$notice = sanitize_key( wp_unslash( $_GET['nlf_group_notice'] ) );
 			$message = '';
 
-			switch ( $notice ) {
-				case 'deleted':
-					$message = __( 'FAQ group deleted.', 'krslys-next-level-faq' );
-					break;
-				case 'duplicated':
-					$message = __( 'FAQ group duplicated. You can now edit it.', 'krslys-next-level-faq' );
-					break;
+			if ( 'accordion' === $type ) {
+				switch ( $notice ) {
+					case 'deleted':
+						$message = __( 'Accordion group deleted.', 'krslys-next-level-faq' );
+						break;
+					case 'duplicated':
+						$message = __( 'Accordion group duplicated. You can now edit it.', 'krslys-next-level-faq' );
+						break;
+				}
+			} else {
+				switch ( $notice ) {
+					case 'deleted':
+						$message = __( 'FAQ group deleted.', 'krslys-next-level-faq' );
+						break;
+					case 'duplicated':
+						$message = __( 'FAQ group duplicated. You can now edit it.', 'krslys-next-level-faq' );
+						break;
+				}
 			}
 
 			if ( $message ) {
@@ -237,12 +260,12 @@ class Group_Admin {
 		}
 		?>
 		<div class="wrap">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'FAQ Groups', 'krslys-next-level-faq' ); ?></h1>
+			<h1 class="wp-heading-inline"><?php echo esc_html( $page_label ); ?></h1>
 			<a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'krslys-next-level-faq' ); ?></a>
 			<hr class="wp-header-end" />
 
 			<form method="get">
-				<input type="hidden" name="page" value="nlf-faq-groups" />
+				<input type="hidden" name="page" value="<?php echo esc_attr( $list_slug ); ?>" />
 				<?php $list_table->display(); ?>
 			</form>
 		</div>
@@ -259,12 +282,39 @@ class Group_Admin {
 	public static function render_edit_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only; nonce checked on form submit.
 		$group_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+		$type     = isset( $_GET['type'] ) ? sanitize_key( $_GET['type'] ) : 'faq'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		$state      = Groups_Repository::get_full_group_state( $group_id );
-		$page_title = $group_id ? __( 'Edit FAQ Group', 'krslys-next-level-faq' ) : __( 'Add New FAQ Group', 'krslys-next-level-faq' );
-		$list_url = admin_url( 'admin.php?page=nlf-faq-groups' );
+		$state = Groups_Repository::get_full_group_state( $group_id );
+
+		if ( 'accordion' === $type ) {
+			$page_title = $group_id ? __( 'Edit Accordion Group', 'krslys-next-level-faq' ) : __( 'Add New Accordion Group', 'krslys-next-level-faq' );
+			$list_url   = admin_url( 'admin.php?page=nlf-accordion-groups' );
+		} else {
+			$page_title = $group_id ? __( 'Edit FAQ Group', 'krslys-next-level-faq' ) : __( 'Add New FAQ Group', 'krslys-next-level-faq' );
+			$list_url   = admin_url( 'admin.php?page=nlf-faq-groups' );
+		}
 
 		// Localize script data.
+		if ( 'accordion' === $type ) {
+			$i18n_labels = array(
+				'saving'         => __( 'Saving...', 'krslys-next-level-faq' ),
+				'saved'          => __( 'Saved!', 'krslys-next-level-faq' ),
+				'update'         => __( 'Update', 'krslys-next-level-faq' ),
+				'title_required' => __( 'Please enter a title for this accordion group.', 'krslys-next-level-faq' ),
+				'edit_title'     => __( 'Edit Accordion Group', 'krslys-next-level-faq' ),
+				'created'        => __( 'Accordion group created.', 'krslys-next-level-faq' ),
+			);
+		} else {
+			$i18n_labels = array(
+				'saving'         => __( 'Saving...', 'krslys-next-level-faq' ),
+				'saved'          => __( 'Saved!', 'krslys-next-level-faq' ),
+				'update'         => __( 'Update', 'krslys-next-level-faq' ),
+				'title_required' => __( 'Please enter a title for this FAQ group.', 'krslys-next-level-faq' ),
+				'edit_title'     => __( 'Edit FAQ Group', 'krslys-next-level-faq' ),
+				'created'        => __( 'FAQ group created.', 'krslys-next-level-faq' ),
+			);
+		}
+
 		wp_localize_script( 'nlf-faq-group-metabox', 'nlfGroupData', array(
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 			'saveNonce'  => wp_create_nonce( 'nlf_faq_group_save' ),
@@ -274,14 +324,8 @@ class Group_Admin {
 			'editUrl'    => admin_url( 'admin.php?page=nlf-faq-group-edit' ),
 			'listUrl'    => $list_url,
 			'isDebug'    => defined( 'WP_DEBUG' ) && WP_DEBUG,
-			'i18n'       => array(
-				'saving'         => __( 'Saving...', 'krslys-next-level-faq' ),
-				'saved'          => __( 'Saved!', 'krslys-next-level-faq' ),
-				'update'         => __( 'Update', 'krslys-next-level-faq' ),
-				'title_required' => __( 'Please enter a title for this FAQ group.', 'krslys-next-level-faq' ),
-				'edit_title'     => __( 'Edit FAQ Group', 'krslys-next-level-faq' ),
-				'created'        => __( 'FAQ group created.', 'krslys-next-level-faq' ),
-			),
+			'type'       => $type,
+			'i18n'       => $i18n_labels,
 		) );
 
 		// Render notices.
@@ -289,29 +333,37 @@ class Group_Admin {
 		if ( isset( $_GET['nlf_group_notice'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice parameter.
 			$notice = sanitize_key( wp_unslash( $_GET['nlf_group_notice'] ) );
-			$message = '';
-
-			$type = 'success';
+			$message      = '';
+			$notice_level = 'success';
+			$is_accordion = 'accordion' === $type;
 
 			switch ( $notice ) {
 				case 'saved':
-					$message = __( 'FAQ group updated. Your changes are now live.', 'krslys-next-level-faq' );
+					$message = $is_accordion
+						? __( 'Accordion group updated. Your changes are now live.', 'krslys-next-level-faq' )
+						: __( 'FAQ group updated. Your changes are now live.', 'krslys-next-level-faq' );
 					break;
 				case 'created':
-					$message = __( 'FAQ group created.', 'krslys-next-level-faq' );
+					$message = $is_accordion
+						? __( 'Accordion group created.', 'krslys-next-level-faq' )
+						: __( 'FAQ group created.', 'krslys-next-level-faq' );
 					break;
 				case 'duplicated':
-					$message = __( 'FAQ group duplicated. Review and publish when ready.', 'krslys-next-level-faq' );
+					$message = $is_accordion
+						? __( 'Accordion group duplicated. Review and publish when ready.', 'krslys-next-level-faq' )
+						: __( 'FAQ group duplicated. Review and publish when ready.', 'krslys-next-level-faq' );
 					break;
 				case 'title_required':
-					$message = __( 'Title is required. Please enter a title for this FAQ group.', 'krslys-next-level-faq' );
-					$type    = 'error';
+					$message = $is_accordion
+						? __( 'Title is required. Please enter a title for this accordion group.', 'krslys-next-level-faq' )
+						: __( 'Title is required. Please enter a title for this FAQ group.', 'krslys-next-level-faq' );
+					$notice_level = 'error';
 					break;
 			}
 
 			if ( $message ) {
-				$icon = 'error' === $type ? 'dashicons-warning' : 'dashicons-yes-alt';
-				echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible nlf-success-banner"><p>'
+				$icon = 'error' === $notice_level ? 'dashicons-warning' : 'dashicons-yes-alt';
+				echo '<div class="notice notice-' . esc_attr( $notice_level ) . ' is-dismissible nlf-success-banner"><p>'
 					. '<span class="dashicons ' . esc_attr( $icon ) . '" aria-hidden="true"></span> '
 					. '<strong>' . esc_html( $message ) . '</strong>'
 					. '</p></div>';
@@ -327,6 +379,7 @@ class Group_Admin {
 			<form method="post" id="nlf-group-edit-form">
 				<?php wp_nonce_field( 'nlf_faq_group_save', 'nlf_faq_group_nonce' ); ?>
 				<input type="hidden" name="group_id" value="<?php echo esc_attr( $group_id ); ?>" />
+				<input type="hidden" name="nlf_faq_group_type" value="<?php echo esc_attr( $type ); ?>" />
 
 				<!-- Title -->
 				<div id="titlediv" style="margin-bottom: 20px;">
@@ -343,7 +396,7 @@ class Group_Admin {
 						<div id="post-body-content">
 							<div id="nlf_faq_group_tabs" class="postbox">
 								<div class="inside">
-									<?php self::render_metabox_content( $group_id ); ?>
+									<?php self::render_metabox_content( $group_id, $type ); ?>
 								</div>
 							</div>
 						</div>
@@ -400,9 +453,10 @@ class Group_Admin {
 	/**
 	 * Render the tabbed metabox content (reusable from edit page).
 	 *
-	 * @param int $group_id Group ID.
+	 * @param int    $group_id Group ID.
+	 * @param string $type     Content type ('faq' or 'accordion').
 	 */
-	private static function render_metabox_content( $group_id ) {
+	private static function render_metabox_content( $group_id, $type = 'faq' ) {
 		$items = Repository::get_items_for_group( $group_id, false );
 		?>
 		<div class="nlf-faq-group-tabs-wrapper">
@@ -467,7 +521,7 @@ class Group_Admin {
 					role="tabpanel"
 					aria-labelledby="tab-content"
 					tabindex="0">
-					<?php self::render_content_tab( $group_id, $items ); ?>
+					<?php self::render_content_tab( $group_id, $items, $type ); ?>
 				</div>
 
 				<!-- Settings Tab (Behavior & Display) -->
@@ -486,7 +540,7 @@ class Group_Admin {
 								<?php esc_html_e( 'Control how users interact with your FAQs.', 'krslys-next-level-faq' ); ?>
 							</p>
 						</div>
-						<?php self::render_settings_fields(); ?>
+						<?php self::render_settings_fields( $type ); ?>
 					</div>
 				</div>
 
@@ -532,7 +586,7 @@ class Group_Admin {
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
 		// List page: enqueue admin CSS + clipboard script.
-		if ( 'nlf-faq-groups' === $page ) {
+		if ( in_array( $page, array( 'nlf-faq-groups', 'nlf-accordion-groups' ), true ) ) {
 			wp_enqueue_style(
 				'nlf-faq-admin',
 				nlf_asset_url( 'assets/css/admin-faq-style.css' ),
@@ -662,11 +716,13 @@ class Group_Admin {
 		$group_id = isset( $_POST['group_id'] ) ? absint( $_POST['group_id'] ) : 0;
 
 		// Title is required — redirect back with error if empty.
-		$title = isset( $_POST['nlf_group_title'] ) ? sanitize_text_field( wp_unslash( $_POST['nlf_group_title'] ) ) : '';
+		$title        = isset( $_POST['nlf_group_title'] ) ? sanitize_text_field( wp_unslash( $_POST['nlf_group_title'] ) ) : '';
+		$redirect_type = isset( $_POST['nlf_faq_group_type'] ) ? sanitize_key( $_POST['nlf_faq_group_type'] ) : 'faq';
 		if ( '' === $title ) {
 			wp_safe_redirect( add_query_arg( array(
 				'page'             => 'nlf-faq-group-edit',
 				'id'               => $group_id,
+				'type'             => $redirect_type,
 				'nlf_group_notice' => 'title_required',
 			), admin_url( 'admin.php' ) ) );
 			exit;
@@ -699,12 +755,17 @@ class Group_Admin {
 		$use_custom_style = ! empty( $_POST['nlf_faq_group_use_custom_style'] );
 		$update_data['use_custom_style'] = $use_custom_style;
 
+		// Content type (only relevant for new groups).
+		$post_type = isset( $_POST['nlf_faq_group_type'] ) ? sanitize_key( $_POST['nlf_faq_group_type'] ) : 'faq';
+
 		// If group_id is 0, create a new group first.
 		if ( 0 === $group_id ) {
 			if ( empty( $title ) ) {
 				$title = __( 'Untitled FAQ Group', 'krslys-next-level-faq' );
 				$update_data['title'] = $title;
 			}
+
+			$update_data['type'] = $post_type;
 
 			$group_id = Groups_Repository::create_group( $update_data );
 
@@ -766,6 +827,7 @@ class Group_Admin {
 		wp_safe_redirect( add_query_arg( array(
 			'page'             => 'nlf-faq-group-edit',
 			'id'               => $group_id,
+			'type'             => $post_type,
 			'nlf_group_notice' => $notice,
 		), admin_url( 'admin.php' ) ) );
 		exit;
@@ -834,11 +896,16 @@ class Group_Admin {
 		$use_custom_style = ! empty( $_POST['nlf_faq_group_use_custom_style'] );
 		$update_data['use_custom_style'] = $use_custom_style;
 
+		// Content type (only relevant for new groups).
+		$ajax_type = isset( $_POST['nlf_faq_group_type'] ) ? sanitize_key( $_POST['nlf_faq_group_type'] ) : 'faq';
+
 		// Create or update group.
 		if ( 0 === $group_id ) {
 			if ( empty( $title ) ) {
 				$update_data['title'] = __( 'Untitled FAQ Group', 'krslys-next-level-faq' );
 			}
+
+			$update_data['type'] = $ajax_type;
 
 			$group_id = Groups_Repository::create_group( $update_data );
 
@@ -909,11 +976,12 @@ class Group_Admin {
 		$redirect_url = add_query_arg( array(
 			'page' => 'nlf-faq-group-edit',
 			'id'   => $group_id,
+			'type' => $ajax_type,
 		), admin_url( 'admin.php' ) );
 
 		wp_send_json_success( array(
-			'message'     => __( 'FAQ group saved successfully!', 'krslys-next-level-faq' ),
-			'group_id'    => $group_id,
+			'message'      => __( 'FAQ group saved successfully!', 'krslys-next-level-faq' ),
+			'group_id'     => $group_id,
 			'redirect_url' => $redirect_url,
 		) );
 	}
@@ -1011,11 +1079,12 @@ class Group_Admin {
 	/**
 	 * Render Content tab (FAQ Items + Settings).
 	 *
-	 * @param int   $group_id Group ID.
-	 * @param array $items    FAQ items.
-	 * @param array $settings Group settings.
+	 * @param int    $group_id Group ID.
+	 * @param array  $items    FAQ items.
+	 * @param string $type     Content type ('faq' or 'accordion').
 	 */
-	private static function render_content_tab( $group_id, $items ) {
+	private static function render_content_tab( $group_id, $items, $type = 'faq' ) {
+		$is_accordion = 'accordion' === $type;
 		?>
 		<?php if ( empty( $items ) ) : ?>
 			<?php Admin_UI_Components::onboarding_card(); ?>
@@ -1024,12 +1093,12 @@ class Group_Admin {
 		<!-- FAQ Items Section -->
 		<div class="nlf-section">
 			<div class="nlf-section-header">
-				<h3><?php esc_html_e( 'FAQ Items', 'krslys-next-level-faq' ); ?></h3>
+				<h3><?php echo $is_accordion ? esc_html__( 'Accordion Items', 'krslys-next-level-faq' ) : esc_html__( 'FAQ Items', 'krslys-next-level-faq' ); ?></h3>
 				<p class="description">
-					<?php esc_html_e( 'Add questions and answers that your visitors commonly ask.', 'krslys-next-level-faq' ); ?>
+					<?php echo $is_accordion ? esc_html__( 'Add titles and content for your accordion sections.', 'krslys-next-level-faq' ) : esc_html__( 'Add questions and answers that your visitors commonly ask.', 'krslys-next-level-faq' ); ?>
 				</p>
 			</div>
-			<?php self::render_faq_items_table( $items ); ?>
+			<?php self::render_faq_items_table( $items, $type ); ?>
 		</div>
 
 		<?php
@@ -1038,17 +1107,20 @@ class Group_Admin {
 	/**
 	 * Render FAQ Items table.
 	 *
-	 * @param array $items FAQ items.
+	 * @param array  $items FAQ items.
+	 * @param string $type  Content type ('faq' or 'accordion').
 	 */
-	private static function render_faq_items_table( $items ) {
+	private static function render_faq_items_table( $items, $type = 'faq' ) {
+		$is_accordion = 'accordion' === $type;
+
 		if ( empty( $items ) ) {
 			// Empty state
 			Admin_UI_Components::empty_state(
 				array(
-					'title'       => __( 'No questions yet', 'krslys-next-level-faq' ),
-					'description' => __( 'Add questions and answers that your visitors commonly ask.', 'krslys-next-level-faq' ),
+					'title'       => $is_accordion ? __( 'No items yet', 'krslys-next-level-faq' ) : __( 'No questions yet', 'krslys-next-level-faq' ),
+					'description' => $is_accordion ? __( 'Add titles and content for your accordion sections.', 'krslys-next-level-faq' ) : __( 'Add questions and answers that your visitors commonly ask.', 'krslys-next-level-faq' ),
 					'primary'     => array(
-						'label' => __( 'Add Your First Question', 'krslys-next-level-faq' ),
+						'label' => $is_accordion ? __( 'Add Your First Item', 'krslys-next-level-faq' ) : __( 'Add Your First Question', 'krslys-next-level-faq' ),
 						'id'    => 'nlf-faq-group-add-row-empty',
 						'data'  => array(
 							'add-row' => 'true',
@@ -1063,7 +1135,7 @@ class Group_Admin {
 			<thead>
 				<tr>
 					<th style="width:32px;"></th>
-					<th><?php esc_html_e( 'Question & Answer', 'krslys-next-level-faq' ); ?></th>
+					<th><?php echo $is_accordion ? esc_html__( 'Title & Content', 'krslys-next-level-faq' ) : esc_html__( 'Question & Answer', 'krslys-next-level-faq' ); ?></th>
 					<th style="width:200px;"><?php esc_html_e( 'Options', 'krslys-next-level-faq' ); ?></th>
 				</tr>
 			</thead>
@@ -1075,11 +1147,11 @@ class Group_Admin {
 							<td class="nlf-faq-content-cell">
 								<input type="hidden" name="nlf_faq_group_item_id[]" value="<?php echo esc_attr( $item->id ); ?>" />
 								<div class="nlf-faq-question-field">
-									<label class="nlf-faq-field-label"><?php esc_html_e( 'Question', 'krslys-next-level-faq' ); ?></label>
-									<input type="text" class="regular-text" name="nlf_faq_group_question[]" value="<?php echo esc_attr( $item->question ); ?>" placeholder="<?php esc_attr_e( 'Enter your question...', 'krslys-next-level-faq' ); ?>" />
+									<label class="nlf-faq-field-label"><?php echo $is_accordion ? esc_html__( 'Title', 'krslys-next-level-faq' ) : esc_html__( 'Question', 'krslys-next-level-faq' ); ?></label>
+									<input type="text" class="regular-text" name="nlf_faq_group_question[]" value="<?php echo esc_attr( $item->question ); ?>" placeholder="<?php echo $is_accordion ? esc_attr__( 'Enter your title...', 'krslys-next-level-faq' ) : esc_attr__( 'Enter your question...', 'krslys-next-level-faq' ); ?>" />
 								</div>
 								<div class="nlf-faq-answer-field">
-									<label class="nlf-faq-field-label"><?php esc_html_e( 'Answer', 'krslys-next-level-faq' ); ?></label>
+									<label class="nlf-faq-field-label"><?php echo $is_accordion ? esc_html__( 'Content', 'krslys-next-level-faq' ) : esc_html__( 'Answer', 'krslys-next-level-faq' ); ?></label>
 									<?php
 									$editor_id = 'nlf_faq_group_answer_' . $index;
 									wp_editor(
@@ -1129,7 +1201,7 @@ class Group_Admin {
 				<tr>
 					<td colspan="3">
 						<button type="button" class="button button-secondary nlf-faq-group-add-row-btn" id="nlf-faq-group-add-row-footer">
-							<?php esc_html_e( 'Add Question', 'krslys-next-level-faq' ); ?>
+							<?php echo $is_accordion ? esc_html__( 'Add Item', 'krslys-next-level-faq' ) : esc_html__( 'Add Question', 'krslys-next-level-faq' ); ?>
 						</button>
 					</td>
 				</tr>
@@ -1142,12 +1214,12 @@ class Group_Admin {
 				<td class="nlf-faq-content-cell">
 					<input type="hidden" name="nlf_faq_group_item_id[]" value="" />
 					<div class="nlf-faq-question-field">
-						<label class="nlf-faq-field-label"><?php esc_html_e( 'Question', 'krslys-next-level-faq' ); ?></label>
-						<input type="text" class="regular-text" name="nlf_faq_group_question[]" value="" placeholder="<?php esc_attr_e( 'Enter your question...', 'krslys-next-level-faq' ); ?>" />
+						<label class="nlf-faq-field-label"><?php echo $is_accordion ? esc_html__( 'Title', 'krslys-next-level-faq' ) : esc_html__( 'Question', 'krslys-next-level-faq' ); ?></label>
+						<input type="text" class="regular-text" name="nlf_faq_group_question[]" value="" placeholder="<?php echo $is_accordion ? esc_attr__( 'Enter your title...', 'krslys-next-level-faq' ) : esc_attr__( 'Enter your question...', 'krslys-next-level-faq' ); ?>" />
 					</div>
 					<div class="nlf-faq-answer-field">
-						<label class="nlf-faq-field-label"><?php esc_html_e( 'Answer', 'krslys-next-level-faq' ); ?></label>
-						<textarea id="nlf-faq-group-answer-{{index}}" name="nlf_faq_group_answer[]" rows="4" class="large-text nlf-faq-group-answer-editor" placeholder="<?php esc_attr_e( 'Enter your answer...', 'krslys-next-level-faq' ); ?>"></textarea>
+						<label class="nlf-faq-field-label"><?php echo $is_accordion ? esc_html__( 'Content', 'krslys-next-level-faq' ) : esc_html__( 'Answer', 'krslys-next-level-faq' ); ?></label>
+						<textarea id="nlf-faq-group-answer-{{index}}" name="nlf_faq_group_answer[]" rows="4" class="large-text nlf-faq-group-answer-editor" placeholder="<?php echo $is_accordion ? esc_attr__( 'Enter your content...', 'krslys-next-level-faq' ) : esc_attr__( 'Enter your answer...', 'krslys-next-level-faq' ); ?>"></textarea>
 					</div>
 					<button type="button" class="nlf-faq-remove-row" aria-label="<?php esc_attr_e( 'Remove', 'krslys-next-level-faq' ); ?>" title="<?php esc_attr_e( 'Remove', 'krslys-next-level-faq' ); ?>">
 						<span class="nlf-faq-remove-icon">&times;</span>
@@ -1382,7 +1454,8 @@ class Group_Admin {
 	 *
 	 * @param array $settings Group settings.
 	 */
-	private static function render_settings_fields() {
+	private static function render_settings_fields( $type = 'faq' ) {
+		$is_accordion = 'accordion' === $type;
 		?>
 		<div class="nlf-settings-wrapper">
 			<h4 class="nlf-subsection-title"><?php esc_html_e( 'How should users interact?', 'krslys-next-level-faq' ); ?></h4>
@@ -1507,6 +1580,7 @@ class Group_Admin {
 						</p>
 					</td>
 				</tr>
+				<?php if ( ! $is_accordion ) : ?>
 				<tr>
 					<th scope="row">
 						<label for="setting_disable_schema">
@@ -1523,6 +1597,7 @@ class Group_Admin {
 						</p>
 					</td>
 				</tr>
+			<?php endif; ?>
 			</table>
 		</div>
 		<?php

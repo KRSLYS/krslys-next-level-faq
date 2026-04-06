@@ -23,9 +23,19 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class Group_List_Table extends \WP_List_Table {
 
 	/**
-	 * Constructor.
+	 * Content type: 'faq' or 'accordion'.
+	 *
+	 * @var string
 	 */
-	public function __construct() {
+	private $type = 'faq';
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $type Content type ('faq' or 'accordion').
+	 */
+	public function __construct( $type = 'faq' ) {
+		$this->type = $type;
 		parent::__construct(
 			array(
 				'singular' => 'faq_group',
@@ -45,7 +55,7 @@ class Group_List_Table extends \WP_List_Table {
 			'cb'            => '<input type="checkbox" />',
 			'title'         => __( 'Title', 'krslys-next-level-faq' ),
 			'nlf_shortcode' => __( 'Shortcode', 'krslys-next-level-faq' ),
-			'nlf_questions' => __( 'Questions', 'krslys-next-level-faq' ),
+			'nlf_questions' => $this->type === 'accordion' ? __( 'Items', 'krslys-next-level-faq' ) : __( 'Questions', 'krslys-next-level-faq' ),
 			'nlf_theme'     => __( 'Theme', 'krslys-next-level-faq' ),
 			'nlf_date'      => __( 'Date', 'krslys-next-level-faq' ),
 		);
@@ -91,7 +101,7 @@ class Group_List_Table extends \WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in process_bulk_action(); orderby/order are safe display parameters.
 		$order   = isset( $_REQUEST['order'] ) ? sanitize_key( wp_unslash( $_REQUEST['order'] ) ) : 'DESC';
 
-		$this->items = Groups_Repository::get_all_groups( null, $orderby, $order );
+		$this->items = Groups_Repository::get_all_groups( null, $orderby, $order, $this->type );
 	}
 
 	/**
@@ -138,14 +148,17 @@ class Group_List_Table extends \WP_List_Table {
 			array(
 				'page' => 'nlf-faq-group-edit',
 				'id'   => (int) $item->id,
+				'type' => $this->type,
 			),
 			admin_url( 'admin.php' )
 		);
 
+		$list_page = 'accordion' === $this->type ? 'nlf-accordion-groups' : 'nlf-faq-groups';
+
 		$delete_url = wp_nonce_url(
 			add_query_arg(
 				array(
-					'page'   => 'nlf-faq-groups',
+					'page'   => $list_page,
 					'action' => 'delete',
 					'id'     => (int) $item->id,
 				),
@@ -157,7 +170,7 @@ class Group_List_Table extends \WP_List_Table {
 		$duplicate_url = wp_nonce_url(
 			add_query_arg(
 				array(
-					'page'   => 'nlf-faq-groups',
+					'page'   => $list_page,
 					'action' => 'duplicate',
 					'id'     => (int) $item->id,
 				),
@@ -293,6 +306,10 @@ class Group_List_Table extends \WP_List_Table {
 	 * No items message.
 	 */
 	public function no_items() {
-		esc_html_e( 'No FAQ groups found.', 'krslys-next-level-faq' );
+		if ( 'accordion' === $this->type ) {
+			esc_html_e( 'No accordion groups found.', 'krslys-next-level-faq' );
+		} else {
+			esc_html_e( 'No FAQ groups found.', 'krslys-next-level-faq' );
+		}
 	}
 }

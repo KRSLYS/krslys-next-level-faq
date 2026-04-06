@@ -24,27 +24,32 @@ class Block_Registrar {
 	}
 
 	/**
-	 * Register the FAQ block.
+	 * Register the FAQ and Accordion blocks.
 	 *
 	 * Hooked to `init` at priority 20.
 	 */
 	public static function register() {
-		$block_dir  = NLF_FAQ_PLUGIN_DIR . 'blocks/faq';
-		$block_json = $block_dir . '/block.json';
-
-		if ( ! file_exists( $block_json ) ) {
-			return;
-		}
-
-		self::register_editor_script();
 		self::register_generated_style();
 
-		register_block_type(
-			$block_dir,
-			array(
-				'render_callback' => array( __CLASS__, 'render_block' ),
-			)
-		);
+		// FAQ block.
+		$faq_dir = NLF_FAQ_PLUGIN_DIR . 'blocks/faq';
+		if ( file_exists( $faq_dir . '/block.json' ) ) {
+			self::register_editor_script();
+			register_block_type(
+				$faq_dir,
+				array( 'render_callback' => array( __CLASS__, 'render_block' ) )
+			);
+		}
+
+		// Accordion block.
+		$accordion_dir = NLF_FAQ_PLUGIN_DIR . 'blocks/accordion';
+		if ( file_exists( $accordion_dir . '/block.json' ) ) {
+			self::register_accordion_editor_script();
+			register_block_type(
+				$accordion_dir,
+				array( 'render_callback' => array( __CLASS__, 'render_block' ) )
+			);
+		}
 	}
 
 	/**
@@ -66,7 +71,7 @@ class Block_Registrar {
 				'presets'        => Options::get_preset_registry(),
 				'activePreset'   => Options::get_active_preset_slug( Options::get_options() ),
 				'defaultPreset'  => Options::get_default_preset_slug(),
-				'groups'         => self::get_groups_for_block(),
+				'groups'         => self::get_groups_for_block( 'faq' ),
 				'editGroupUrl'   => admin_url( 'admin.php?page=nlf-faq-group-edit&id=' ),
 			)
 		);
@@ -75,15 +80,43 @@ class Block_Registrar {
 	}
 
 	/**
+	 * Register and localize the accordion block editor script.
+	 */
+	private static function register_accordion_editor_script() {
+		wp_register_script(
+			'nlf-accordion-block-editor',
+			nlf_asset_url( 'blocks/accordion/editor.js' ),
+			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
+			NLF_FAQ_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'nlf-accordion-block-editor',
+			'nlfAccordionBlockData',
+			array(
+				'presets'       => Options::get_preset_registry(),
+				'activePreset'  => Options::get_active_preset_slug( Options::get_options() ),
+				'defaultPreset' => Options::get_default_preset_slug(),
+				'groups'        => self::get_groups_for_block( 'accordion' ),
+				'editGroupUrl'  => admin_url( 'admin.php?page=nlf-faq-group-edit&type=accordion&id=' ),
+			)
+		);
+
+		wp_set_script_translations( 'nlf-accordion-block-editor', 'krslys-next-level-faq', NLF_FAQ_PLUGIN_DIR . 'languages' );
+	}
+
+	/**
 	 * Build a flat groups list for the block editor inspector panel.
 	 *
 	 * Reads from the custom table via Groups_Repository so the block
 	 * no longer depends on the (removed) nlf_faq_group CPT.
 	 *
+	 * @param string|null $type Optional type filter ('faq', 'accordion').
 	 * @return array[] Array of associative arrays with 'id' and 'title' keys.
 	 */
-	private static function get_groups_for_block() {
-		$groups = Groups_Repository::get_all_groups( 'active' );
+	private static function get_groups_for_block( $type = null ) {
+		$groups = Groups_Repository::get_all_groups( 'active', 'created_at', 'DESC', $type );
 
 		if ( empty( $groups ) ) {
 			return array();

@@ -430,6 +430,12 @@ class Frontend_Renderer {
 				continue;
 			}
 
+			// Skip accordion groups — FAQPage schema is only for FAQ content.
+			$group_type = isset( $group->type ) ? $group->type : 'faq';
+			if ( 'accordion' === $group_type ) {
+				continue;
+			}
+
 			// Check per-group disable.
 			$display = is_array( $group->display_settings ) ? $group->display_settings : array();
 			if ( ! empty( $display['disable_schema'] ) ) {

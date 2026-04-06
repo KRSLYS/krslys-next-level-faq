@@ -88,6 +88,15 @@ class Admin_Settings {
 
 		add_submenu_page(
 			self::TOP_MENU_SLUG,
+			__( 'Accordion Groups', 'krslys-next-level-faq' ),
+			__( 'Accordion Groups', 'krslys-next-level-faq' ),
+			'manage_options',
+			'nlf-accordion-groups',
+			array( __CLASS__, 'render_accordion_groups_page' )
+		);
+
+		add_submenu_page(
+			self::TOP_MENU_SLUG,
 			__( 'FAQ Tools', 'krslys-next-level-faq' ),
 			__( 'Tools', 'krslys-next-level-faq' ),
 			'manage_options',
@@ -117,6 +126,7 @@ class Admin_Settings {
 			self::QUESTIONS_SLUG,
 			self::TOOLS_SLUG,
 			'nlf-faq-groups',
+			'nlf-accordion-groups',
 		);
 
 		if ( ! in_array( $page, $allowed_pages, true ) ) {
@@ -141,9 +151,11 @@ class Admin_Settings {
 			return;
 		}
 
-		$group_count = \Krslys\NextLevelFaq\Groups_Repository::count_groups();
-		$groups_url  = admin_url( 'admin.php?page=nlf-faq-groups' );
-		$tools_url   = admin_url( 'admin.php?page=' . self::TOOLS_SLUG );
+		$faq_count       = \Krslys\NextLevelFaq\Groups_Repository::count_groups( null, 'faq' );
+		$accordion_count = \Krslys\NextLevelFaq\Groups_Repository::count_groups( null, 'accordion' );
+		$groups_url      = admin_url( 'admin.php?page=nlf-faq-groups' );
+		$accordion_url   = admin_url( 'admin.php?page=nlf-accordion-groups' );
+		$tools_url       = admin_url( 'admin.php?page=' . self::TOOLS_SLUG );
 		?>
 		<div class="wrap nlf-faq-admin nlf-faq-dashboard">
 
@@ -156,18 +168,33 @@ class Admin_Settings {
 			<div class="nlf-dashboard-cards">
 
 				<a href="<?php echo esc_url( $groups_url ); ?>" class="nlf-dashboard-card">
-					<span class="dashicons dashicons-list-view nlf-dashboard-card__icon"></span>
+					<span class="dashicons dashicons-editor-help nlf-dashboard-card__icon"></span>
 					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'FAQ Groups', 'krslys-next-level-faq' ); ?></h2>
 					<p class="nlf-dashboard-card__meta">
 						<?php
 						printf(
 							/* translators: %d: number of FAQ groups */
-							esc_html( _n( '%d group', '%d groups', $group_count, 'krslys-next-level-faq' ) ),
-							(int) $group_count
+							esc_html( _n( '%d group', '%d groups', $faq_count, 'krslys-next-level-faq' ) ),
+							(int) $faq_count
 						);
 						?>
 					</p>
 					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'krslys-next-level-faq' ); ?></p>
+				</a>
+
+				<a href="<?php echo esc_url( $accordion_url ); ?>" class="nlf-dashboard-card">
+					<span class="dashicons dashicons-list-view nlf-dashboard-card__icon"></span>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Accordion Groups', 'krslys-next-level-faq' ); ?></h2>
+					<p class="nlf-dashboard-card__meta">
+						<?php
+						printf(
+							/* translators: %d: number of accordion groups */
+							esc_html( _n( '%d group', '%d groups', $accordion_count, 'krslys-next-level-faq' ) ),
+							(int) $accordion_count
+						);
+						?>
+					</p>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your accordion sections.', 'krslys-next-level-faq' ); ?></p>
 				</a>
 
 				<a href="<?php echo esc_url( $tools_url ); ?>" class="nlf-dashboard-card">
@@ -216,6 +243,19 @@ class Admin_Settings {
 
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render the Accordion Groups list table page.
+	 *
+	 * SECURITY: Capability check at start of function.
+	 */
+	public static function render_accordion_groups_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		\Krslys\NextLevelFaq\Group_Admin::render_list_page( 'accordion' );
 	}
 
 	/**
