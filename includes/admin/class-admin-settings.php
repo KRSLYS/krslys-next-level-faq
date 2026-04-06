@@ -50,6 +50,7 @@ class Admin_Settings {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'admin_post_nlf_faq_export', array( __CLASS__, 'handle_export' ) );
 		add_action( 'admin_post_nlf_faq_import', array( __CLASS__, 'handle_import' ) );
+		add_action( 'admin_post_nlf_faq_save_settings', array( __CLASS__, 'handle_save_settings' ) );
 	}
 
 	/**
@@ -177,8 +178,63 @@ class Admin_Settings {
 
 			</div>
 
+			<?php
+			$schema_enabled = Settings_Repository::get_setting( Settings_Repository::KEY_SCHEMA_MARKUP, true );
+			$settings_saved = isset( $_GET['settings-saved'] ) && '1' === $_GET['settings-saved']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice.
+			?>
+			<div class="nlf-dashboard-settings">
+				<h2><?php esc_html_e( 'Settings', 'krslys-next-level-faq' ); ?></h2>
+
+				<?php if ( $settings_saved ) : ?>
+					<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'krslys-next-level-faq' ); ?></p></div>
+				<?php endif; ?>
+
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<?php wp_nonce_field( 'nlf_faq_save_settings', 'nlf_settings_nonce' ); ?>
+					<input type="hidden" name="action" value="nlf_faq_save_settings" />
+
+					<table class="form-table" role="presentation">
+						<tr>
+							<th scope="row">
+								<?php esc_html_e( 'FAQPage Schema Markup', 'krslys-next-level-faq' ); ?>
+							</th>
+							<td>
+								<label>
+									<input type="checkbox" name="nlf_enable_schema_markup" value="1" <?php checked( $schema_enabled ); ?> />
+									<?php esc_html_e( 'Enable FAQPage structured data (JSON-LD)', 'krslys-next-level-faq' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Adds schema.org/FAQPage structured data to help search engines display rich results for your FAQ sections.', 'krslys-next-level-faq' ); ?>
+								</p>
+							</td>
+						</tr>
+					</table>
+
+					<?php submit_button( __( 'Save Settings', 'krslys-next-level-faq' ) ); ?>
+				</form>
+			</div>
+
 		</div>
 		<?php
+	}
+
+	/**
+	 * Handle saving global settings.
+	 *
+	 * @return void
+	 */
+	public static function handle_save_settings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Unauthorized.', 'krslys-next-level-faq' ) );
+		}
+
+		check_admin_referer( 'nlf_faq_save_settings', 'nlf_settings_nonce' );
+
+		$enable_schema = ! empty( $_POST['nlf_enable_schema_markup'] );
+		Settings_Repository::update_setting( Settings_Repository::KEY_SCHEMA_MARKUP, $enable_schema );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=nlf-faq&settings-saved=1' ) );
+		exit;
 	}
 
 	/**

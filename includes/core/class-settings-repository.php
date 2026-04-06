@@ -35,6 +35,11 @@ class Settings_Repository {
 	const KEY_CACHE_CONFIG = 'cache_config';
 
 	/**
+	 * Setting key for schema markup toggle.
+	 */
+	const KEY_SCHEMA_MARKUP = 'enable_schema_markup';
+
+	/**
 	 * Get a setting value.
 	 *
 	 * @param string $key Setting key.
@@ -250,6 +255,11 @@ class Settings_Repository {
 					'ttl'     => 3600,
 				)
 			);
+		}
+
+		// Initialize schema markup if not exist
+		if ( ! self::setting_exists( self::KEY_SCHEMA_MARKUP ) ) {
+			self::update_setting( self::KEY_SCHEMA_MARKUP, true );
 		}
 	}
 

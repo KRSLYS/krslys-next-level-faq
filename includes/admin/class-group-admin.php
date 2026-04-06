@@ -690,6 +690,7 @@ class Group_Admin {
 				'show_search'     => ! empty( $raw_settings['show_search'] ),
 				'show_counter'    => ! empty( $raw_settings['show_counter'] ),
 				'smooth_scroll'   => ! empty( $raw_settings['smooth_scroll'] ),
+				'disable_schema'  => ! empty( $raw_settings['disable_schema'] ),
 			);
 			$update_data['display_settings'] = $sanitized_settings;
 		}
@@ -824,6 +825,7 @@ class Group_Admin {
 				'show_search'     => ! empty( $raw_settings['show_search'] ),
 				'show_counter'    => ! empty( $raw_settings['show_counter'] ),
 				'smooth_scroll'   => ! empty( $raw_settings['smooth_scroll'] ),
+				'disable_schema'  => ! empty( $raw_settings['disable_schema'] ),
 			);
 			$update_data['display_settings'] = $sanitized_settings;
 		}
@@ -998,6 +1000,7 @@ class Group_Admin {
 			'show_search'     => false,
 			'show_counter'    => false,
 			'smooth_scroll'   => true,
+			'disable_schema'  => false,
 		);
 	}
 
@@ -1501,6 +1504,22 @@ class Group_Admin {
 						</label>
 					<p class="nlf-help-text" id="scroll-help" hidden>
 							<?php esc_html_e( 'Smoothly scrolls opened items into view, helpful when linking directly to specific questions.', 'krslys-next-level-faq' ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="setting_disable_schema">
+							<?php esc_html_e( 'Schema Markup', 'krslys-next-level-faq' ); ?>
+						</label>
+					</th>
+					<td>
+						<label>
+							<input type="checkbox" id="setting_disable_schema" name="nlf_faq_group_settings[disable_schema]" value="1" />
+							<?php esc_html_e( 'Disable FAQPage schema markup for this group', 'krslys-next-level-faq' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'Excludes this group from schema.org/FAQPage structured data output.', 'krslys-next-level-faq' ); ?>
 						</p>
 					</td>
 				</tr>

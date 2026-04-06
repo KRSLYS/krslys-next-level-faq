@@ -23,12 +23,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Frontend_Renderer {
 
 	/**
+	 * Collected FAQ schema entities to output in wp_head.
+	 *
+	 * @var array[]
+	 */
+	private static $schema_queue = array();
+
+	/**
 	 * Bootstrap all frontend hooks.
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_shortcodes' ) );
 		add_action( 'init', array( __CLASS__, 'register_tracking_routes' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_styles' ) );
+		add_action( 'wp', array( __CLASS__, 'prepare_faq_schema' ) );
+		add_action( 'wp_head', array( __CLASS__, 'print_faq_schema' ), 99 );
 	}
 
 	/**
@@ -365,6 +374,107 @@ class Frontend_Renderer {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Pre-scan the current page content for FAQ shortcodes/blocks
+	 * and build schema data before wp_head fires.
+	 *
+	 * Hooked to 'wp' action which runs after the query but before
+	 * template rendering, allowing schema output in wp_head.
+	 */
+	public static function prepare_faq_schema() {
+		if ( is_admin() || wp_doing_ajax() ) {
+			return;
+		}
+
+		$enable_schema = Settings_Repository::get_setting( 'enable_schema_markup', true );
+		if ( ! $enable_schema ) {
+			return;
+		}
+
+		$post = get_queried_object();
+		if ( ! ( $post instanceof \WP_Post ) ) {
+			return;
+		}
+
+		$content = $post->post_content;
+		$group_ids = array();
+
+		// Detect shortcodes: [krslys_nlf group="ID"]
+		if ( has_shortcode( $content, 'krslys_nlf' ) ) {
+			preg_match_all( '/\[krslys_nlf\s[^\]]*group=["\']?(\d+)["\']?/', $content, $matches );
+			if ( ! empty( $matches[1] ) ) {
+				$group_ids = array_merge( $group_ids, array_map( 'intval', $matches[1] ) );
+			}
+		}
+
+		// Detect Gutenberg blocks: next-level-faq/faq
+		if ( has_block( 'next-level-faq/faq', $content ) ) {
+			$blocks = parse_blocks( $content );
+			foreach ( $blocks as $block ) {
+				if ( 'next-level-faq/faq' === $block['blockName'] && ! empty( $block['attrs']['groupId'] ) ) {
+					$group_ids[] = (int) $block['attrs']['groupId'];
+				}
+			}
+		}
+
+		$group_ids = array_unique( array_filter( $group_ids ) );
+		if ( empty( $group_ids ) ) {
+			return;
+		}
+
+		foreach ( $group_ids as $gid ) {
+			$group = Groups_Repository::get_group_by_id( $gid );
+			if ( ! $group || 'publish' !== $group->status ) {
+				continue;
+			}
+
+			// Check per-group disable.
+			$display = is_array( $group->display_settings ) ? $group->display_settings : array();
+			if ( ! empty( $display['disable_schema'] ) ) {
+				continue;
+			}
+
+			$items = Repository::get_all_published_faqs( $gid );
+			if ( empty( $items ) ) {
+				continue;
+			}
+
+			foreach ( $items as $item ) {
+				self::$schema_queue[] = array(
+					'@type'          => 'Question',
+					'name'           => wp_strip_all_tags( (string) $item->question ),
+					'acceptedAnswer' => array(
+						'@type' => 'Answer',
+						'text'  => wp_kses_post( wpautop( (string) $item->answer ) ),
+					),
+				);
+			}
+		}
+	}
+
+	/**
+	 * Print consolidated FAQPage JSON-LD in wp_head.
+	 *
+	 * Outputs a single FAQPage schema containing all FAQ groups
+	 * found on the current page.
+	 *
+	 * @see https://schema.org/FAQPage
+	 * @see https://developers.google.com/search/docs/appearance/structured-data/faqpage
+	 */
+	public static function print_faq_schema() {
+		if ( empty( self::$schema_queue ) ) {
+			return;
+		}
+
+		$schema = array(
+			'@context'   => 'https://schema.org',
+			'@type'      => 'FAQPage',
+			'mainEntity' => self::$schema_queue,
+		);
+
+		echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD encoded via wp_json_encode().
 	}
 
 	/**
