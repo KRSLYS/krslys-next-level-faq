@@ -589,7 +589,7 @@ class Group_Admin {
 		if ( in_array( $page, array( 'nlf-faq-groups', 'nlf-accordion-groups' ), true ) ) {
 			wp_enqueue_style(
 				'nlf-faq-admin',
-				nlf_asset_url( 'assets/css/admin-faq-style.css' ),
+				krslys_nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 				array(),
 				NLF_FAQ_CSS_VERSION
 			);
@@ -633,7 +633,7 @@ class Group_Admin {
 
 		wp_enqueue_style(
 			'nlf-faq-admin',
-			nlf_asset_url( 'assets/css/admin-faq-style.css' ),
+			krslys_nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 			array( 'wp-color-picker' ),
 			NLF_FAQ_CSS_VERSION
 		);
@@ -653,18 +653,18 @@ class Group_Admin {
 		// Enqueue frontend FAQ script for preview toggle functionality.
 		wp_enqueue_script(
 			'nlf-faq-frontend',
-			nlf_asset_url( 'assets/js/frontend-faq.js' ),
+			krslys_nlf_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true
 		);
 
-		$js_metabox_path   = nlf_asset_path( 'assets/js/admin-faq-group-metabox.js' );
-		$js_collector_path = nlf_asset_path( 'assets/js/admin-state-collector.js' );
+		$js_metabox_path   = krslys_nlf_asset_path( 'assets/js/admin-faq-group-metabox.js' );
+		$js_collector_path = krslys_nlf_asset_path( 'assets/js/admin-state-collector.js' );
 
 		wp_enqueue_script(
 			'nlf-faq-group-metabox',
-			nlf_asset_url( 'assets/js/admin-faq-group-metabox.js' ),
+			krslys_nlf_asset_url( 'assets/js/admin-faq-group-metabox.js' ),
 			array( 'wp-editor', 'wp-color-picker', 'nlf-faq-frontend' ),
 			file_exists( $js_metabox_path ) ? filemtime( $js_metabox_path ) : NLF_FAQ_VERSION,
 			true
@@ -672,7 +672,7 @@ class Group_Admin {
 
 		wp_enqueue_script(
 			'nlf-admin-state-collector',
-			nlf_asset_url( 'assets/js/admin-state-collector.js' ),
+			krslys_nlf_asset_url( 'assets/js/admin-state-collector.js' ),
 			array( 'nlf-faq-group-metabox' ),
 			file_exists( $js_collector_path ) ? filemtime( $js_collector_path ) : NLF_FAQ_VERSION,
 			true
@@ -1087,7 +1087,7 @@ class Group_Admin {
 		$is_accordion = 'accordion' === $type;
 		?>
 		<?php if ( empty( $items ) ) : ?>
-			<?php Admin_UI_Components::onboarding_card(); ?>
+			<?php Admin_UI_Components::onboarding_card( $type ); ?>
 		<?php endif; ?>
 
 		<!-- FAQ Items Section -->

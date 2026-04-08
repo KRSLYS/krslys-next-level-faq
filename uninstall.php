@@ -16,8 +16,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 // Load the autoloader and classes
 require_once plugin_dir_path( __FILE__ ) . 'includes/Autoloader.php';
 
-$nlf_autoloader = new \Krslys\NextLevelFaq\Autoloader( plugin_dir_path( __FILE__ ) . 'includes' );
-$nlf_autoloader->register();
+$krslys_nlf_autoloader = new \Krslys\NextLevelFaq\Autoloader( plugin_dir_path( __FILE__ ) . 'includes' );
+$krslys_nlf_autoloader->register();
 
 // Import the Database class
 use Krslys\NextLevelFaq\Database;
@@ -37,10 +37,10 @@ delete_option( 'nlf_faq_css_version' );
 /**
  * Delete generated CSS files from uploads directory using WP_Filesystem.
  */
-$nlf_uploads = wp_upload_dir();
-$nlf_css_dir = trailingslashit( $nlf_uploads['basedir'] ) . 'nlf-faq';
+$krslys_nlf_uploads = wp_upload_dir();
+$krslys_nlf_css_dir = trailingslashit( $krslys_nlf_uploads['basedir'] ) . 'nlf-faq';
 
-if ( is_dir( $nlf_css_dir ) ) {
+if ( is_dir( $krslys_nlf_css_dir ) ) {
 	if ( ! function_exists( 'WP_Filesystem' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 	}
@@ -50,7 +50,7 @@ if ( is_dir( $nlf_css_dir ) ) {
 	global $wp_filesystem;
 
 	if ( $wp_filesystem ) {
-		$wp_filesystem->rmdir( $nlf_css_dir, true );
+		$wp_filesystem->rmdir( $krslys_nlf_css_dir, true );
 	}
 }
 
@@ -59,6 +59,7 @@ if ( is_dir( $nlf_css_dir ) ) {
  */
 global $wpdb;
 
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cleanup during uninstall, no caching needed.
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",

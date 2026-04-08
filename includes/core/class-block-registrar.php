@@ -58,7 +58,7 @@ class Block_Registrar {
 	private static function register_editor_script() {
 		wp_register_script(
 			'nlf-faq-block-editor',
-			nlf_asset_url( 'blocks/faq/editor.js' ),
+			krslys_nlf_asset_url( 'blocks/faq/editor.js' ),
 			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
 			NLF_FAQ_VERSION,
 			true
@@ -85,7 +85,7 @@ class Block_Registrar {
 	private static function register_accordion_editor_script() {
 		wp_register_script(
 			'nlf-accordion-block-editor',
-			nlf_asset_url( 'blocks/accordion/editor.js' ),
+			krslys_nlf_asset_url( 'blocks/accordion/editor.js' ),
 			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
 			NLF_FAQ_VERSION,
 			true

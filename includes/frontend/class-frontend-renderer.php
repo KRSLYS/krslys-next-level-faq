@@ -72,7 +72,7 @@ class Frontend_Renderer {
 		// Enqueue group-specific CSS if needed (will be done per group in shortcode)
 		wp_enqueue_script(
 			'nlf-faq-frontend',
-			nlf_asset_url( 'assets/js/frontend-faq.js' ),
+			krslys_nlf_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true
@@ -141,7 +141,7 @@ class Frontend_Renderer {
 		 * @param array $payload Tracking data.
 		 */
 		do_action(
-			'nlf_faq_tracked_event',
+			'krslys_nlf_faq_tracked_event',
 			array(
 				'group_id'    => $group_id,
 				'question_id' => $question_id,

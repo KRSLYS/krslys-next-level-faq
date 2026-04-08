@@ -34,8 +34,8 @@ require_once NLF_FAQ_PLUGIN_DIR . 'includes/Autoloader.php';
 require_once NLF_FAQ_PLUGIN_DIR . 'includes/core/functions.php';
 
 // Initialize autoloader.
-$nlf_autoloader = new \Krslys\NextLevelFaq\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
-$nlf_autoloader->register();
+$krslys_nlf_autoloader = new \Krslys\NextLevelFaq\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
+$krslys_nlf_autoloader->register();
 
 /**
  * Main plugin class.
@@ -102,8 +102,8 @@ register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( 'Krslys_NextLevelFaq_Plugi
  *
  * @return Krslys_NextLevelFaq_Plugin
  */
-function nlf_faq() {
+function krslys_nlf_faq() {
 	return Krslys_NextLevelFaq_Plugin::instance();
 }
 
-add_action( 'plugins_loaded', 'nlf_faq' );
+add_action( 'plugins_loaded', 'krslys_nlf_faq' );

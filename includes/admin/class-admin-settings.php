@@ -135,7 +135,7 @@ class Admin_Settings {
 
 		wp_enqueue_style(
 			'nlf-faq-admin',
-			nlf_asset_url( 'assets/css/admin-faq-style.css' ),
+			krslys_nlf_asset_url( 'assets/css/admin-faq-style.css' ),
 			array(),
 			NLF_FAQ_CSS_VERSION
 		);

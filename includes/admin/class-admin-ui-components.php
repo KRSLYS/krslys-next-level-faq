@@ -48,25 +48,66 @@ class Admin_UI_Components {
 	}
 
 	/**
-	 * Render onboarding card for empty FAQ groups.
+	 * Render onboarding card for empty groups.
+	 *
+	 * @param string $type Group type ('faq' or 'accordion').
 	 */
-	public static function onboarding_card() {
+	public static function onboarding_card( $type = 'faq' ) {
+		$is_accordion = 'accordion' === $type;
 		?>
 		<div class="nlf-onboarding-card" aria-live="polite">
 			<div class="nlf-onboarding-icon">
 				<span class="dashicons dashicons-lightbulb"></span>
 			</div>
 			<div class="nlf-onboarding-content">
-				<h3><?php esc_html_e( 'Let’s build your FAQ group', 'krslys-next-level-faq' ); ?></h3>
-				<p><?php esc_html_e( 'Follow these quick steps to publish your first FAQ section.', 'krslys-next-level-faq' ); ?></p>
+				<h3>
+					<?php
+					if ( $is_accordion ) {
+						esc_html_e( "Let's build your accordion group", 'krslys-next-level-faq' );
+					} else {
+						esc_html_e( "Let's build your FAQ group", 'krslys-next-level-faq' );
+					}
+					?>
+				</h3>
+				<p>
+					<?php
+					if ( $is_accordion ) {
+						esc_html_e( 'Follow these quick steps to publish your first accordion section.', 'krslys-next-level-faq' );
+					} else {
+						esc_html_e( 'Follow these quick steps to publish your first FAQ section.', 'krslys-next-level-faq' );
+					}
+					?>
+				</p>
 				<ol>
-					<li><strong><?php esc_html_e( 'Add questions', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Capture what customers ask most often.', 'krslys-next-level-faq' ); ?></li>
+					<li><strong>
+						<?php
+						if ( $is_accordion ) {
+							esc_html_e( 'Add items', 'krslys-next-level-faq' );
+						} else {
+							esc_html_e( 'Add questions', 'krslys-next-level-faq' );
+						}
+						?>
+					</strong> —
+						<?php
+						if ( $is_accordion ) {
+							esc_html_e( 'Create titles and content for your sections.', 'krslys-next-level-faq' );
+						} else {
+							esc_html_e( 'Capture what customers ask most often.', 'krslys-next-level-faq' );
+						}
+						?>
+					</li>
 					<li><strong><?php esc_html_e( 'Customize the look', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Match your brand colors and typography.', 'krslys-next-level-faq' ); ?></li>
 					<li><strong><?php esc_html_e( 'Preview & publish', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Review the live preview before publishing.', 'krslys-next-level-faq' ); ?></li>
 				</ol>
 				<div class="nlf-onboarding-actions">
 					<button type="button" class="button button-primary button-hero nlf-onboarding-start">
-						<?php esc_html_e( 'Start adding questions', 'krslys-next-level-faq' ); ?>
+						<?php
+						if ( $is_accordion ) {
+							esc_html_e( 'Start adding items', 'krslys-next-level-faq' );
+						} else {
+							esc_html_e( 'Start adding questions', 'krslys-next-level-faq' );
+						}
+						?>
 					</button>
 					<button type="button" class="button button-secondary" data-switch-tab="appearance">
 						<?php esc_html_e( 'Explore appearance options', 'krslys-next-level-faq' ); ?> →
