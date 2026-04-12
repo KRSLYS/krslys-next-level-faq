@@ -48,12 +48,15 @@ class Frontend_Renderer {
 	}
 
 	/**
-	 * Enqueue front-end styles and scripts.
+	 * Register front-end styles and scripts.
+	 *
+	 * Assets are registered here but only enqueued when a FAQ
+	 * shortcode or block is actually rendered on the page.
 	 *
 	 * SECURITY: Uses esc_url_raw() for CSS URL.
 	 */
 	public static function enqueue_styles() {
-		// Enqueue global CSS
+		// Register global CSS (enqueued on demand in render_shortcode).
 		$css_path = Style_Generator::get_css_file_path();
 		$css_url  = Style_Generator::get_css_file_url();
 
@@ -61,7 +64,7 @@ class Frontend_Renderer {
 		$baseurl = isset( $uploads['baseurl'] ) ? trailingslashit( $uploads['baseurl'] ) : '';
 
 		if ( $css_url && $css_path && file_exists( $css_path ) && $baseurl && 0 === strpos( $css_url, $baseurl ) ) {
-			wp_enqueue_style(
+			wp_register_style(
 				'nlf-faq-generated',
 				esc_url_raw( $css_url ),
 				array(),
@@ -69,8 +72,8 @@ class Frontend_Renderer {
 			);
 		}
 
-		// Enqueue group-specific CSS if needed (will be done per group in shortcode)
-		wp_enqueue_script(
+		// Register JS (enqueued on demand in render_shortcode).
+		wp_register_script(
 			'nlf-faq-frontend',
 			krslys_nlf_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
@@ -87,6 +90,21 @@ class Frontend_Renderer {
 				'tracking'  => true,
 			)
 		);
+	}
+
+	/**
+	 * Enqueue registered assets when a FAQ is actually rendered.
+	 *
+	 * Called from render_shortcode() so assets only load on pages
+	 * that contain at least one FAQ group.
+	 */
+	private static function enqueue_frontend_assets() {
+		if ( ! wp_style_is( 'nlf-faq-generated', 'enqueued' ) ) {
+			wp_enqueue_style( 'nlf-faq-generated' );
+		}
+		if ( ! wp_script_is( 'nlf-faq-frontend', 'enqueued' ) ) {
+			wp_enqueue_script( 'nlf-faq-frontend' );
+		}
 	}
 	/**
 	 * Register AJAX routes for analytics tracking.
@@ -199,6 +217,9 @@ class Frontend_Renderer {
 	 * @return string
 	 */
 	public static function render_shortcode( $atts, $content = '' ) {
+		// Enqueue CSS/JS only when a FAQ is actually rendered.
+		self::enqueue_frontend_assets();
+
 		$atts = self::sanitize_shortcode_atts(
 			shortcode_atts(
 				array(

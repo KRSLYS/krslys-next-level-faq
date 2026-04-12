@@ -1317,8 +1317,7 @@
 				publishButton.disabled = false;
 			}
 		})
-		.catch(error => {
-			console.error('Save error:', error);
+		.catch(function() {
 			showInlineNotice('An unexpected error occurred while saving.');
 			publishButton.value = originalText;
 			publishButton.disabled = false;
