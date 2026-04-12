@@ -72,8 +72,13 @@ class Settings_Repository {
 		// Decode JSON
 		$decoded = json_decode( $value, true );
 
-		// Return decoded value or original if not valid JSON
-		return is_array( $decoded ) || is_object( $decoded ) ? $decoded : $value;
+		// Return decoded value if valid JSON, otherwise the raw string.
+		if ( null === $decoded && 'null' !== strtolower( trim( $value ) ) ) {
+			// json_decode failed — return raw string.
+			return $value;
+		}
+
+		return $decoded;
 	}
 
 	/**

@@ -73,6 +73,7 @@ class Block_Registrar {
 				'defaultPreset'  => Options::get_default_preset_slug(),
 				'groups'         => self::get_groups_for_block( 'faq' ),
 				'editGroupUrl'   => admin_url( 'admin.php?page=nlf-faq-group-edit&id=' ),
+				'groupsListUrl'  => admin_url( 'admin.php?page=nlf-faq-groups' ),
 			)
 		);
 
@@ -100,6 +101,7 @@ class Block_Registrar {
 				'defaultPreset' => Options::get_default_preset_slug(),
 				'groups'        => self::get_groups_for_block( 'accordion' ),
 				'editGroupUrl'  => admin_url( 'admin.php?page=nlf-faq-group-edit&type=accordion&id=' ),
+				'groupsListUrl' => admin_url( 'admin.php?page=nlf-accordion-groups' ),
 			)
 		);
 
@@ -163,7 +165,7 @@ class Block_Registrar {
 	 */
 	public static function render_block( $attributes, $content ) {
 		$atts = array(
-			'title'  => isset( $attributes['title'] ) ? (string) $attributes['title'] : '',
+			'title'  => '',
 			'group'  => isset( $attributes['groupId'] ) ? (int) $attributes['groupId'] : 0,
 			'preset' => isset( $attributes['preset'] ) ? sanitize_key( $attributes['preset'] ) : '',
 		);

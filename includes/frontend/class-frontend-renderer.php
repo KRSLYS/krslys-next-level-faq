@@ -202,7 +202,7 @@ class Frontend_Renderer {
 		$atts = self::sanitize_shortcode_atts(
 			shortcode_atts(
 				array(
-					'title'      => __( 'Frequently Asked Questions', 'krslys-next-level-faq' ),
+					'title'      => '',
 					'group'      => '',
 					'group_slug' => '',
 					'preset'     => '',
@@ -232,6 +232,12 @@ class Frontend_Renderer {
 		// Get group-specific settings from Groups_Repository.
 		$settings = array();
 		$group = $group_id ? Groups_Repository::get_group_by_id( $group_id ) : null;
+
+		// Use group title when shortcode/block title is empty.
+		if ( '' === $atts['title'] && $group && ! empty( $group->title ) ) {
+			$atts['title'] = $group->title;
+		}
+
 		if ( $group && ! empty( $group->display_settings ) ) {
 			$settings = $group->display_settings;
 		}
@@ -305,6 +311,7 @@ class Frontend_Renderer {
 		ob_start();
 		?>
 		<div class="<?php echo esc_attr( implode( ' ', $faq_classes ) ); ?>"
+			dir="auto"
 			data-group-id="<?php echo esc_attr( $group_id ); ?>"
 			data-animation-speed="<?php echo esc_attr( $settings['animation_speed'] ?? 'normal' ); ?>"
 			data-accordion="<?php echo esc_attr( ! empty( $settings['accordion_mode'] ) ? '1' : '0' ); ?>"
@@ -320,7 +327,7 @@ class Frontend_Renderer {
 
 			<?php if ( ! empty( $settings['show_search'] ) ) : ?>
 				<div class="nlf-faq-search">
-					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'krslys-next-level-faq' ); ?>" />
+					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'krslys-next-level-faq' ); ?>" aria-label="<?php esc_attr_e( 'Search FAQs', 'krslys-next-level-faq' ); ?>" />
 				</div>
 			<?php endif; ?>
 
@@ -345,16 +352,31 @@ class Frontend_Renderer {
 					if ( $is_active ) {
 						$item_class[] = 'nlf-faq__item--highlight';
 					}
+
+					// Unique IDs for ARIA linkage.
+					$question_id = 'nlf-q-' . $group_id . '-' . $item->id;
+					$answer_id   = 'nlf-a-' . $group_id . '-' . $item->id;
 					?>
 					<div class="nlf-faq__item <?php echo esc_attr( implode( ' ', $item_class ) ); ?>" data-faq-id="<?php echo esc_attr( $item->id ); ?>">
-						<div class="nlf-faq__question">
+						<button type="button"
+							class="nlf-faq__question"
+							id="<?php echo esc_attr( $question_id ); ?>"
+							aria-expanded="<?php echo $is_open ? 'true' : 'false'; ?>"
+							aria-controls="<?php echo esc_attr( $answer_id ); ?>">
 							<?php if ( ! empty( $settings['show_counter'] ) ) : ?>
 								<span class="nlf-faq__counter"><?php echo esc_html( $index + 1 ); ?>.</span>
 							<?php endif; ?>
 							<span><?php echo esc_html( (string) $item->question ); ?></span>
 							<span class="nlf-faq__icon" aria-hidden="true"></span>
-						</div>
-						<div class="nlf-faq__answer">
+						</button>
+						<div class="nlf-faq__answer"
+							id="<?php echo esc_attr( $answer_id ); ?>"
+							role="region"
+							aria-labelledby="<?php echo esc_attr( $question_id ); ?>"
+							<?php if ( ! $is_open ) : ?>
+								aria-hidden="true"
+							<?php endif; ?>
+							>
 							<?php echo wp_kses_post( wpautop( (string) $item->answer ) ); ?>
 						</div>
 					</div>
@@ -426,7 +448,7 @@ class Frontend_Renderer {
 
 		foreach ( $group_ids as $gid ) {
 			$group = Groups_Repository::get_group_by_id( $gid );
-			if ( ! $group || 'publish' !== $group->status ) {
+			if ( ! $group || ! in_array( $group->status, array( 'active', 'publish' ), true ) ) {
 				continue;
 			}
 

@@ -14,10 +14,6 @@
     "anchor": true
   },
   "attributes": {
-    "title": {
-      "type": "string",
-      "default": ""
-    },
     "groupId": {
       "type": "number",
       "default": 0

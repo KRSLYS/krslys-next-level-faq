@@ -238,7 +238,7 @@ class Style_Generator {
 	border: none;
 	background: none;
 	cursor: pointer;
-	text-align: left;
+	text-align: start;
 	color: var(--nlf-faq-question-color);
 	font-family: var(--nlf-faq-font-family);
 	font-size: var(--nlf-faq-question-size);

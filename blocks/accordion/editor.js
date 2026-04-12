@@ -1,7 +1,7 @@
 ( function () {
 	const { registerBlockType } = wp.blocks;
 	const { InspectorControls, useBlockProps } = wp.blockEditor || wp.editor;
-	const { PanelBody, SelectControl, TextControl, Disabled, Placeholder, Spinner, Button } = wp.components;
+	const { PanelBody, SelectControl, Disabled, Placeholder, Spinner, Button } = wp.components;
 	const ServerSideRender = wp.serverSideRender;
 	const { createElement: el, Fragment } = wp.element;
 	const { __ } = wp.i18n;
@@ -11,64 +11,123 @@
 	registerBlockType( blockName, {
 		edit: function ( props ) {
 			const { attributes, setAttributes } = props;
-			const { title, groupId } = attributes;
+			const { groupId } = attributes;
 			const blockProps = useBlockProps( { className: 'nlf-faq-block-wrapper' } );
 
 			const blockData    = window.nlfAccordionBlockData || {};
 			const groups       = blockData.groups || [];
-			const groupOptions = groups.map( function ( g ) {
-				return {
-					label: g.title || __( '(no title)', 'krslys-next-level-faq' ),
-					value: g.id,
-				};
-			} );
+			const editGroupsUrl = ( blockData.groupsListUrl || '' );
 
-			var editUrl = groupId
+			const groupOptions = [
+				{ label: __( '— Select an accordion group —', 'krslys-next-level-faq' ), value: 0 },
+			].concat(
+				groups.map( function ( g ) {
+					return {
+						label: g.title || __( '(no title)', 'krslys-next-level-faq' ),
+						value: g.id,
+					};
+				} )
+			);
+
+			const editUrl = groupId
 				? ( blockData.editGroupUrl || '' ) + groupId
 				: null;
+
+			const inspector = el(
+				InspectorControls,
+				null,
+				el(
+					PanelBody,
+					{ title: __( 'Accordion Settings', 'krslys-next-level-faq' ), initialOpen: true },
+					el( SelectControl, {
+						label:    __( 'Accordion Group', 'krslys-next-level-faq' ),
+						value:    groupId || 0,
+						options:  groupOptions,
+						onChange: function ( value ) {
+							setAttributes( { groupId: parseInt( value || 0, 10 ) || 0 } );
+						},
+					} ),
+
+					editUrl && el(
+						'div',
+						{ style: { marginTop: '8px' } },
+						el(
+							Button,
+							{
+								variant: 'link',
+								href:    editUrl,
+								target:  '_blank',
+								rel:     'noreferrer noopener',
+								icon:    'edit',
+							},
+							__( 'Edit Accordion Group', 'krslys-next-level-faq' )
+						)
+					)
+				)
+			);
+
+			if ( groups.length === 0 ) {
+				return el(
+					Fragment,
+					null,
+					inspector,
+					el(
+						'div',
+						blockProps,
+						el(
+							Placeholder,
+							{
+								icon:         'list-view',
+								label:        __( 'Next Level Accordion', 'krslys-next-level-faq' ),
+								instructions: __( 'No accordion groups found. Create an accordion group first, then come back to select it here.', 'krslys-next-level-faq' ),
+							},
+							editGroupsUrl && el(
+								Button,
+								{
+									variant: 'primary',
+									href:    editGroupsUrl,
+									target:  '_blank',
+									rel:     'noreferrer noopener',
+								},
+								__( 'Create Accordion Group', 'krslys-next-level-faq' )
+							)
+						)
+					)
+				);
+			}
+
+			if ( ! groupId ) {
+				return el(
+					Fragment,
+					null,
+					inspector,
+					el(
+						'div',
+						blockProps,
+						el(
+							Placeholder,
+							{
+								icon:         'list-view',
+								label:        __( 'Next Level Accordion', 'krslys-next-level-faq' ),
+								instructions: __( 'Select an accordion group from the block settings on the right.', 'krslys-next-level-faq' ),
+							},
+							el( SelectControl, {
+								label:    __( 'Accordion Group', 'krslys-next-level-faq' ),
+								value:    groupId || 0,
+								options:  groupOptions,
+								onChange: function ( value ) {
+									setAttributes( { groupId: parseInt( value || 0, 10 ) || 0 } );
+								},
+							} )
+						)
+					)
+				);
+			}
 
 			return el(
 				Fragment,
 				null,
-
-				el(
-					InspectorControls,
-					null,
-					el(
-						PanelBody,
-						{ title: __( 'Accordion Settings', 'krslys-next-level-faq' ), initialOpen: true },
-						el( TextControl, {
-							label:    __( 'Title', 'krslys-next-level-faq' ),
-							value:    title || '',
-							onChange: function ( value ) { setAttributes( { title: value } ); },
-						} ),
-						el( SelectControl, {
-							label:    __( 'Accordion Group', 'krslys-next-level-faq' ),
-							value:    groupId || 0,
-							options:  groupOptions,
-							onChange: function ( value ) {
-								setAttributes( { groupId: parseInt( value || 0, 10 ) || 0 } );
-							},
-						} ),
-
-						editUrl && el(
-							'div',
-							{ style: { marginTop: '8px' } },
-							el(
-								Button,
-								{
-									variant: 'link',
-									href:    editUrl,
-									target:  '_blank',
-									rel:     'noreferrer noopener',
-									icon:    'edit',
-								},
-								__( 'Edit Accordion Group', 'krslys-next-level-faq' )
-							)
-						)
-					)
-				),
-
+				inspector,
 				el(
 					'div',
 					blockProps,

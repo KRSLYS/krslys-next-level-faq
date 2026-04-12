@@ -83,7 +83,7 @@ class Admin_Settings {
 			__( 'FAQ Groups', 'krslys-next-level-faq' ),
 			'manage_options',
 			'nlf-faq-groups',
-			array( 'Krslys\NextLevelFaq\Group_Admin', 'render_list_page' )
+			array( __CLASS__, 'render_faq_groups_page' )
 		);
 
 		add_submenu_page(
@@ -249,6 +249,20 @@ class Admin_Settings {
 	 * Render the Accordion Groups list table page.
 	 *
 	 * SECURITY: Capability check at start of function.
+	 */
+	/**
+	 * Render FAQ groups list page.
+	 */
+	public static function render_faq_groups_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		\Krslys\NextLevelFaq\Group_Admin::render_list_page( 'faq' );
+	}
+
+	/**
+	 * Render accordion groups list page.
 	 */
 	public static function render_accordion_groups_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
