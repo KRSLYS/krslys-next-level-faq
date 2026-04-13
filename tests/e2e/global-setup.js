@@ -4,8 +4,8 @@ const { chromium } = require( '@playwright/test' );
 const path = require( 'path' );
 
 const BASE_URL = process.env.WP_BASE_URL || 'http://wp.local';
-const ADMIN_USER = process.env.WP_ADMIN_USER || 'root';
-const ADMIN_PASS = process.env.WP_ADMIN_PASS || 'root';
+const ADMIN_USER = process.env.WP_ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.WP_ADMIN_PASS || 'password';
 const AUTH_FILE = path.join( __dirname, '.auth', 'admin.json' );
 
 module.exports = async function globalSetup() {
