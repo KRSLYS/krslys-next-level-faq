@@ -498,21 +498,6 @@ class Admin_Settings {
 				</div>
 			</div>
 
-			<!-- ── More Tools Coming Soon ───────────────── -->
-			<div class="nlf-tools-section">
-				<div class="nlf-tools-section__header">
-					<span class="dashicons dashicons-superhero-alt"></span>
-					<div>
-						<h2><?php esc_html_e( 'More Tools', 'krslys-next-level-faq-accordion' ); ?></h2>
-						<p><?php esc_html_e( 'Powerful utilities coming in future updates.', 'krslys-next-level-faq-accordion' ); ?></p>
-					</div>
-				</div>
-
-				<?php self::render_upcoming_cards(); ?>
-			</div>
-
-			<?php self::render_pro_cards(); ?>
-
 		</div>
 
 		<?php
