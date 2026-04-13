@@ -2,10 +2,10 @@
 /**
  * Front-end rendering and assets.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,28 +23,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Frontend_Renderer {
 
 	/**
+	 * Collected FAQ schema entities to output in wp_head.
+	 *
+	 * @var array[]
+	 */
+	private static $schema_queue = array();
+
+	/**
 	 * Bootstrap all frontend hooks.
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_shortcodes' ) );
 		add_action( 'init', array( __CLASS__, 'register_tracking_routes' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_styles' ) );
+		add_action( 'wp', array( __CLASS__, 'prepare_faq_schema' ) );
+		add_action( 'wp_head', array( __CLASS__, 'print_faq_schema' ), 99 );
 	}
 
 	/**
 	 * Register shortcodes.
 	 */
 	public static function register_shortcodes() {
-		add_shortcode( 'krslys_nlf', array( __CLASS__, 'render_shortcode' ) );
+		add_shortcode( 'krslys_nlfa', array( __CLASS__, 'render_shortcode' ) );
 	}
 
 	/**
-	 * Enqueue front-end styles and scripts.
+	 * Register front-end styles and scripts.
+	 *
+	 * Assets are registered here but only enqueued when a FAQ
+	 * shortcode or block is actually rendered on the page.
 	 *
 	 * SECURITY: Uses esc_url_raw() for CSS URL.
 	 */
 	public static function enqueue_styles() {
-		// Enqueue global CSS
+		// Register global CSS (enqueued on demand in render_shortcode).
 		$css_path = Style_Generator::get_css_file_path();
 		$css_url  = Style_Generator::get_css_file_url();
 
@@ -52,7 +64,7 @@ class Frontend_Renderer {
 		$baseurl = isset( $uploads['baseurl'] ) ? trailingslashit( $uploads['baseurl'] ) : '';
 
 		if ( $css_url && $css_path && file_exists( $css_path ) && $baseurl && 0 === strpos( $css_url, $baseurl ) ) {
-			wp_enqueue_style(
+			wp_register_style(
 				'nlf-faq-generated',
 				esc_url_raw( $css_url ),
 				array(),
@@ -60,10 +72,10 @@ class Frontend_Renderer {
 			);
 		}
 
-		// Enqueue group-specific CSS if needed (will be done per group in shortcode)
-		wp_enqueue_script(
+		// Register JS (enqueued on demand in render_shortcode).
+		wp_register_script(
 			'nlf-faq-frontend',
-			nlf_asset_url( 'assets/js/frontend-faq.js' ),
+			krslys_nlfa_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true
@@ -78,6 +90,21 @@ class Frontend_Renderer {
 				'tracking'  => true,
 			)
 		);
+	}
+
+	/**
+	 * Enqueue registered assets when a FAQ is actually rendered.
+	 *
+	 * Called from render_shortcode() so assets only load on pages
+	 * that contain at least one FAQ group.
+	 */
+	private static function enqueue_frontend_assets() {
+		if ( ! wp_style_is( 'nlf-faq-generated', 'enqueued' ) ) {
+			wp_enqueue_style( 'nlf-faq-generated' );
+		}
+		if ( ! wp_script_is( 'nlf-faq-frontend', 'enqueued' ) ) {
+			wp_enqueue_script( 'nlf-faq-frontend' );
+		}
 	}
 	/**
 	 * Register AJAX routes for analytics tracking.
@@ -95,16 +122,16 @@ class Frontend_Renderer {
 
 		$group_id    = isset( $_POST['group_id'] ) ? absint( $_POST['group_id'] ) : 0;
 		$question_id = isset( $_POST['question_id'] ) ? absint( $_POST['question_id'] ) : 0;
-		$state       = isset( $_POST['state'] ) ? sanitize_key( $_POST['state'] ) : '';
+		$state       = isset( $_POST['state'] ) ? sanitize_key( wp_unslash( $_POST['state'] ) ) : '';
 
 		if ( $group_id <= 0 || $question_id <= 0 ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'next-level-faq' ) ), 400 );
+			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'krslys-next-level-faq-accordion' ) ), 400 );
 		}
 
 		// Verify the group exists in the custom table.
-		$group = \Krslys\NextLevelFaq\Groups_Repository::get_group_by_id( $group_id );
+		$group = \Krslys\NextLevelFaqAccordion\Groups_Repository::get_group_by_id( $group_id );
 		if ( ! $group ) {
-			wp_send_json_error( array( 'message' => __( 'Group not found.', 'next-level-faq' ) ), 404 );
+			wp_send_json_error( array( 'message' => __( 'Group not found.', 'krslys-next-level-faq-accordion' ) ), 404 );
 		}
 
 		// Track stats in Settings_Repository or group metadata
@@ -132,7 +159,7 @@ class Frontend_Renderer {
 		 * @param array $payload Tracking data.
 		 */
 		do_action(
-			'nlf_faq_tracked_event',
+			'krslys_nlfa_faq_tracked_event',
 			array(
 				'group_id'    => $group_id,
 				'question_id' => $question_id,
@@ -190,16 +217,19 @@ class Frontend_Renderer {
 	 * @return string
 	 */
 	public static function render_shortcode( $atts, $content = '' ) {
+		// Enqueue CSS/JS only when a FAQ is actually rendered.
+		self::enqueue_frontend_assets();
+
 		$atts = self::sanitize_shortcode_atts(
 			shortcode_atts(
 				array(
-					'title'      => __( 'Frequently Asked Questions', 'next-level-faq' ),
+					'title'      => '',
 					'group'      => '',
 					'group_slug' => '',
 					'preset'     => '',
 				),
 			$atts,
-			'krslys_nlf'
+			'krslys_nlfa'
 			)
 		);
 
@@ -223,6 +253,12 @@ class Frontend_Renderer {
 		// Get group-specific settings from Groups_Repository.
 		$settings = array();
 		$group = $group_id ? Groups_Repository::get_group_by_id( $group_id ) : null;
+
+		// Use group title when shortcode/block title is empty.
+		if ( '' === $atts['title'] && $group && ! empty( $group->title ) ) {
+			$atts['title'] = $group->title;
+		}
+
 		if ( $group && ! empty( $group->display_settings ) ) {
 			$settings = $group->display_settings;
 		}
@@ -296,10 +332,11 @@ class Frontend_Renderer {
 		ob_start();
 		?>
 		<div class="<?php echo esc_attr( implode( ' ', $faq_classes ) ); ?>"
+			dir="auto"
 			data-group-id="<?php echo esc_attr( $group_id ); ?>"
 			data-animation-speed="<?php echo esc_attr( $settings['animation_speed'] ?? 'normal' ); ?>"
-			data-accordion="<?php echo ! empty( $settings['accordion_mode'] ) ? '1' : '0'; ?>"
-			data-smooth-scroll="<?php echo ! empty( $settings['smooth_scroll'] ) ? '1' : '0'; ?>"
+			data-accordion="<?php echo esc_attr( ! empty( $settings['accordion_mode'] ) ? '1' : '0' ); ?>"
+			data-smooth-scroll="<?php echo esc_attr( ! empty( $settings['smooth_scroll'] ) ? '1' : '0' ); ?>"
 			data-preset="<?php echo esc_attr( $preset_slug ); ?>"
 			<?php if ( $inline_style ) : ?>
 				style="<?php echo esc_attr( $inline_style ); ?>"
@@ -311,7 +348,7 @@ class Frontend_Renderer {
 
 			<?php if ( ! empty( $settings['show_search'] ) ) : ?>
 				<div class="nlf-faq-search">
-					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'next-level-faq' ); ?>" />
+					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'krslys-next-level-faq-accordion' ); ?>" aria-label="<?php esc_attr_e( 'Search FAQs', 'krslys-next-level-faq-accordion' ); ?>" />
 				</div>
 			<?php endif; ?>
 
@@ -336,23 +373,38 @@ class Frontend_Renderer {
 					if ( $is_active ) {
 						$item_class[] = 'nlf-faq__item--highlight';
 					}
+
+					// Unique IDs for ARIA linkage.
+					$question_id = 'nlf-q-' . $group_id . '-' . $item->id;
+					$answer_id   = 'nlf-a-' . $group_id . '-' . $item->id;
 					?>
 					<div class="nlf-faq__item <?php echo esc_attr( implode( ' ', $item_class ) ); ?>" data-faq-id="<?php echo esc_attr( $item->id ); ?>">
-						<div class="nlf-faq__question">
+						<button type="button"
+							class="nlf-faq__question"
+							id="<?php echo esc_attr( $question_id ); ?>"
+							aria-expanded="<?php echo $is_open ? 'true' : 'false'; ?>"
+							aria-controls="<?php echo esc_attr( $answer_id ); ?>">
 							<?php if ( ! empty( $settings['show_counter'] ) ) : ?>
 								<span class="nlf-faq__counter"><?php echo esc_html( $index + 1 ); ?>.</span>
 							<?php endif; ?>
 							<span><?php echo esc_html( (string) $item->question ); ?></span>
 							<span class="nlf-faq__icon" aria-hidden="true"></span>
-						</div>
-						<div class="nlf-faq__answer">
+						</button>
+						<div class="nlf-faq__answer"
+							id="<?php echo esc_attr( $answer_id ); ?>"
+							role="region"
+							aria-labelledby="<?php echo esc_attr( $question_id ); ?>"
+							<?php if ( ! $is_open ) : ?>
+								aria-hidden="true"
+							<?php endif; ?>
+							>
 							<?php echo wp_kses_post( wpautop( (string) $item->answer ) ); ?>
 						</div>
 					</div>
 				<?php endforeach; ?>
 			<?php else : ?>
 				<p class="nlf-faq__empty">
-					<?php esc_html_e( 'No FAQs found yet. Add some FAQs in the admin to populate this section.', 'next-level-faq' ); ?>
+					<?php esc_html_e( 'No FAQs found yet. Add some FAQs in the admin to populate this section.', 'krslys-next-level-faq-accordion' ); ?>
 				</p>
 			<?php endif; ?>
 		</div>
@@ -365,6 +417,113 @@ class Frontend_Renderer {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Pre-scan the current page content for FAQ shortcodes/blocks
+	 * and build schema data before wp_head fires.
+	 *
+	 * Hooked to 'wp' action which runs after the query but before
+	 * template rendering, allowing schema output in wp_head.
+	 */
+	public static function prepare_faq_schema() {
+		if ( is_admin() || wp_doing_ajax() ) {
+			return;
+		}
+
+		$enable_schema = Settings_Repository::get_setting( 'enable_schema_markup', true );
+		if ( ! $enable_schema ) {
+			return;
+		}
+
+		$post = get_queried_object();
+		if ( ! ( $post instanceof \WP_Post ) ) {
+			return;
+		}
+
+		$content = $post->post_content;
+		$group_ids = array();
+
+		// Detect shortcodes: [krslys_nlfa group="ID"]
+		if ( has_shortcode( $content, 'krslys_nlfa' ) ) {
+			preg_match_all( '/\[krslys_nlfa\s[^\]]*group=["\']?(\d+)["\']?/', $content, $matches );
+			if ( ! empty( $matches[1] ) ) {
+				$group_ids = array_merge( $group_ids, array_map( 'intval', $matches[1] ) );
+			}
+		}
+
+		// Detect Gutenberg blocks: krslys-next-level/faq
+		if ( has_block( 'krslys-next-level/faq', $content ) ) {
+			$blocks = parse_blocks( $content );
+			foreach ( $blocks as $block ) {
+				if ( 'krslys-next-level/faq' === $block['blockName'] && ! empty( $block['attrs']['groupId'] ) ) {
+					$group_ids[] = (int) $block['attrs']['groupId'];
+				}
+			}
+		}
+
+		$group_ids = array_unique( array_filter( $group_ids ) );
+		if ( empty( $group_ids ) ) {
+			return;
+		}
+
+		foreach ( $group_ids as $gid ) {
+			$group = Groups_Repository::get_group_by_id( $gid );
+			if ( ! $group || ! in_array( $group->status, array( 'active', 'publish' ), true ) ) {
+				continue;
+			}
+
+			// Skip accordion groups — FAQPage schema is only for FAQ content.
+			$group_type = isset( $group->type ) ? $group->type : 'faq';
+			if ( 'accordion' === $group_type ) {
+				continue;
+			}
+
+			// Check per-group disable.
+			$display = is_array( $group->display_settings ) ? $group->display_settings : array();
+			if ( ! empty( $display['disable_schema'] ) ) {
+				continue;
+			}
+
+			$items = Repository::get_all_published_faqs( $gid );
+			if ( empty( $items ) ) {
+				continue;
+			}
+
+			foreach ( $items as $item ) {
+				self::$schema_queue[] = array(
+					'@type'          => 'Question',
+					'name'           => wp_strip_all_tags( (string) $item->question ),
+					'acceptedAnswer' => array(
+						'@type' => 'Answer',
+						'text'  => wp_kses_post( wpautop( (string) $item->answer ) ),
+					),
+				);
+			}
+		}
+	}
+
+	/**
+	 * Print consolidated FAQPage JSON-LD in wp_head.
+	 *
+	 * Outputs a single FAQPage schema containing all FAQ groups
+	 * found on the current page.
+	 *
+	 * @see https://schema.org/FAQPage
+	 * @see https://developers.google.com/search/docs/appearance/structured-data/faqpage
+	 */
+	public static function print_faq_schema() {
+		if ( empty( self::$schema_queue ) ) {
+			return;
+		}
+
+		$schema = array(
+			'@context'   => 'https://schema.org',
+			'@type'      => 'FAQPage',
+			'mainEntity' => self::$schema_queue,
+		);
+
+		echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD encoded via wp_json_encode().
 	}
 
 	/**

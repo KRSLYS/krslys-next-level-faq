@@ -1,13 +1,21 @@
 {
-	"name": "krslys-next-level-faq",
+	"name": "krslys-next-level-faq-accordion",
 	"version": "1.0.0",
-	"description": "Next Level FAQ – build pipeline",
+	"description": "Next Level FAQ & Accordion – build pipeline",
 	"private": true,
 	"scripts": {
 		"build": "webpack --config webpack.config.js",
-		"start": "webpack --config webpack.config.js --watch"
+		"start": "webpack --config webpack.config.js --watch",
+		"test:unit": "php vendor/bin/phpunit",
+		"test:e2e": "playwright test",
+		"test:e2e:keep": "E2E_CLEANUP=false playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:headed": "playwright test --headed",
+		"test": "php vendor/bin/phpunit && npx playwright test"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^30.0.0"
+		"@playwright/test": "^1.59.1",
+		"@wordpress/scripts": "^30.0.0",
+		"dotenv": "^17.4.0"
 	}
 }

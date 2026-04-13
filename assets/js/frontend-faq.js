@@ -26,6 +26,9 @@
 		if (question) {
 			question.setAttribute('aria-expanded', 'true');
 		}
+		if (answer) {
+			answer.removeAttribute('aria-hidden');
+		}
 
 		if (answer) {
 			// Animate to real content height instead of CSS 1000px.
@@ -66,6 +69,9 @@
 		item.classList.remove('is-open');
 		if (question) {
 			question.setAttribute('aria-expanded', 'false');
+		}
+		if (answer) {
+			answer.setAttribute('aria-hidden', 'true');
 		}
 	}
 
@@ -161,15 +167,23 @@
 		// Apply animation speed from data attribute.
 		applyAnimationSpeed(container);
 
-		// Set up accessibility attributes on question elements.
+		// Ensure aria-expanded is in sync with server-rendered state.
 		var questions = container.querySelectorAll('.nlf-faq__question');
 		for (var q = 0; q < questions.length; q++) {
 			var questionEl = questions[q];
-			questionEl.setAttribute('role', 'button');
-			questionEl.setAttribute('tabindex', '0');
 			var parentItem = questionEl.closest('.nlf-faq__item');
 			var isOpen = parentItem && parentItem.classList.contains('is-open');
 			questionEl.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+			// Ensure answer aria-hidden is in sync.
+			var answerEl = parentItem ? parentItem.querySelector('.nlf-faq__answer') : null;
+			if (answerEl) {
+				if (isOpen) {
+					answerEl.removeAttribute('aria-hidden');
+				} else {
+					answerEl.setAttribute('aria-hidden', 'true');
+				}
+			}
 		}
 
 		// For items that are initially open (via server-side class), let their

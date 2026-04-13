@@ -1,23 +1,19 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 2,
-  "name": "next-level-faq/faq",
+  "apiVersion": 3,
+  "name": "krslys-next-level/faq",
   "title": "Next Level FAQ",
   "category": "widgets",
   "icon": "editor-help",
   "description": "Display a styled FAQ section using the Next Level FAQ styles.",
   "keywords": ["faq", "accordion", "help"],
-  "textdomain": "next-level-faq",
+  "textdomain": "krslys-next-level-faq-accordion",
   "supports": {
     "html": false,
     "align": true,
     "anchor": true
   },
   "attributes": {
-    "title": {
-      "type": "string",
-      "default": "Frequently Asked Questions"
-    },
     "groupId": {
       "type": "number",
       "default": 0

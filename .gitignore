@@ -1,4 +1,26 @@
+# IDE / Editor
 .claude/
 .vscode/
 .local/
+
+# Dependencies
 node_modules/
+vendor/
+composer.phar
+composer.lock
+
+# Build / Environment
+.env
+dist/
+
+# Testing
+tests/e2e/.auth/
+test-results/
+playwright-report/
+phpunit.xml
+.phpunit.result.cache
+coverage-report/
+
+# OS
+Thumbs.db
+.DS_Store

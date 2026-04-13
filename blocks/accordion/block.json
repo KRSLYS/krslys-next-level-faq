@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "krslys-next-level/accordion",
+  "title": "Next Level Accordion",
+  "category": "widgets",
+  "icon": "list-view",
+  "description": "Display a styled accordion section with collapsible content panels.",
+  "keywords": ["accordion", "collapse", "toggle", "sections"],
+  "textdomain": "krslys-next-level-faq-accordion",
+  "supports": {
+    "html": false,
+    "align": true,
+    "anchor": true
+  },
+  "attributes": {
+    "groupId": {
+      "type": "number",
+      "default": 0
+    },
+    "preset": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "editorScript": "nlf-accordion-block-editor",
+  "style": "nlf-faq-generated"
+}
