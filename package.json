@@ -1,7 +1,7 @@
 {
 	"name": "krslys-next-level-faq",
 	"version": "1.0.0",
-	"description": "Next Level FAQ – build pipeline",
+	"description": "Next Level FAQ & Accordion – build pipeline",
 	"private": true,
 	"scripts": {
 		"build": "webpack --config webpack.config.js",

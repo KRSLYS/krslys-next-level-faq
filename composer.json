@@ -1,6 +1,6 @@
 {
     "name": "krslys/next-level-faq",
-    "description": "Next Level FAQ WordPress Plugin",
+    "description": "Next Level FAQ & Accordion WordPress Plugin",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "require": {

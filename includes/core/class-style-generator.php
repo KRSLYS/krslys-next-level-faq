@@ -84,7 +84,7 @@ class Style_Generator {
 		ob_start();
 		?>
 /* =======================================================
-   Next Level FAQ — Premium Design System v2
+   Next Level FAQ & Accordion — Premium Design System v2
    Professional-grade accordion styling
    ======================================================= */
 

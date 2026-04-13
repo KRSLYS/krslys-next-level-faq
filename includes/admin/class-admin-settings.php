@@ -58,7 +58,7 @@ class Admin_Settings {
 	 */
 	public static function register_menu() {
 		add_menu_page(
-			__( 'Next Level FAQ', 'krslys-next-level-faq' ),
+			__( 'Next Level FAQ & Accordion', 'krslys-next-level-faq' ),
 			__( 'FAQs', 'krslys-next-level-faq' ),
 			'manage_options',
 			self::TOP_MENU_SLUG,
@@ -161,8 +161,8 @@ class Admin_Settings {
 
 			<div class="nlf-dashboard-hero">
 				<span class="dashicons dashicons-editor-help nlf-dashboard-hero__icon"></span>
-				<h1 class="nlf-dashboard-hero__title"><?php esc_html_e( 'Next Level FAQ', 'krslys-next-level-faq' ); ?></h1>
-				<p class="nlf-dashboard-hero__desc"><?php esc_html_e( 'Flexible FAQ plugin with customizable styling and live preview.', 'krslys-next-level-faq' ); ?></p>
+				<h1 class="nlf-dashboard-hero__title"><?php esc_html_e( 'Next Level FAQ & Accordion', 'krslys-next-level-faq' ); ?></h1>
+				<p class="nlf-dashboard-hero__desc"><?php esc_html_e( 'Flexible FAQ and Accordion plugin with customizable styling and live preview.', 'krslys-next-level-faq' ); ?></p>
 			</div>
 
 			<div class="nlf-dashboard-cards">

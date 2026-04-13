@@ -1,4 +1,4 @@
-=== Next Level FAQ ===
+=== Next Level FAQ & Accordion ===
 Contributors:      krslys
 Tags:              faq, accordion, questions, answers, gutenberg
 Requires at least: 5.8
@@ -8,11 +8,11 @@ Requires PHP:      7.4
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Flexible FAQ and Accordion plugin with customizable styling, live preview, and Gutenberg block support.
+Flexible FAQ and Accordion plugin with customizable styling, schema markup, live preview, and Gutenberg block support.
 
 == Description ==
 
-**Next Level FAQ** is a lightweight, professional FAQ and Accordion plugin for WordPress with a focus on design freedom. Organize questions into FAQ Groups or content into Accordion Groups, configure colors, layouts, and animations from a dedicated admin interface, then embed them anywhere using a shortcode or the native Gutenberg block.
+**Next Level FAQ & Accordion** is a lightweight, professional FAQ and Accordion plugin for WordPress with a focus on design freedom. Organize questions into FAQ Groups or content into Accordion Groups, configure colors, layouts, and animations from a dedicated admin interface, then embed them anywhere using a shortcode or the native Gutenberg block.
 
 = Key Features =
 

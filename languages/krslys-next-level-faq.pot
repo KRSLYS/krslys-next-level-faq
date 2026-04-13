@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Next Level FAQ 1.0.0\n"
+"Project-Id-Version: Next Level FAQ & Accordion 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/krslys-next-level-faq\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: krslys-next-level-faq.php
 #: includes/admin/class-admin-settings.php:67
-msgid "Next Level FAQ"
+msgid "Next Level FAQ & Accordion"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -27,7 +27,7 @@ msgstr ""
 
 #. Description of the plugin
 #: krslys-next-level-faq.php
-msgid "Flexible FAQ plugin with customizable styling and live preview."
+msgid "Flexible FAQ and Accordion plugin with customizable styling, live preview, and Gutenberg block support."
 msgstr ""
 
 #. Author of the plugin
@@ -97,7 +97,7 @@ msgid "Saved"
 msgstr ""
 
 #: includes/admin/class-admin-settings.php:321
-msgid "Next Level FAQ – Style & Layout"
+msgid "Next Level FAQ & Accordion – Style & Layout"
 msgstr ""
 
 #: includes/admin/class-admin-settings.php:327

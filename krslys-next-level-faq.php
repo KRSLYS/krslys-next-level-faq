@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Next Level FAQ
+ * Plugin Name: Next Level FAQ & Accordion
  * Plugin URI:  https://krslys.com/plugins/next-level-faq/
- * Description: Flexible FAQ plugin with customizable styling and live preview.
+ * Description: Flexible FAQ and Accordion plugin with customizable styling, live preview, and Gutenberg block support.
  * Version:     1.0.0
  * Author:      Krslys
  * Author URI:  https://krslys.com
