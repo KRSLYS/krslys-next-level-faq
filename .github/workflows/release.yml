@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build & publish GitHub Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # required to create a GitHub Release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate PHP syntax
+        run: find includes -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production assets
+        run: npm run build
+
+      - name: Prepare release package
+        run: |
+          set -euo pipefail
+
+          SLUG="krslys-next-level-faq-accordion"
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          mkdir -p "dist/$SLUG/assets/js"
+          mkdir -p "dist/$SLUG/assets/css"
+          mkdir -p "dist/$SLUG/blocks/faq"
+          mkdir -p "dist/$SLUG/blocks/accordion"
+          mkdir -p "dist/$SLUG/languages"
+
+          # PHP entry points
+          cp "$SLUG.php"   "dist/$SLUG/"
+          cp uninstall.php "dist/$SLUG/"
+          cp readme.txt    "dist/$SLUG/"
+          cp LICENSE        "dist/$SLUG/"
+
+          # PHP class library
+          cp -r includes "dist/$SLUG/"
+
+          # Minified JS + asset manifests
+          cp assets/js/*.min.js        "dist/$SLUG/assets/js/"
+          cp assets/js/*.min.asset.php "dist/$SLUG/assets/js/"
+          # Source JS (required by wp.org — minified must have source)
+          cp assets/js/*.js            "dist/$SLUG/assets/js/" 2>/dev/null || true
+
+          # Minified CSS + asset manifests
+          cp assets/css/*.min.css       "dist/$SLUG/assets/css/"
+          cp assets/css/*.min.asset.php "dist/$SLUG/assets/css/"
+          # Source CSS
+          cp assets/css/admin-faq-style.css "dist/$SLUG/assets/css/"
+          # RTL stylesheet
+          cp assets/css/admin-faq-style-rtl.css "dist/$SLUG/assets/css/"
+
+          # Gutenberg blocks (FAQ + Accordion)
+          for block in faq accordion; do
+            cp "blocks/$block/block.json"           "dist/$SLUG/blocks/$block/"
+            cp "blocks/$block/editor.js"            "dist/$SLUG/blocks/$block/"
+            cp "blocks/$block/editor.min.js"        "dist/$SLUG/blocks/$block/"
+            cp "blocks/$block/editor.min.asset.php" "dist/$SLUG/blocks/$block/"
+          done
+
+          # Translation files
+          cp languages/*.po   "dist/$SLUG/languages/" 2>/dev/null || true
+          cp languages/*.mo   "dist/$SLUG/languages/" 2>/dev/null || true
+          cp languages/*.json "dist/$SLUG/languages/" 2>/dev/null || true
+          cp languages/*.pot  "dist/$SLUG/languages/" 2>/dev/null || true
+
+          # Create ZIP
+          cd dist
+          zip -r "../${SLUG}-v${VERSION}.zip" "$SLUG"
+          cd ..
+
+          echo "ZIP_NAME=${SLUG}-v${VERSION}.zip" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_NAME }}
+          generate_release_notes: true
