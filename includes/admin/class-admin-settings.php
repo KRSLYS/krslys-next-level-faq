@@ -80,7 +80,7 @@ class Admin_Settings {
 	public static function register_menu() {
 		add_menu_page(
 			__( 'Next Level FAQ & Accordion', 'krslys-next-level-faq-accordion' ),
-			__( 'FAQs', 'krslys-next-level-faq-accordion' ),
+			__( 'FAQ & Accordion', 'krslys-next-level-faq-accordion' ),
 			self::CAPABILITY,
 			self::TOP_MENU_SLUG,
 			array( __CLASS__, 'render_dashboard_page' ),
@@ -499,40 +499,10 @@ class Admin_Settings {
 					</div>
 				</div>
 
-				<div class="nlf-tools-grid">
-					<div class="nlf-tool-card nlf-tool-card--placeholder">
-						<div class="nlf-tool-card__accent"></div>
-						<div class="nlf-tool-card__header">
-							<div class="nlf-tool-card__icon">
-								<span class="dashicons dashicons-image-rotate"></span>
-							</div>
-							<div>
-								<h3>
-									<?php esc_html_e( 'Reset', 'krslys-next-level-faq-accordion' ); ?>
-									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'krslys-next-level-faq-accordion' ); ?></span>
-								</h3>
-								<p><?php esc_html_e( 'Selectively reset FAQ data, styles, or all plugin settings at once.', 'krslys-next-level-faq-accordion' ); ?></p>
-							</div>
-						</div>
-					</div>
-
-					<div class="nlf-tool-card nlf-tool-card--placeholder">
-						<div class="nlf-tool-card__accent"></div>
-						<div class="nlf-tool-card__header">
-							<div class="nlf-tool-card__icon">
-								<span class="dashicons dashicons-chart-bar"></span>
-							</div>
-							<div>
-								<h3>
-									<?php esc_html_e( 'Diagnostics', 'krslys-next-level-faq-accordion' ); ?>
-									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'krslys-next-level-faq-accordion' ); ?></span>
-								</h3>
-								<p><?php esc_html_e( 'Analyze your FAQ setup and get optimization suggestions.', 'krslys-next-level-faq-accordion' ); ?></p>
-							</div>
-						</div>
-					</div>
-				</div>
+				<?php self::render_upcoming_cards(); ?>
 			</div>
+
+			<?php self::render_pro_cards(); ?>
 
 		</div>
 
@@ -548,6 +518,93 @@ class Admin_Settings {
 		<?php
 	}
 
+
+	/**
+	 * Export FAQ data as JSON.
+	 * Render the "Coming Soon" feature cards.
+	 */
+	private static function render_upcoming_cards() {
+		$cards = array(
+			array( 'dashicons-image-rotate', __( 'Reset', 'krslys-next-level-faq-accordion' ), __( 'Selectively reset FAQ data, styles, or all plugin settings at once.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-chart-bar', __( 'Diagnostics', 'krslys-next-level-faq-accordion' ), __( 'Analyze your FAQ setup and get optimization suggestions.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-sort', __( 'Bulk Sort', 'krslys-next-level-faq-accordion' ), __( 'Drag-and-drop reordering for items across multiple groups.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-admin-page', __( 'Duplicate Group', 'krslys-next-level-faq-accordion' ), __( 'Clone any group with all its items, theme, and settings.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-art', __( '+10 Theme Presets', 'krslys-next-level-faq-accordion' ), __( 'More professionally designed themes to choose from out of the box.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-shortcode', __( 'Shortcode Builder', 'krslys-next-level-faq-accordion' ), __( 'Visual shortcode generator with live preview and copy-to-clipboard.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-code-standards', __( 'Custom CSS Editor', 'krslys-next-level-faq-accordion' ), __( 'Write custom CSS per group with syntax highlighting.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-welcome-widgets-menus', __( 'FAQ Widget', 'krslys-next-level-faq-accordion' ), __( 'Display FAQ groups in sidebars and widget areas.', 'krslys-next-level-faq-accordion' ) ),
+		);
+		?>
+		<div class="nlf-tools-grid">
+			<?php foreach ( $cards as $card ) : ?>
+				<div class="nlf-tool-card nlf-tool-card--placeholder">
+					<div class="nlf-tool-card__accent"></div>
+					<div class="nlf-tool-card__header">
+						<div class="nlf-tool-card__icon">
+							<span class="dashicons <?php echo esc_attr( $card[0] ); ?>"></span>
+						</div>
+						<div>
+							<h3>
+								<?php echo esc_html( $card[1] ); ?>
+								<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'krslys-next-level-faq-accordion' ); ?></span>
+							</h3>
+							<p><?php echo esc_html( $card[2] ); ?></p>
+						</div>
+					</div>
+					<div class="nlf-tool-card__body"></div>
+				</div>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the Pro feature teaser cards.
+	 */
+	private static function render_pro_cards() {
+		$cards = array(
+			array( 'dashicons-chart-area', __( 'Analytics Dashboard', 'krslys-next-level-faq-accordion' ), __( 'Track which questions users click the most, with open/close rates and trends.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-media-text', __( 'Rich Media Answers', 'krslys-next-level-faq-accordion' ), __( 'Embed images, videos, and shortcodes inside your answers.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-category', __( 'Categories & Tags', 'krslys-next-level-faq-accordion' ), __( 'Organize items with categories and tags, filter on the frontend.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-lock', __( 'Conditional Logic', 'krslys-next-level-faq-accordion' ), __( 'Show or hide FAQ items based on user role, page, or custom conditions.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-search', __( 'AJAX Live Search', 'krslys-next-level-faq-accordion' ), __( 'Global FAQ search across all groups with instant results and highlighting.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-randomize', __( 'Multi-step Accordion', 'krslys-next-level-faq-accordion' ), __( 'Nested accordions with parent-child hierarchy for complex content.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-thumbs-up', __( 'Voting & Feedback', 'krslys-next-level-faq-accordion' ), __( 'Let visitors rate answers with thumbs up/down to improve your FAQ.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-rest-api', __( 'REST API', 'krslys-next-level-faq-accordion' ), __( 'Full REST API for headless WordPress and external integrations.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-translation', __( 'Multi-language', 'krslys-next-level-faq-accordion' ), __( 'Native WPML and Polylang integration for multilingual FAQ pages.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-schedule', __( 'Scheduled Publishing', 'krslys-next-level-faq-accordion' ), __( 'Schedule FAQ items to appear or expire on specific dates.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-groups', __( 'User Submissions', 'krslys-next-level-faq-accordion' ), __( 'Let visitors submit questions via a frontend form for admin review.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-download', __( 'PDF Export', 'krslys-next-level-faq-accordion' ), __( 'Export your FAQ as a styled PDF document for offline sharing.', 'krslys-next-level-faq-accordion' ) ),
+		);
+		?>
+		<div class="nlf-tools-section">
+			<div class="nlf-tools-section__header">
+				<div>
+					<h2><?php esc_html_e( 'Pro Features', 'krslys-next-level-faq-accordion' ); ?> <span class="nlf-badge nlf-badge--pro"><?php esc_html_e( 'Pro', 'krslys-next-level-faq-accordion' ); ?></span></h2>
+					<p><?php esc_html_e( 'Unlock advanced features with Next Level FAQ & Accordion Pro.', 'krslys-next-level-faq-accordion' ); ?></p>
+				</div>
+			</div>
+
+			<div class="nlf-tools-grid">
+				<?php foreach ( $cards as $card ) : ?>
+					<div class="nlf-tool-card nlf-tool-card--pro">
+						<div class="nlf-tool-card__accent"></div>
+						<div class="nlf-tool-card__header">
+							<div class="nlf-tool-card__icon">
+								<span class="dashicons <?php echo esc_attr( $card[0] ); ?>"></span>
+							</div>
+							<div>
+								<h3><?php echo esc_html( $card[1] ); ?></h3>
+								<p><?php echo esc_html( $card[2] ); ?></p>
+							</div>
+						</div>
+						<div class="nlf-tool-card__body"></div>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php
+	}
 
 	/**
 	 * Export FAQ data as JSON.
@@ -1040,6 +1097,10 @@ class Admin_Settings {
 			'meta'             => array(
 				'id'           => $group_id,
 				'title'        => $group->title,
+				'type'         => isset( $group->type ) ? $group->type : 'faq',
+				'status'       => $group->status,
+				'slug'         => $group->slug,
+				'description'  => $group->description ?? '',
 				'generated_at' => gmdate( 'c' ),
 			),
 			'theme'            => $group->theme_settings['theme'] ?? '',
@@ -1390,6 +1451,9 @@ class Admin_Settings {
 
 			$meta[ (string) $group_id ] = array(
 				'title'            => $group->title,
+				'type'             => isset( $group->type ) ? $group->type : 'faq',
+				'status'           => $group->status,
+				'description'      => $group->description ?? '',
 				'theme_settings'   => $group->theme_settings,
 				'display_settings' => $group->display_settings,
 				'use_custom_style' => (bool) $group->use_custom_style,
