@@ -5,17 +5,17 @@
  * Every method that touches the database is exercised through MockWpdb so no
  * real database connection is required.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
-use Krslys\NextLevelFaq\Groups_Repository;
-use Krslys\NextLevelFaq\Tests\MockWpdb;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Groups_Repository;
+use Krslys\NextLevelFaqAccordion\Tests\MockWpdb;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Groups_Repository
+ * @covers \Krslys\NextLevelFaqAccordion\Groups_Repository
  */
 class GroupsRepositoryTest extends WpTestCase {
 

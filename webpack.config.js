@@ -76,6 +76,7 @@ module.exports = {
 		'assets/js/admin-faq-group-metabox': path.resolve( __dirname, 'assets/js/admin-faq-group-metabox.js' ),
 		'assets/js/admin-state-collector':   path.resolve( __dirname, 'assets/js/admin-state-collector.js' ),
 		'assets/js/admin-faq-questions':     path.resolve( __dirname, 'assets/js/admin-faq-questions.js' ),
+		'assets/js/admin-faq-tools':        path.resolve( __dirname, 'assets/js/admin-faq-tools.js' ),
 		'blocks/faq/editor':                 path.resolve( __dirname, 'blocks/faq/editor.js' ),
 		'blocks/accordion/editor':           path.resolve( __dirname, 'blocks/accordion/editor.js' ),
 		'assets/css/admin-faq-style':        path.resolve( __dirname, 'assets/css/admin-faq-style.css' ),

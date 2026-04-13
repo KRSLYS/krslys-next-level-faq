@@ -2,10 +2,10 @@
 /**
  * Shared UI components for admin screens.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -63,18 +63,18 @@ class Admin_UI_Components {
 				<h3>
 					<?php
 					if ( $is_accordion ) {
-						esc_html_e( "Let's build your accordion group", 'krslys-next-level-faq' );
+						esc_html_e( "Let's build your accordion group", 'krslys-next-level-faq-accordion' );
 					} else {
-						esc_html_e( "Let's build your FAQ group", 'krslys-next-level-faq' );
+						esc_html_e( "Let's build your FAQ group", 'krslys-next-level-faq-accordion' );
 					}
 					?>
 				</h3>
 				<p>
 					<?php
 					if ( $is_accordion ) {
-						esc_html_e( 'Follow these quick steps to publish your first accordion section.', 'krslys-next-level-faq' );
+						esc_html_e( 'Follow these quick steps to publish your first accordion section.', 'krslys-next-level-faq-accordion' );
 					} else {
-						esc_html_e( 'Follow these quick steps to publish your first FAQ section.', 'krslys-next-level-faq' );
+						esc_html_e( 'Follow these quick steps to publish your first FAQ section.', 'krslys-next-level-faq-accordion' );
 					}
 					?>
 				</p>
@@ -82,35 +82,35 @@ class Admin_UI_Components {
 					<li><strong>
 						<?php
 						if ( $is_accordion ) {
-							esc_html_e( 'Add items', 'krslys-next-level-faq' );
+							esc_html_e( 'Add items', 'krslys-next-level-faq-accordion' );
 						} else {
-							esc_html_e( 'Add questions', 'krslys-next-level-faq' );
+							esc_html_e( 'Add questions', 'krslys-next-level-faq-accordion' );
 						}
 						?>
 					</strong> —
 						<?php
 						if ( $is_accordion ) {
-							esc_html_e( 'Create titles and content for your sections.', 'krslys-next-level-faq' );
+							esc_html_e( 'Create titles and content for your sections.', 'krslys-next-level-faq-accordion' );
 						} else {
-							esc_html_e( 'Capture what customers ask most often.', 'krslys-next-level-faq' );
+							esc_html_e( 'Capture what customers ask most often.', 'krslys-next-level-faq-accordion' );
 						}
 						?>
 					</li>
-					<li><strong><?php esc_html_e( 'Customize the look', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Match your brand colors and typography.', 'krslys-next-level-faq' ); ?></li>
-					<li><strong><?php esc_html_e( 'Preview & publish', 'krslys-next-level-faq' ); ?></strong> — <?php esc_html_e( 'Review the live preview before publishing.', 'krslys-next-level-faq' ); ?></li>
+					<li><strong><?php esc_html_e( 'Customize the look', 'krslys-next-level-faq-accordion' ); ?></strong> — <?php esc_html_e( 'Match your brand colors and typography.', 'krslys-next-level-faq-accordion' ); ?></li>
+					<li><strong><?php esc_html_e( 'Preview & publish', 'krslys-next-level-faq-accordion' ); ?></strong> — <?php esc_html_e( 'Review the live preview before publishing.', 'krslys-next-level-faq-accordion' ); ?></li>
 				</ol>
 				<div class="nlf-onboarding-actions">
 					<button type="button" class="button button-primary button-hero nlf-onboarding-start">
 						<?php
 						if ( $is_accordion ) {
-							esc_html_e( 'Start adding items', 'krslys-next-level-faq' );
+							esc_html_e( 'Start adding items', 'krslys-next-level-faq-accordion' );
 						} else {
-							esc_html_e( 'Start adding questions', 'krslys-next-level-faq' );
+							esc_html_e( 'Start adding questions', 'krslys-next-level-faq-accordion' );
 						}
 						?>
 					</button>
 					<button type="button" class="button button-secondary" data-switch-tab="appearance">
-						<?php esc_html_e( 'Explore appearance options', 'krslys-next-level-faq' ); ?> →
+						<?php esc_html_e( 'Explore appearance options', 'krslys-next-level-faq-accordion' ); ?> →
 					</button>
 				</div>
 			</div>
@@ -195,11 +195,11 @@ class Admin_UI_Components {
 					<span class="dashicons dashicons-laptop"></span>
 				</div>
 				<div class="nlf-preview-mobile-notice__content">
-					<h4 class="nlf-preview-mobile-notice__title"><?php esc_html_e( 'Preview requires a larger screen', 'krslys-next-level-faq' ); ?></h4>
-					<p class="nlf-preview-mobile-notice__desc"><?php esc_html_e( 'The live preview needs more space to display accurately. Your changes are saved automatically.', 'krslys-next-level-faq' ); ?></p>
+					<h4 class="nlf-preview-mobile-notice__title"><?php esc_html_e( 'Preview requires a larger screen', 'krslys-next-level-faq-accordion' ); ?></h4>
+					<p class="nlf-preview-mobile-notice__desc"><?php esc_html_e( 'The live preview needs more space to display accurately. Your changes are saved automatically.', 'krslys-next-level-faq-accordion' ); ?></p>
 					<span class="nlf-preview-mobile-notice__hint">
 						<span class="dashicons dashicons-saved"></span>
-						<?php esc_html_e( 'Open on desktop or tablet to preview', 'krslys-next-level-faq' ); ?>
+						<?php esc_html_e( 'Open on desktop or tablet to preview', 'krslys-next-level-faq-accordion' ); ?>
 					</span>
 				</div>
 			</div>

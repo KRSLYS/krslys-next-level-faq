@@ -2,17 +2,17 @@
 /**
  * Tests for Options::sanitize() — the core input-sanitization method.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
-use Krslys\NextLevelFaq\Options;
-use Krslys\NextLevelFaq\Presets;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Options;
+use Krslys\NextLevelFaqAccordion\Presets;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Options::sanitize
+ * @covers \Krslys\NextLevelFaqAccordion\Options::sanitize
  */
 class OptionsTest extends WpTestCase {
 

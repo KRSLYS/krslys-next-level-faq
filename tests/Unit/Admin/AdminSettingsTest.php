@@ -2,18 +2,18 @@
 /**
  * Tests for the Admin_Settings class.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Admin
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Admin
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Admin;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Admin;
 
 use Brain\Monkey\Functions;
-use Krslys\NextLevelFaq\Admin_Settings;
-use Krslys\NextLevelFaq\Tests\MockWpdb;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Admin_Settings;
+use Krslys\NextLevelFaqAccordion\Tests\MockWpdb;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Admin_Settings
+ * @covers \Krslys\NextLevelFaqAccordion\Admin_Settings
  */
 class AdminSettingsTest extends WpTestCase {
 

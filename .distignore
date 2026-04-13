@@ -12,6 +12,7 @@ coverage-report/
 # Config files
 .distignore
 .env
+.env.example
 .gitignore
 .phpunit.result.cache
 .wp-env.json

@@ -2,10 +2,10 @@
 /**
  * Front-end rendering and assets.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -44,7 +44,7 @@ class Frontend_Renderer {
 	 * Register shortcodes.
 	 */
 	public static function register_shortcodes() {
-		add_shortcode( 'krslys_nlf', array( __CLASS__, 'render_shortcode' ) );
+		add_shortcode( 'krslys_nlfa', array( __CLASS__, 'render_shortcode' ) );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Frontend_Renderer {
 		// Register JS (enqueued on demand in render_shortcode).
 		wp_register_script(
 			'nlf-faq-frontend',
-			krslys_nlf_asset_url( 'assets/js/frontend-faq.js' ),
+			krslys_nlfa_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
 			NLF_FAQ_VERSION,
 			true
@@ -125,13 +125,13 @@ class Frontend_Renderer {
 		$state       = isset( $_POST['state'] ) ? sanitize_key( wp_unslash( $_POST['state'] ) ) : '';
 
 		if ( $group_id <= 0 || $question_id <= 0 ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'krslys-next-level-faq' ) ), 400 );
+			wp_send_json_error( array( 'message' => __( 'Invalid tracking payload.', 'krslys-next-level-faq-accordion' ) ), 400 );
 		}
 
 		// Verify the group exists in the custom table.
-		$group = \Krslys\NextLevelFaq\Groups_Repository::get_group_by_id( $group_id );
+		$group = \Krslys\NextLevelFaqAccordion\Groups_Repository::get_group_by_id( $group_id );
 		if ( ! $group ) {
-			wp_send_json_error( array( 'message' => __( 'Group not found.', 'krslys-next-level-faq' ) ), 404 );
+			wp_send_json_error( array( 'message' => __( 'Group not found.', 'krslys-next-level-faq-accordion' ) ), 404 );
 		}
 
 		// Track stats in Settings_Repository or group metadata
@@ -159,7 +159,7 @@ class Frontend_Renderer {
 		 * @param array $payload Tracking data.
 		 */
 		do_action(
-			'krslys_nlf_faq_tracked_event',
+			'krslys_nlfa_faq_tracked_event',
 			array(
 				'group_id'    => $group_id,
 				'question_id' => $question_id,
@@ -229,7 +229,7 @@ class Frontend_Renderer {
 					'preset'     => '',
 				),
 			$atts,
-			'krslys_nlf'
+			'krslys_nlfa'
 			)
 		);
 
@@ -348,7 +348,7 @@ class Frontend_Renderer {
 
 			<?php if ( ! empty( $settings['show_search'] ) ) : ?>
 				<div class="nlf-faq-search">
-					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'krslys-next-level-faq' ); ?>" aria-label="<?php esc_attr_e( 'Search FAQs', 'krslys-next-level-faq' ); ?>" />
+					<input type="text" class="nlf-faq-search-input" placeholder="<?php esc_attr_e( 'Search FAQs...', 'krslys-next-level-faq-accordion' ); ?>" aria-label="<?php esc_attr_e( 'Search FAQs', 'krslys-next-level-faq-accordion' ); ?>" />
 				</div>
 			<?php endif; ?>
 
@@ -404,7 +404,7 @@ class Frontend_Renderer {
 				<?php endforeach; ?>
 			<?php else : ?>
 				<p class="nlf-faq__empty">
-					<?php esc_html_e( 'No FAQs found yet. Add some FAQs in the admin to populate this section.', 'krslys-next-level-faq' ); ?>
+					<?php esc_html_e( 'No FAQs found yet. Add some FAQs in the admin to populate this section.', 'krslys-next-level-faq-accordion' ); ?>
 				</p>
 			<?php endif; ?>
 		</div>
@@ -444,19 +444,19 @@ class Frontend_Renderer {
 		$content = $post->post_content;
 		$group_ids = array();
 
-		// Detect shortcodes: [krslys_nlf group="ID"]
-		if ( has_shortcode( $content, 'krslys_nlf' ) ) {
-			preg_match_all( '/\[krslys_nlf\s[^\]]*group=["\']?(\d+)["\']?/', $content, $matches );
+		// Detect shortcodes: [krslys_nlfa group="ID"]
+		if ( has_shortcode( $content, 'krslys_nlfa' ) ) {
+			preg_match_all( '/\[krslys_nlfa\s[^\]]*group=["\']?(\d+)["\']?/', $content, $matches );
 			if ( ! empty( $matches[1] ) ) {
 				$group_ids = array_merge( $group_ids, array_map( 'intval', $matches[1] ) );
 			}
 		}
 
-		// Detect Gutenberg blocks: next-level-faq/faq
-		if ( has_block( 'next-level-faq/faq', $content ) ) {
+		// Detect Gutenberg blocks: krslys-next-level/faq
+		if ( has_block( 'krslys-next-level/faq', $content ) ) {
 			$blocks = parse_blocks( $content );
 			foreach ( $blocks as $block ) {
-				if ( 'next-level-faq/faq' === $block['blockName'] && ! empty( $block['attrs']['groupId'] ) ) {
+				if ( 'krslys-next-level/faq' === $block['blockName'] && ! empty( $block['attrs']['groupId'] ) ) {
 					$group_ids[] = (int) $block['attrs']['groupId'];
 				}
 			}

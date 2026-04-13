@@ -4,18 +4,18 @@
  *
  * Uses MockWpdb so no real database connection is required.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
 use Brain\Monkey\Functions;
-use Krslys\NextLevelFaq\Repository;
-use Krslys\NextLevelFaq\Tests\MockWpdb;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Repository;
+use Krslys\NextLevelFaqAccordion\Tests\MockWpdb;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Repository
+ * @covers \Krslys\NextLevelFaqAccordion\Repository
  */
 class RepositoryTest extends WpTestCase {
 
@@ -40,7 +40,7 @@ class RepositoryTest extends WpTestCase {
 	// -----------------------------------------------------------------------
 
 	public function test_get_table_name_returns_prefixed_name(): void {
-		$this->assertSame( 'wp_nlf_faq_items', Repository::get_table_name() );
+		$this->assertSame( 'wp_krslys_nlfa_items', Repository::get_table_name() );
 	}
 
 	// -----------------------------------------------------------------------

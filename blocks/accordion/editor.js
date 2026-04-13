@@ -6,7 +6,7 @@
 	const { createElement: el, Fragment } = wp.element;
 	const { __ } = wp.i18n;
 
-	const blockName = 'next-level-faq/accordion';
+	const blockName = 'krslys-next-level/accordion';
 
 	registerBlockType( blockName, {
 		edit: function ( props ) {
@@ -19,11 +19,11 @@
 			const editGroupsUrl = ( blockData.groupsListUrl || '' );
 
 			const groupOptions = [
-				{ label: __( '— Select an accordion group —', 'krslys-next-level-faq' ), value: 0 },
+				{ label: __( '— Select an accordion group —', 'krslys-next-level-faq-accordion' ), value: 0 },
 			].concat(
 				groups.map( function ( g ) {
 					return {
-						label: g.title || __( '(no title)', 'krslys-next-level-faq' ),
+						label: g.title || __( '(no title)', 'krslys-next-level-faq-accordion' ),
 						value: g.id,
 					};
 				} )
@@ -38,9 +38,9 @@
 				null,
 				el(
 					PanelBody,
-					{ title: __( 'Accordion Settings', 'krslys-next-level-faq' ), initialOpen: true },
+					{ title: __( 'Accordion Settings', 'krslys-next-level-faq-accordion' ), initialOpen: true },
 					el( SelectControl, {
-						label:    __( 'Accordion Group', 'krslys-next-level-faq' ),
+						label:    __( 'Accordion Group', 'krslys-next-level-faq-accordion' ),
 						value:    groupId || 0,
 						options:  groupOptions,
 						onChange: function ( value ) {
@@ -60,7 +60,7 @@
 								rel:     'noreferrer noopener',
 								icon:    'edit',
 							},
-							__( 'Edit Accordion Group', 'krslys-next-level-faq' )
+							__( 'Edit Accordion Group', 'krslys-next-level-faq-accordion' )
 						)
 					)
 				)
@@ -78,8 +78,8 @@
 							Placeholder,
 							{
 								icon:         'list-view',
-								label:        __( 'Next Level Accordion', 'krslys-next-level-faq' ),
-								instructions: __( 'No accordion groups found. Create an accordion group first, then come back to select it here.', 'krslys-next-level-faq' ),
+								label:        __( 'Next Level Accordion', 'krslys-next-level-faq-accordion' ),
+								instructions: __( 'No accordion groups found. Create an accordion group first, then come back to select it here.', 'krslys-next-level-faq-accordion' ),
 							},
 							editGroupsUrl && el(
 								Button,
@@ -89,7 +89,7 @@
 									target:  '_blank',
 									rel:     'noreferrer noopener',
 								},
-								__( 'Create Accordion Group', 'krslys-next-level-faq' )
+								__( 'Create Accordion Group', 'krslys-next-level-faq-accordion' )
 							)
 						)
 					)
@@ -108,11 +108,11 @@
 							Placeholder,
 							{
 								icon:         'list-view',
-								label:        __( 'Next Level Accordion', 'krslys-next-level-faq' ),
-								instructions: __( 'Select an accordion group from the block settings on the right.', 'krslys-next-level-faq' ),
+								label:        __( 'Next Level Accordion', 'krslys-next-level-faq-accordion' ),
+								instructions: __( 'Select an accordion group from the block settings on the right.', 'krslys-next-level-faq-accordion' ),
 							},
 							el( SelectControl, {
-								label:    __( 'Accordion Group', 'krslys-next-level-faq' ),
+								label:    __( 'Accordion Group', 'krslys-next-level-faq-accordion' ),
 								value:    groupId || 0,
 								options:  groupOptions,
 								onChange: function ( value ) {
@@ -144,7 +144,7 @@
 									Placeholder,
 									{
 										icon:  'list-view',
-										label: __( 'Next Level Accordion', 'krslys-next-level-faq' ),
+										label: __( 'Next Level Accordion', 'krslys-next-level-faq-accordion' ),
 									},
 									el( Spinner )
 								);

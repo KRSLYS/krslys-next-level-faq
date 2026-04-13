@@ -2,10 +2,10 @@
 /**
  * Simple caching utilities.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

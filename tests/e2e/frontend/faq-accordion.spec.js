@@ -45,7 +45,7 @@ async function createTestPage( browser, groupId ) {
 				},
 				body: JSON.stringify( {
 					title: 'E2E FAQ Test Page',
-					content: `[krslys_nlf group="${ g }"]`,
+					content: `[krslys_nlfa group="${ g }"]`,
 					status: 'publish',
 					slug: s,
 				} ),

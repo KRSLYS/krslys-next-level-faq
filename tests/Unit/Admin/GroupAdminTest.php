@@ -7,15 +7,15 @@
  * capturing which JSON response function is called first via Brain Monkey
  * expectations, then throwing a controlled exception to halt execution.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Admin
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Admin
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Admin;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Admin;
 
 use Brain\Monkey\Functions;
-use Krslys\NextLevelFaq\Group_Admin;
-use Krslys\NextLevelFaq\Tests\MockWpdb;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Group_Admin;
+use Krslys\NextLevelFaqAccordion\Tests\MockWpdb;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
  * Custom exception used to intercept wp_send_json_error/success calls.
@@ -34,7 +34,7 @@ class AjaxExitException extends \RuntimeException {
 }
 
 /**
- * @covers \Krslys\NextLevelFaq\Group_Admin
+ * @covers \Krslys\NextLevelFaqAccordion\Group_Admin
  */
 class GroupAdminTest extends WpTestCase {
 

@@ -5,10 +5,10 @@
  * SCRIPT_DEBUG is defined as false in tests/bootstrap.php, so the minified
  * code path is always exercised in this test run.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
 use PHPUnit\Framework\TestCase;
 

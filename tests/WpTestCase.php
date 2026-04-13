@@ -2,10 +2,10 @@
 /**
  * Base test case with Brain Monkey lifecycle and common WP function stubs.
  *
- * @package Krslys\NextLevelFaq\Tests
+ * @package Krslys\NextLevelFaqAccordion\Tests
  */
 
-namespace Krslys\NextLevelFaq\Tests;
+namespace Krslys\NextLevelFaqAccordion\Tests;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;

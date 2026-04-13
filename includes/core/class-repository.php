@@ -2,10 +2,10 @@
 /**
  * Data access layer for FAQ items stored in a custom table.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,7 +29,7 @@ class Repository {
 	public static function get_table_name() {
 		global $wpdb;
 
-		return $wpdb->prefix . 'nlf_faq_items';
+		return $wpdb->prefix . 'krslys_nlfa_items';
 	}
 
 	/**

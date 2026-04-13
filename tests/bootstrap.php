@@ -13,7 +13,7 @@ define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 define( 'NLF_FAQ_VERSION', '1.0.0' );
 define( 'NLF_FAQ_CSS_VERSION', '1.0.0' );
 define( 'NLF_FAQ_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
-define( 'NLF_FAQ_PLUGIN_URL', 'http://example.com/wp-content/plugins/krslys-next-level-faq/' );
+define( 'NLF_FAQ_PLUGIN_URL', 'http://example.com/wp-content/plugins/krslys-next-level-faq-accordion/' );
 
 // ---------------------------------------------------------------------------
 // WordPress constants used by plugin classes
@@ -33,7 +33,7 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 // ---------------------------------------------------------------------------
 require_once dirname( __DIR__ ) . '/includes/Autoloader.php';
 
-$nlf_autoloader = new \Krslys\NextLevelFaq\Autoloader( dirname( __DIR__ ) . '/includes' );
+$nlf_autoloader = new \Krslys\NextLevelFaqAccordion\Autoloader( dirname( __DIR__ ) . '/includes' );
 $nlf_autoloader->register();
 
 // ---------------------------------------------------------------------------

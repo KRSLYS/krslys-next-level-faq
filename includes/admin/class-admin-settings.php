@@ -2,10 +2,10 @@
 /**
  * Admin settings page and assets.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -15,13 +15,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Admin settings page and assets.
  *
  * SECURITY FEATURES:
- * - All admin actions require 'manage_options' capability.
+ * - All admin actions require 'manage_krslys_nlfa' or 'manage_options' capability.
  * - All forms protected with nonce verification.
  * - File uploads thoroughly validated (MIME type, size, extension).
  * - All inputs sanitized, all outputs escaped.
  * - Uses WordPress Filesystem API for file operations.
  */
 class Admin_Settings {
+
+	/**
+	 * Custom capability for managing FAQ & Accordion content.
+	 *
+	 * Granted to administrators on activation. Site owners can assign
+	 * this capability to other roles or individual users to delegate
+	 * FAQ management without granting full admin access.
+	 */
+	const CAPABILITY = 'manage_krslys_nlfa';
 
 	/**
 	 * Top-level menu slug.
@@ -37,6 +46,18 @@ class Admin_Settings {
 	 * Tools page slug.
 	 */
 	const TOOLS_SLUG = 'nlf-faq-tools';
+
+	/**
+	 * Check if the current user can manage FAQ & Accordion content.
+	 *
+	 * Returns true if the user has either the custom capability
+	 * or full admin privileges.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_manage() {
+		return current_user_can( self::CAPABILITY ) || self::current_user_can_manage();
+	}
 
 	/**
 	 * Bootstrap all admin-settings hooks.
@@ -58,9 +79,9 @@ class Admin_Settings {
 	 */
 	public static function register_menu() {
 		add_menu_page(
-			__( 'Next Level FAQ & Accordion', 'krslys-next-level-faq' ),
-			__( 'FAQs', 'krslys-next-level-faq' ),
-			'manage_options',
+			__( 'Next Level FAQ & Accordion', 'krslys-next-level-faq-accordion' ),
+			__( 'FAQs', 'krslys-next-level-faq-accordion' ),
+			self::CAPABILITY,
 			self::TOP_MENU_SLUG,
 			array( __CLASS__, 'render_dashboard_page' ),
 			'dashicons-editor-help',
@@ -70,36 +91,36 @@ class Admin_Settings {
 		// First submenu uses the same slug as the parent to avoid a duplicate entry.
 		add_submenu_page(
 			self::TOP_MENU_SLUG,
-			__( 'Dashboard', 'krslys-next-level-faq' ),
-			__( 'Dashboard', 'krslys-next-level-faq' ),
-			'manage_options',
+			__( 'Dashboard', 'krslys-next-level-faq-accordion' ),
+			__( 'Dashboard', 'krslys-next-level-faq-accordion' ),
+			self::CAPABILITY,
 			self::TOP_MENU_SLUG,
 			array( __CLASS__, 'render_dashboard_page' )
 		);
 
 		add_submenu_page(
 			self::TOP_MENU_SLUG,
-			__( 'FAQ Groups', 'krslys-next-level-faq' ),
-			__( 'FAQ Groups', 'krslys-next-level-faq' ),
-			'manage_options',
+			__( 'FAQ Groups', 'krslys-next-level-faq-accordion' ),
+			__( 'FAQ Groups', 'krslys-next-level-faq-accordion' ),
+			self::CAPABILITY,
 			'nlf-faq-groups',
 			array( __CLASS__, 'render_faq_groups_page' )
 		);
 
 		add_submenu_page(
 			self::TOP_MENU_SLUG,
-			__( 'Accordion Groups', 'krslys-next-level-faq' ),
-			__( 'Accordion Groups', 'krslys-next-level-faq' ),
-			'manage_options',
+			__( 'Accordion Groups', 'krslys-next-level-faq-accordion' ),
+			__( 'Accordion Groups', 'krslys-next-level-faq-accordion' ),
+			self::CAPABILITY,
 			'nlf-accordion-groups',
 			array( __CLASS__, 'render_accordion_groups_page' )
 		);
 
 		add_submenu_page(
 			self::TOP_MENU_SLUG,
-			__( 'FAQ Tools', 'krslys-next-level-faq' ),
-			__( 'Tools', 'krslys-next-level-faq' ),
-			'manage_options',
+			__( 'FAQ Tools', 'krslys-next-level-faq-accordion' ),
+			__( 'Tools', 'krslys-next-level-faq-accordion' ),
+			self::CAPABILITY,
 			self::TOOLS_SLUG,
 			array( __CLASS__, 'render_tools_page' )
 		);
@@ -135,7 +156,7 @@ class Admin_Settings {
 
 		wp_enqueue_style(
 			'nlf-faq-admin',
-			krslys_nlf_asset_url( 'assets/css/admin-faq-style.css' ),
+			krslys_nlfa_asset_url( 'assets/css/admin-faq-style.css' ),
 			array(),
 			NLF_FAQ_CSS_VERSION
 		);
@@ -147,12 +168,12 @@ class Admin_Settings {
 	 * SECURITY: Capability check at start of function.
 	 */
 	public static function render_dashboard_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! self::current_user_can_manage() ) {
 			return;
 		}
 
-		$faq_count       = \Krslys\NextLevelFaq\Groups_Repository::count_groups( null, 'faq' );
-		$accordion_count = \Krslys\NextLevelFaq\Groups_Repository::count_groups( null, 'accordion' );
+		$faq_count       = \Krslys\NextLevelFaqAccordion\Groups_Repository::count_groups( null, 'faq' );
+		$accordion_count = \Krslys\NextLevelFaqAccordion\Groups_Repository::count_groups( null, 'accordion' );
 		$groups_url      = admin_url( 'admin.php?page=nlf-faq-groups' );
 		$accordion_url   = admin_url( 'admin.php?page=nlf-accordion-groups' );
 		$tools_url       = admin_url( 'admin.php?page=' . self::TOOLS_SLUG );
@@ -161,46 +182,46 @@ class Admin_Settings {
 
 			<div class="nlf-dashboard-hero">
 				<span class="dashicons dashicons-editor-help nlf-dashboard-hero__icon"></span>
-				<h1 class="nlf-dashboard-hero__title"><?php esc_html_e( 'Next Level FAQ & Accordion', 'krslys-next-level-faq' ); ?></h1>
-				<p class="nlf-dashboard-hero__desc"><?php esc_html_e( 'Flexible FAQ and Accordion plugin with customizable styling and live preview.', 'krslys-next-level-faq' ); ?></p>
+				<h1 class="nlf-dashboard-hero__title"><?php esc_html_e( 'Next Level FAQ & Accordion', 'krslys-next-level-faq-accordion' ); ?></h1>
+				<p class="nlf-dashboard-hero__desc"><?php esc_html_e( 'Flexible FAQ and Accordion plugin with customizable styling and live preview.', 'krslys-next-level-faq-accordion' ); ?></p>
 			</div>
 
 			<div class="nlf-dashboard-cards">
 
 				<a href="<?php echo esc_url( $groups_url ); ?>" class="nlf-dashboard-card">
 					<span class="dashicons dashicons-editor-help nlf-dashboard-card__icon"></span>
-					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'FAQ Groups', 'krslys-next-level-faq' ); ?></h2>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'FAQ Groups', 'krslys-next-level-faq-accordion' ); ?></h2>
 					<p class="nlf-dashboard-card__meta">
 						<?php
 						printf(
 							/* translators: %d: number of FAQ groups */
-							esc_html( _n( '%d group', '%d groups', $faq_count, 'krslys-next-level-faq' ) ),
+							esc_html( _n( '%d group', '%d groups', $faq_count, 'krslys-next-level-faq-accordion' ) ),
 							(int) $faq_count
 						);
 						?>
 					</p>
-					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'krslys-next-level-faq' ); ?></p>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'krslys-next-level-faq-accordion' ); ?></p>
 				</a>
 
 				<a href="<?php echo esc_url( $accordion_url ); ?>" class="nlf-dashboard-card">
 					<span class="dashicons dashicons-list-view nlf-dashboard-card__icon"></span>
-					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Accordion Groups', 'krslys-next-level-faq' ); ?></h2>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Accordion Groups', 'krslys-next-level-faq-accordion' ); ?></h2>
 					<p class="nlf-dashboard-card__meta">
 						<?php
 						printf(
 							/* translators: %d: number of accordion groups */
-							esc_html( _n( '%d group', '%d groups', $accordion_count, 'krslys-next-level-faq' ) ),
+							esc_html( _n( '%d group', '%d groups', $accordion_count, 'krslys-next-level-faq-accordion' ) ),
 							(int) $accordion_count
 						);
 						?>
 					</p>
-					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your accordion sections.', 'krslys-next-level-faq' ); ?></p>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your accordion sections.', 'krslys-next-level-faq-accordion' ); ?></p>
 				</a>
 
 				<a href="<?php echo esc_url( $tools_url ); ?>" class="nlf-dashboard-card">
 					<span class="dashicons dashicons-admin-tools nlf-dashboard-card__icon"></span>
-					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Tools', 'krslys-next-level-faq' ); ?></h2>
-					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Import and export your FAQ data for backup or migration.', 'krslys-next-level-faq' ); ?></p>
+					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Tools', 'krslys-next-level-faq-accordion' ); ?></h2>
+					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Import and export your FAQ data for backup or migration.', 'krslys-next-level-faq-accordion' ); ?></p>
 				</a>
 
 			</div>
@@ -210,10 +231,10 @@ class Admin_Settings {
 			$settings_saved = isset( $_GET['settings-saved'] ) && '1' === $_GET['settings-saved']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice.
 			?>
 			<div class="nlf-dashboard-settings">
-				<h2><?php esc_html_e( 'Settings', 'krslys-next-level-faq' ); ?></h2>
+				<h2><?php esc_html_e( 'Settings', 'krslys-next-level-faq-accordion' ); ?></h2>
 
 				<?php if ( $settings_saved ) : ?>
-					<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'krslys-next-level-faq' ); ?></p></div>
+					<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'krslys-next-level-faq-accordion' ); ?></p></div>
 				<?php endif; ?>
 
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -223,21 +244,21 @@ class Admin_Settings {
 					<table class="form-table" role="presentation">
 						<tr>
 							<th scope="row">
-								<?php esc_html_e( 'FAQPage Schema Markup', 'krslys-next-level-faq' ); ?>
+								<?php esc_html_e( 'FAQPage Schema Markup', 'krslys-next-level-faq-accordion' ); ?>
 							</th>
 							<td>
 								<label>
 									<input type="checkbox" name="nlf_enable_schema_markup" value="1" <?php checked( $schema_enabled ); ?> />
-									<?php esc_html_e( 'Enable FAQPage structured data (JSON-LD)', 'krslys-next-level-faq' ); ?>
+									<?php esc_html_e( 'Enable FAQPage structured data (JSON-LD)', 'krslys-next-level-faq-accordion' ); ?>
 								</label>
 								<p class="description">
-									<?php esc_html_e( 'Adds schema.org/FAQPage structured data to help search engines display rich results for your FAQ sections.', 'krslys-next-level-faq' ); ?>
+									<?php esc_html_e( 'Adds schema.org/FAQPage structured data to help search engines display rich results for your FAQ sections.', 'krslys-next-level-faq-accordion' ); ?>
 								</p>
 							</td>
 						</tr>
 					</table>
 
-					<?php submit_button( __( 'Save Settings', 'krslys-next-level-faq' ) ); ?>
+					<?php submit_button( __( 'Save Settings', 'krslys-next-level-faq-accordion' ) ); ?>
 				</form>
 			</div>
 
@@ -254,22 +275,22 @@ class Admin_Settings {
 	 * Render FAQ groups list page.
 	 */
 	public static function render_faq_groups_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! self::current_user_can_manage() ) {
 			return;
 		}
 
-		\Krslys\NextLevelFaq\Group_Admin::render_list_page( 'faq' );
+		\Krslys\NextLevelFaqAccordion\Group_Admin::render_list_page( 'faq' );
 	}
 
 	/**
 	 * Render accordion groups list page.
 	 */
 	public static function render_accordion_groups_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! self::current_user_can_manage() ) {
 			return;
 		}
 
-		\Krslys\NextLevelFaq\Group_Admin::render_list_page( 'accordion' );
+		\Krslys\NextLevelFaqAccordion\Group_Admin::render_list_page( 'accordion' );
 	}
 
 	/**
@@ -278,8 +299,8 @@ class Admin_Settings {
 	 * @return void
 	 */
 	public static function handle_save_settings() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized.', 'krslys-next-level-faq' ) );
+		if ( ! self::current_user_can_manage() ) {
+			wp_die( esc_html__( 'Unauthorized.', 'krslys-next-level-faq-accordion' ) );
 		}
 
 		check_admin_referer( 'nlf_faq_save_settings', 'nlf_settings_nonce' );
@@ -299,7 +320,7 @@ class Admin_Settings {
 	 * @return void
 	 */
 	public static function render_tools_page() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! self::current_user_can_manage() ) {
 			return;
 		}
 
@@ -313,8 +334,8 @@ class Admin_Settings {
 					<span class="dashicons dashicons-admin-tools"></span>
 				</div>
 				<div class="nlf-tools-header__content">
-					<h1><?php esc_html_e( 'Tools', 'krslys-next-level-faq' ); ?></h1>
-					<p><?php esc_html_e( 'Manage, backup, and migrate your FAQ data with powerful utilities.', 'krslys-next-level-faq' ); ?></p>
+					<h1><?php esc_html_e( 'Tools', 'krslys-next-level-faq-accordion' ); ?></h1>
+					<p><?php esc_html_e( 'Manage, backup, and migrate your FAQ data with powerful utilities.', 'krslys-next-level-faq-accordion' ); ?></p>
 				</div>
 			</div>
 
@@ -325,8 +346,8 @@ class Admin_Settings {
 				<div class="nlf-tools-section__header">
 					<span class="dashicons dashicons-database"></span>
 					<div>
-						<h2><?php esc_html_e( 'Data Management', 'krslys-next-level-faq' ); ?></h2>
-						<p><?php esc_html_e( 'Export and import your FAQ content, themes, and settings.', 'krslys-next-level-faq' ); ?></p>
+						<h2><?php esc_html_e( 'Data Management', 'krslys-next-level-faq-accordion' ); ?></h2>
+						<p><?php esc_html_e( 'Export and import your FAQ content, themes, and settings.', 'krslys-next-level-faq-accordion' ); ?></p>
 					</div>
 				</div>
 
@@ -340,8 +361,8 @@ class Admin_Settings {
 								<span class="dashicons dashicons-download"></span>
 							</div>
 							<div>
-								<h3><?php esc_html_e( 'Export', 'krslys-next-level-faq' ); ?></h3>
-								<p><?php esc_html_e( 'Download a JSON file for backups or site migration.', 'krslys-next-level-faq' ); ?></p>
+								<h3><?php esc_html_e( 'Export', 'krslys-next-level-faq-accordion' ); ?></h3>
+								<p><?php esc_html_e( 'Download a JSON file for backups or site migration.', 'krslys-next-level-faq-accordion' ); ?></p>
 							</div>
 						</div>
 						<div class="nlf-tool-card__body">
@@ -351,10 +372,10 @@ class Admin_Settings {
 
 								<div class="nlf-tool-card__field">
 									<label for="nlf-faq-export-scope" class="nlf-tool-card__field-label">
-										<?php esc_html_e( 'Export scope', 'krslys-next-level-faq' ); ?>
+										<?php esc_html_e( 'Export scope', 'krslys-next-level-faq-accordion' ); ?>
 									</label>
 									<select id="nlf-faq-export-scope" name="nlf_faq_export_group" class="nlf-tool-card__select">
-										<option value="all"><?php esc_html_e( 'All groups (full backup)', 'krslys-next-level-faq' ); ?></option>
+										<option value="all"><?php esc_html_e( 'All groups (full backup)', 'krslys-next-level-faq-accordion' ); ?></option>
 										<?php foreach ( $groups as $value => $label ) : ?>
 											<option value="<?php echo esc_attr( $value ); ?>">
 												<?php echo esc_html( $label ); ?>
@@ -366,19 +387,19 @@ class Admin_Settings {
 								<div id="nlf-export-global-opts" class="nlf-tool-card__options">
 									<label class="nlf-tool-card__option">
 										<input type="checkbox" name="nlf_faq_include_styles" value="1" checked="checked" />
-										<span><?php esc_html_e( 'Include style settings', 'krslys-next-level-faq' ); ?></span>
+										<span><?php esc_html_e( 'Include style settings', 'krslys-next-level-faq-accordion' ); ?></span>
 									</label>
 									<label class="nlf-tool-card__option">
 										<input type="checkbox" name="nlf_faq_include_questions" value="1" checked="checked" />
-										<span><?php esc_html_e( 'Include FAQ entries', 'krslys-next-level-faq' ); ?></span>
+										<span><?php esc_html_e( 'Include FAQ entries', 'krslys-next-level-faq-accordion' ); ?></span>
 									</label>
 								</div>
 
 								<p class="nlf-tool-card__hint" id="nlf-export-group-hint" style="display:none;">
-									<?php esc_html_e( 'Exports the selected group with all its questions, theme, and settings.', 'krslys-next-level-faq' ); ?>
+									<?php esc_html_e( 'Exports the selected group with all its questions, theme, and settings.', 'krslys-next-level-faq-accordion' ); ?>
 								</p>
 
-								<?php submit_button( __( 'Download Export', 'krslys-next-level-faq' ), 'primary', 'submit', false ); ?>
+								<?php submit_button( __( 'Download Export', 'krslys-next-level-faq-accordion' ), 'primary', 'submit', false ); ?>
 							</form>
 						</div>
 					</div>
@@ -391,8 +412,8 @@ class Admin_Settings {
 								<span class="dashicons dashicons-upload"></span>
 							</div>
 							<div>
-								<h3><?php esc_html_e( 'Import', 'krslys-next-level-faq' ); ?></h3>
-								<p><?php esc_html_e( 'Upload a JSON file to restore FAQ data from a backup.', 'krslys-next-level-faq' ); ?></p>
+								<h3><?php esc_html_e( 'Import', 'krslys-next-level-faq-accordion' ); ?></h3>
+								<p><?php esc_html_e( 'Upload a JSON file to restore FAQ data from a backup.', 'krslys-next-level-faq-accordion' ); ?></p>
 							</div>
 						</div>
 						<div class="nlf-tool-card__body">
@@ -402,11 +423,11 @@ class Admin_Settings {
 
 								<div class="nlf-tool-card__field">
 									<label for="nlf-faq-import-target" class="nlf-tool-card__field-label">
-										<?php esc_html_e( 'Import target', 'krslys-next-level-faq' ); ?>
+										<?php esc_html_e( 'Import target', 'krslys-next-level-faq-accordion' ); ?>
 									</label>
 									<select id="nlf-faq-import-target" name="nlf_faq_import_target" class="nlf-tool-card__select">
-										<option value="all"><?php esc_html_e( 'Global (all FAQ data)', 'krslys-next-level-faq' ); ?></option>
-										<option value="duplicate"><?php esc_html_e( 'Duplicate as new group', 'krslys-next-level-faq' ); ?></option>
+										<option value="all"><?php esc_html_e( 'Global (all FAQ data)', 'krslys-next-level-faq-accordion' ); ?></option>
+										<option value="duplicate"><?php esc_html_e( 'Duplicate as new group', 'krslys-next-level-faq-accordion' ); ?></option>
 										<?php foreach ( $groups as $value => $label ) : ?>
 											<option value="<?php echo esc_attr( $value ); ?>">
 												<?php echo esc_html( $label ); ?>
@@ -416,22 +437,22 @@ class Admin_Settings {
 								</div>
 
 								<p class="nlf-tool-card__hint" id="nlf-import-duplicate-hint" style="display:none;">
-									<?php esc_html_e( 'Creates a brand-new group from the exported file with all its questions, theme, and settings.', 'krslys-next-level-faq' ); ?>
+									<?php esc_html_e( 'Creates a brand-new group from the exported file with all its questions, theme, and settings.', 'krslys-next-level-faq-accordion' ); ?>
 								</p>
 
 								<div class="nlf-tool-card__field">
 									<label class="nlf-tool-card__field-label">
-										<?php esc_html_e( 'Upload file', 'krslys-next-level-faq' ); ?>
+										<?php esc_html_e( 'Upload file', 'krslys-next-level-faq-accordion' ); ?>
 									</label>
 									<div class="nlf-file-zone" id="nlf-file-zone">
 										<div class="nlf-file-zone__icon">
 											<span class="dashicons dashicons-cloud-upload"></span>
 										</div>
 										<p class="nlf-file-zone__text">
-											<?php esc_html_e( 'Drag & drop your file here or', 'krslys-next-level-faq' ); ?>
-											<span class="nlf-file-zone__browse"><?php esc_html_e( 'browse', 'krslys-next-level-faq' ); ?></span>
+											<?php esc_html_e( 'Drag & drop your file here or', 'krslys-next-level-faq-accordion' ); ?>
+											<span class="nlf-file-zone__browse"><?php esc_html_e( 'browse', 'krslys-next-level-faq-accordion' ); ?></span>
 										</p>
-										<p class="nlf-file-zone__meta"><?php esc_html_e( 'Accepts .json files only', 'krslys-next-level-faq' ); ?></p>
+										<p class="nlf-file-zone__meta"><?php esc_html_e( 'Accepts .json files only', 'krslys-next-level-faq-accordion' ); ?></p>
 										<input type="file" id="nlf-faq-import-file" name="nlf_faq_import_file" accept=".json,application/json" required />
 									</div>
 									<div class="nlf-file-info" id="nlf-file-info">
@@ -442,25 +463,25 @@ class Admin_Settings {
 											<div class="nlf-file-info__name" id="nlf-file-name"></div>
 											<div class="nlf-file-info__size" id="nlf-file-size"></div>
 										</div>
-										<button type="button" class="nlf-file-info__remove" id="nlf-file-remove" title="<?php esc_attr_e( 'Remove file', 'krslys-next-level-faq' ); ?>">&times;</button>
+										<button type="button" class="nlf-file-info__remove" id="nlf-file-remove" title="<?php esc_attr_e( 'Remove file', 'krslys-next-level-faq-accordion' ); ?>">&times;</button>
 									</div>
 								</div>
 
 								<div id="nlf-import-replace-opt" class="nlf-tool-card__options">
 									<label class="nlf-tool-card__option">
 										<input type="checkbox" name="nlf_faq_replace_existing" value="1" />
-										<span><?php esc_html_e( 'Replace existing items before import', 'krslys-next-level-faq' ); ?></span>
+										<span><?php esc_html_e( 'Replace existing items before import', 'krslys-next-level-faq-accordion' ); ?></span>
 									</label>
 								</div>
 
 								<div id="nlf-import-group-opts" class="nlf-tool-card__options" style="display:none;">
 									<label class="nlf-tool-card__option">
 										<input type="checkbox" name="nlf_import_apply_styles" value="1" />
-										<span><?php esc_html_e( 'Apply imported theme and styles to this group', 'krslys-next-level-faq' ); ?></span>
+										<span><?php esc_html_e( 'Apply imported theme and styles to this group', 'krslys-next-level-faq-accordion' ); ?></span>
 									</label>
 								</div>
 
-								<?php submit_button( __( 'Import', 'krslys-next-level-faq' ), 'primary', 'submit', false ); ?>
+								<?php submit_button( __( 'Import', 'krslys-next-level-faq-accordion' ), 'primary', 'submit', false ); ?>
 							</form>
 						</div>
 					</div>
@@ -473,8 +494,8 @@ class Admin_Settings {
 				<div class="nlf-tools-section__header">
 					<span class="dashicons dashicons-superhero-alt"></span>
 					<div>
-						<h2><?php esc_html_e( 'More Tools', 'krslys-next-level-faq' ); ?></h2>
-						<p><?php esc_html_e( 'Powerful utilities coming in future updates.', 'krslys-next-level-faq' ); ?></p>
+						<h2><?php esc_html_e( 'More Tools', 'krslys-next-level-faq-accordion' ); ?></h2>
+						<p><?php esc_html_e( 'Powerful utilities coming in future updates.', 'krslys-next-level-faq-accordion' ); ?></p>
 					</div>
 				</div>
 
@@ -487,10 +508,10 @@ class Admin_Settings {
 							</div>
 							<div>
 								<h3>
-									<?php esc_html_e( 'Reset', 'krslys-next-level-faq' ); ?>
-									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'krslys-next-level-faq' ); ?></span>
+									<?php esc_html_e( 'Reset', 'krslys-next-level-faq-accordion' ); ?>
+									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'krslys-next-level-faq-accordion' ); ?></span>
 								</h3>
-								<p><?php esc_html_e( 'Selectively reset FAQ data, styles, or all plugin settings at once.', 'krslys-next-level-faq' ); ?></p>
+								<p><?php esc_html_e( 'Selectively reset FAQ data, styles, or all plugin settings at once.', 'krslys-next-level-faq-accordion' ); ?></p>
 							</div>
 						</div>
 					</div>
@@ -503,10 +524,10 @@ class Admin_Settings {
 							</div>
 							<div>
 								<h3>
-									<?php esc_html_e( 'Diagnostics', 'krslys-next-level-faq' ); ?>
-									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'krslys-next-level-faq' ); ?></span>
+									<?php esc_html_e( 'Diagnostics', 'krslys-next-level-faq-accordion' ); ?>
+									<span class="nlf-badge nlf-badge--soon"><?php esc_html_e( 'Soon', 'krslys-next-level-faq-accordion' ); ?></span>
 								</h3>
-								<p><?php esc_html_e( 'Analyze your FAQ setup and get optimization suggestions.', 'krslys-next-level-faq' ); ?></p>
+								<p><?php esc_html_e( 'Analyze your FAQ setup and get optimization suggestions.', 'krslys-next-level-faq-accordion' ); ?></p>
 							</div>
 						</div>
 					</div>
@@ -515,91 +536,15 @@ class Admin_Settings {
 
 		</div>
 
-		<script>
-		(function(){
-			/* ── Export: toggle global options vs single-group hint ── */
-			var expScope  = document.getElementById('nlf-faq-export-scope');
-			var expGlobal = document.getElementById('nlf-export-global-opts');
-			var expHint   = document.getElementById('nlf-export-group-hint');
-			if(expScope){
-				expScope.addEventListener('change',function(){
-					var isAll = this.value === 'all';
-					expGlobal.style.display = isAll ? '' : 'none';
-					expHint.style.display   = isAll ? 'none' : '';
-				});
-			}
-
-			/* ── Import: toggle options based on target ── */
-			var impTarget    = document.getElementById('nlf-faq-import-target');
-			var impGroupOps  = document.getElementById('nlf-import-group-opts');
-			var impReplaceOp = document.getElementById('nlf-import-replace-opt');
-			var impDupHint   = document.getElementById('nlf-import-duplicate-hint');
-			if(impTarget){
-				impTarget.addEventListener('change',function(){
-					var v = this.value;
-					var isGroup = v !== 'all' && v !== 'duplicate';
-					var isDup   = v === 'duplicate';
-					impGroupOps.style.display  = isGroup ? '' : 'none';
-					impReplaceOp.style.display = isDup ? 'none' : '';
-					impDupHint.style.display   = isDup ? '' : 'none';
-				});
-			}
-
-			/* ── File upload zone UX ── */
-			var zone     = document.getElementById('nlf-file-zone');
-			var fileInfo = document.getElementById('nlf-file-info');
-			var fileInp  = document.getElementById('nlf-faq-import-file');
-			var fileName = document.getElementById('nlf-file-name');
-			var fileSize = document.getElementById('nlf-file-size');
-			var fileRem  = document.getElementById('nlf-file-remove');
-
-			function formatBytes(bytes) {
-				if (bytes === 0) return '0 Bytes';
-				var k = 1024, sizes = ['Bytes','KB','MB'];
-				var i = Math.floor(Math.log(bytes) / Math.log(k));
-				return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-			}
-
-			function showFileInfo() {
-				if (fileInp.files && fileInp.files.length) {
-					var f = fileInp.files[0];
-					fileName.textContent = f.name;
-					fileSize.textContent = formatBytes(f.size);
-					zone.style.display = 'none';
-					fileInfo.classList.add('is-visible');
-				}
-			}
-
-			function clearFile() {
-				fileInp.value = '';
-				zone.style.display = '';
-				fileInfo.classList.remove('is-visible');
-			}
-
-			if (fileInp) {
-				fileInp.addEventListener('change', showFileInfo);
-			}
-			if (fileRem) {
-				fileRem.addEventListener('click', clearFile);
-			}
-
-			/* Drag & drop visual feedback */
-			if (zone) {
-				['dragenter','dragover'].forEach(function(evt){
-					zone.addEventListener(evt, function(e){
-						e.preventDefault();
-						zone.classList.add('is-dragover');
-					});
-				});
-				['dragleave','drop'].forEach(function(evt){
-					zone.addEventListener(evt, function(e){
-						e.preventDefault();
-						zone.classList.remove('is-dragover');
-					});
-				});
-			}
-		})();
-		</script>
+		<?php
+		wp_enqueue_script(
+			'nlf-faq-admin-tools',
+			krslys_nlfa_asset_url( 'assets/js/admin-faq-tools.js' ),
+			array(),
+			NLF_FAQ_VERSION,
+			true
+		);
+		?>
 		<?php
 	}
 
@@ -615,8 +560,8 @@ class Admin_Settings {
 	 * @return void
 	 */
 	public static function handle_export() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to export FAQs.', 'krslys-next-level-faq' ) );
+		if ( ! self::current_user_can_manage() ) {
+			wp_die( esc_html__( 'You do not have permission to export FAQs.', 'krslys-next-level-faq-accordion' ) );
 		}
 
 		check_admin_referer( 'nlf_faq_export', 'nlf_faq_export_nonce' );
@@ -631,7 +576,7 @@ class Admin_Settings {
 			$payload  = self::build_group_export_payload( $group_id );
 
 			if ( null === $payload ) {
-				self::store_tools_notice( 'error', __( 'Unable to export this group. It may not exist.', 'krslys-next-level-faq' ) );
+				self::store_tools_notice( 'error', __( 'Unable to export this group. It may not exist.', 'krslys-next-level-faq-accordion' ) );
 				wp_safe_redirect( self::get_tools_page_url() );
 				exit;
 			}
@@ -656,7 +601,7 @@ class Admin_Settings {
 		$include_questions = self::get_checkbox_state_from_post( 'nlf_faq_include_questions' );
 
 		if ( ! $include_styles && ! $include_questions ) {
-			self::store_tools_notice( 'error', __( 'Select at least one component to export.', 'krslys-next-level-faq' ) );
+			self::store_tools_notice( 'error', __( 'Select at least one component to export.', 'krslys-next-level-faq-accordion' ) );
 			wp_safe_redirect( self::get_tools_page_url() );
 			exit;
 		}
@@ -677,7 +622,7 @@ class Admin_Settings {
 
 		if ( $include_questions ) {
 			$payload['meta']['group_scope']       = 'all';
-			$payload['meta']['group_scope_label'] = __( 'All groups', 'krslys-next-level-faq' );
+			$payload['meta']['group_scope_label'] = __( 'All groups', 'krslys-next-level-faq-accordion' );
 			$faqs              = self::group_faq_export_items( Repository::get_all_items_for_export( null ) );
 			$payload['faqs']   = $faqs;
 			$payload['groups'] = self::build_groups_meta_for_export( array_keys( $faqs ) );
@@ -714,8 +659,8 @@ class Admin_Settings {
 	 * @return void
 	 */
 	public static function handle_import() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to import FAQs.', 'krslys-next-level-faq' ) );
+		if ( ! self::current_user_can_manage() ) {
+			wp_die( esc_html__( 'You do not have permission to import FAQs.', 'krslys-next-level-faq-accordion' ) );
 		}
 
 		check_admin_referer( 'nlf_faq_import', 'nlf_faq_import_nonce' );
@@ -727,7 +672,7 @@ class Admin_Settings {
 
 		// ── Common file validation ───────────────────────────
 		if ( empty( $_FILES['nlf_faq_import_file'] ) ) {
-			self::store_tools_notice( 'error', __( 'Upload an export file before running import.', 'krslys-next-level-faq' ) );
+			self::store_tools_notice( 'error', __( 'Upload an export file before running import.', 'krslys-next-level-faq-accordion' ) );
 			wp_safe_redirect( $page_url );
 			exit;
 		}
@@ -738,9 +683,9 @@ class Admin_Settings {
 			if ( isset( $_FILES['nlf_faq_import_file']['error'] ) && (int) $_FILES['nlf_faq_import_file']['error'] !== UPLOAD_ERR_OK ) {
 				self::store_tools_notice( 'error', self::describe_upload_error( (int) $_FILES['nlf_faq_import_file']['error'] ) );
 			} elseif ( isset( $_FILES['nlf_faq_import_file']['size'] ) && (int) $_FILES['nlf_faq_import_file']['size'] > ( defined( 'MB_IN_BYTES' ) ? 2 * MB_IN_BYTES : 2 * 1024 * 1024 ) ) {
-				self::store_tools_notice( 'error', __( 'Import file is too large. Please keep exports under 2MB.', 'krslys-next-level-faq' ) );
+				self::store_tools_notice( 'error', __( 'Import file is too large. Please keep exports under 2MB.', 'krslys-next-level-faq-accordion' ) );
 			} else {
-				self::store_tools_notice( 'error', __( 'Only JSON files exported by this plugin are allowed.', 'krslys-next-level-faq' ) );
+				self::store_tools_notice( 'error', __( 'Only JSON files exported by this plugin are allowed.', 'krslys-next-level-faq-accordion' ) );
 			}
 			wp_safe_redirect( $page_url );
 			exit;
@@ -749,7 +694,7 @@ class Admin_Settings {
 		$data = self::decode_import_file( $file['tmp_name'] );
 
 		if ( null === $data ) {
-			self::store_tools_notice( 'error', __( 'The uploaded file is not a valid export.', 'krslys-next-level-faq' ) );
+			self::store_tools_notice( 'error', __( 'The uploaded file is not a valid export.', 'krslys-next-level-faq-accordion' ) );
 			wp_safe_redirect( $page_url );
 			exit;
 		}
@@ -762,7 +707,7 @@ class Admin_Settings {
 			$has_global_faqs  = ! empty( $data['faqs'] ) && is_array( $data['faqs'] );
 
 			if ( ! $has_single_items && ! $has_global_faqs ) {
-				self::store_tools_notice( 'error', __( 'This file does not contain any FAQ data to duplicate.', 'krslys-next-level-faq' ) );
+				self::store_tools_notice( 'error', __( 'This file does not contain any FAQ data to duplicate.', 'krslys-next-level-faq-accordion' ) );
 				wp_safe_redirect( $page_url );
 				exit;
 			}
@@ -776,8 +721,8 @@ class Admin_Settings {
 
 				$new_title = '' !== $original_title
 					/* translators: %s: original FAQ group title. */
-					? sprintf( __( '%s (Copy)', 'krslys-next-level-faq' ), $original_title )
-					: __( 'Imported Group (Copy)', 'krslys-next-level-faq' );
+					? sprintf( __( '%s (Copy)', 'krslys-next-level-faq-accordion' ), $original_title )
+					: __( 'Imported Group (Copy)', 'krslys-next-level-faq-accordion' );
 
 				$new_group_id = Groups_Repository::create_group(
 					array(
@@ -842,9 +787,9 @@ class Admin_Settings {
 
 					$new_title = '' !== $original_title
 						/* translators: %s: original FAQ group title. */
-						? sprintf( __( '%s (Copy)', 'krslys-next-level-faq' ), $original_title )
+						? sprintf( __( '%s (Copy)', 'krslys-next-level-faq-accordion' ), $original_title )
 						/* translators: %d: FAQ group ID */
-						: sprintf( __( 'Group #%d (Copy)', 'krslys-next-level-faq' ), (int) $original_group_id );
+						: sprintf( __( 'Group #%d (Copy)', 'krslys-next-level-faq-accordion' ), (int) $original_group_id );
 
 					$create_data = array(
 						'title'  => $new_title,
@@ -903,7 +848,7 @@ class Admin_Settings {
 			}
 
 			if ( 0 === $groups_created ) {
-				self::store_tools_notice( 'error', __( 'Failed to create any new groups.', 'krslys-next-level-faq' ) );
+				self::store_tools_notice( 'error', __( 'Failed to create any new groups.', 'krslys-next-level-faq-accordion' ) );
 				wp_safe_redirect( $page_url );
 				exit;
 			}
@@ -914,7 +859,7 @@ class Admin_Settings {
 					'%1$d new group created with %2$d FAQ items. Saved as draft.',
 					'%1$d new groups created with %2$d FAQ items. All saved as drafts.',
 					$groups_created,
-					'krslys-next-level-faq'
+					'krslys-next-level-faq-accordion'
 				),
 				$groups_created,
 				$total_imported
@@ -931,7 +876,7 @@ class Admin_Settings {
 
 			$group = Groups_Repository::get_group_by_id( $group_id );
 			if ( ! $group ) {
-				self::store_tools_notice( 'error', __( 'The selected group does not exist.', 'krslys-next-level-faq' ) );
+				self::store_tools_notice( 'error', __( 'The selected group does not exist.', 'krslys-next-level-faq-accordion' ) );
 				wp_safe_redirect( $page_url );
 				exit;
 			}
@@ -979,17 +924,17 @@ class Admin_Settings {
 			if ( $imported > 0 ) {
 				$message_bits[] = sprintf(
 					/* translators: %d: number of imported FAQs */
-					_n( '%d FAQ item imported into group.', '%d FAQ items imported into group.', $imported, 'krslys-next-level-faq' ),
+					_n( '%d FAQ item imported into group.', '%d FAQ items imported into group.', $imported, 'krslys-next-level-faq-accordion' ),
 					$imported
 				);
 			}
 
 			if ( $apply_styles ) {
-				$message_bits[] = __( 'Group theme and styles applied.', 'krslys-next-level-faq' );
+				$message_bits[] = __( 'Group theme and styles applied.', 'krslys-next-level-faq-accordion' );
 			}
 
 			if ( empty( $message_bits ) ) {
-				self::store_tools_notice( 'warning', __( 'No items were imported. The file may be empty or contain no valid entries.', 'krslys-next-level-faq' ) );
+				self::store_tools_notice( 'warning', __( 'No items were imported. The file may be empty or contain no valid entries.', 'krslys-next-level-faq-accordion' ) );
 			} else {
 				self::store_tools_notice( 'success', implode( ' ', $message_bits ) );
 			}
@@ -1048,7 +993,7 @@ class Admin_Settings {
 		}
 
 		if ( 0 === $imported_count && ! $styles_applied ) {
-			self::store_tools_notice( 'error', __( 'Nothing was imported. Ensure the file contains FAQ entries or style settings.', 'krslys-next-level-faq' ) );
+			self::store_tools_notice( 'error', __( 'Nothing was imported. Ensure the file contains FAQ entries or style settings.', 'krslys-next-level-faq-accordion' ) );
 			wp_safe_redirect( $page_url );
 			exit;
 		}
@@ -1058,13 +1003,13 @@ class Admin_Settings {
 		if ( $imported_count > 0 ) {
 			$message_bits[] = sprintf(
 				/* translators: %d: number of imported FAQs */
-				_n( '%d FAQ item imported.', '%d FAQ items imported.', $imported_count, 'krslys-next-level-faq' ),
+				_n( '%d FAQ item imported.', '%d FAQ items imported.', $imported_count, 'krslys-next-level-faq-accordion' ),
 				$imported_count
 			);
 		}
 
 		if ( $styles_applied ) {
-			$message_bits[] = __( 'Style settings synced.', 'krslys-next-level-faq' );
+			$message_bits[] = __( 'Style settings synced.', 'krslys-next-level-faq-accordion' );
 		}
 
 		self::store_tools_notice( 'success', implode( ' ', $message_bits ) );
@@ -1162,7 +1107,7 @@ class Admin_Settings {
 			Groups_Repository::update_group( $group_id, $update );
 		}
 
-		if ( isset( $sanitized_styles ) && class_exists( 'Krslys\NextLevelFaq\Style_Generator' ) ) {
+		if ( isset( $sanitized_styles ) && class_exists( 'Krslys\NextLevelFaqAccordion\Style_Generator' ) ) {
 			Style_Generator::generate_and_save_for_group( $group_id, $sanitized_styles );
 		}
 	}
@@ -1310,19 +1255,19 @@ class Admin_Settings {
 		switch ( (int) $code ) {
 			case UPLOAD_ERR_INI_SIZE:
 			case UPLOAD_ERR_FORM_SIZE:
-				return __( 'The uploaded file exceeds the maximum allowed size.', 'krslys-next-level-faq' );
+				return __( 'The uploaded file exceeds the maximum allowed size.', 'krslys-next-level-faq-accordion' );
 			case UPLOAD_ERR_PARTIAL:
-				return __( 'The uploaded file was only partially uploaded. Please try again.', 'krslys-next-level-faq' );
+				return __( 'The uploaded file was only partially uploaded. Please try again.', 'krslys-next-level-faq-accordion' );
 			case UPLOAD_ERR_NO_FILE:
-				return __( 'No file was uploaded.', 'krslys-next-level-faq' );
+				return __( 'No file was uploaded.', 'krslys-next-level-faq-accordion' );
 			case UPLOAD_ERR_NO_TMP_DIR:
-				return __( 'Server configuration error: missing a temporary folder.', 'krslys-next-level-faq' );
+				return __( 'Server configuration error: missing a temporary folder.', 'krslys-next-level-faq-accordion' );
 			case UPLOAD_ERR_CANT_WRITE:
-				return __( 'Server error: failed to write file to disk.', 'krslys-next-level-faq' );
+				return __( 'Server error: failed to write file to disk.', 'krslys-next-level-faq-accordion' );
 			case UPLOAD_ERR_EXTENSION:
-				return __( 'A PHP extension stopped the file upload.', 'krslys-next-level-faq' );
+				return __( 'A PHP extension stopped the file upload.', 'krslys-next-level-faq-accordion' );
 			default:
-				return __( 'Unexpected upload error occurred.', 'krslys-next-level-faq' );
+				return __( 'Unexpected upload error occurred.', 'krslys-next-level-faq-accordion' );
 		}
 	}
 
@@ -1632,7 +1577,7 @@ class Admin_Settings {
 			$choices[ (string) $group->id ] = '' !== $title
 				? $title
 				/* translators: %d: FAQ group ID */
-				: sprintf( __( 'Group #%d', 'krslys-next-level-faq' ), (int) $group->id );
+				: sprintf( __( 'Group #%d', 'krslys-next-level-faq-accordion' ), (int) $group->id );
 		}
 
 		return $choices;

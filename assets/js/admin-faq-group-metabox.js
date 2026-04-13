@@ -1200,7 +1200,7 @@
 			return;
 		}
 
-		const shortcode = '[krslys_nlf group="' + groupId + '"]';
+		const shortcode = '[krslys_nlfa group="' + groupId + '"]';
 		const phpCode   = "<?php echo do_shortcode( '" + shortcode + "' ); ?>";
 
 		// Update data-copy-text and visible code for each snippet.

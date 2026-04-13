@@ -22,7 +22,7 @@ Flexible FAQ and Accordion plugin with customizable styling, schema markup, live
 * **Live style preview** — see your changes before saving, rendered entirely in the browser.
 * **Theme presets** — choose from flat, cards, bordered, clean, or striped layouts.
 * **Full design control** — customize colors, spacing, borders, and animations per group.
-* **Shortcode support** — use `[krslys_nlf group="ID"]` anywhere: pages, posts, or widgets.
+* **Shortcode support** — use `[krslys_nlfa group="ID"]` anywhere: pages, posts, or widgets.
 * **Gutenberg blocks** — native blocks for both FAQ and Accordion in the block editor.
 * **Accessibility (WCAG 2.1 AA)** — semantic HTML, full ARIA support, keyboard navigation.
 * **Custom database tables** — dedicated tables for performance; does not pollute `wp_posts`.
@@ -33,7 +33,7 @@ Flexible FAQ and Accordion plugin with customizable styling, schema markup, live
 
 == Installation ==
 
-1. Upload the `krslys-next-level-faq` folder to the `/wp-content/plugins/` directory, or install it directly through the WordPress plugin screen.
+1. Upload the `krslys-next-level-faq-accordion` folder to the `/wp-content/plugins/` directory, or install it directly through the WordPress plugin screen.
 2. Activate the plugin through the **Plugins** screen in WordPress. The plugin creates its database tables automatically on activation.
 3. Go to **FAQs** in the WordPress admin menu to get started.
 
@@ -43,7 +43,7 @@ Flexible FAQ and Accordion plugin with customizable styling, schema markup, live
 
 Use the shortcode with the group ID:
 
-`[krslys_nlf group="1"]`
+`[krslys_nlfa group="1"]`
 
 The group ID is shown on the FAQ Groups list page and in the **How To Use** sidebar after saving a group.
 
@@ -69,7 +69,7 @@ Yes. FAQ groups automatically output FAQPage JSON-LD structured data in the page
 
 = Where are the settings stored? =
 
-FAQ groups and their style settings are stored in dedicated custom database tables (`wp_nlf_faq_groups`, `wp_nlf_faq_items`, `wp_nlf_plugin_settings`). The plugin does not use `wp_posts` or `wp_postmeta`.
+FAQ groups and their style settings are stored in dedicated custom database tables (`wp_krslys_nlfa_groups`, `wp_krslys_nlfa_items`, `wp_krslys_nlfa_settings`). The plugin does not use `wp_posts` or `wp_postmeta`.
 
 = Will the plugin slow down my site? =
 

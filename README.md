@@ -49,9 +49,9 @@ The plugin uses dedicated custom tables — it does **not** use `wp_posts` or `w
 
 | Table | Purpose |
 |---|---|
-| `wp_nlf_faq_groups` | FAQ groups with JSON theme and display settings |
-| `wp_nlf_faq_items` | Individual questions and answers, linked to groups |
-| `wp_nlf_plugin_settings` | Global plugin configuration stored as JSON |
+| `wp_krslys_nlfa_groups` | FAQ groups with JSON theme and display settings |
+| `wp_krslys_nlfa_items` | Individual questions and answers, linked to groups |
+| `wp_krslys_nlfa_settings` | Global plugin configuration stored as JSON |
 
 Classes follow PSR-4 autoloading under the `Krslys\NextLevelFaq` namespace.
 Each subsystem (Database, Admin, Frontend, Blocks, Styles) registers its own WordPress
@@ -74,13 +74,13 @@ hooks through a static `init()` method — the main plugin class only boots subs
 Use the shortcode with the group ID:
 
 ```
-[krslys_nlf group="1"]
+[krslys_nlfa group="1"]
 ```
 
 Or in PHP templates:
 
 ```php
-echo do_shortcode( '[krslys_nlf group="1"]' );
+echo do_shortcode( '[krslys_nlfa group="1"]' );
 ```
 
 The group ID is shown on the FAQ Groups list page and in the **How To Use** sidebar

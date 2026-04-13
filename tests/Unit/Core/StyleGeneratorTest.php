@@ -6,17 +6,17 @@
  * the WordPress options/upload APIs, making it ideal for unit testing. It
  * accepts a resolved options array and returns a CSS string.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
-use Krslys\NextLevelFaq\Presets;
-use Krslys\NextLevelFaq\Style_Generator;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Presets;
+use Krslys\NextLevelFaqAccordion\Style_Generator;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Style_Generator::build_css
+ * @covers \Krslys\NextLevelFaqAccordion\Style_Generator::build_css
  */
 class StyleGeneratorTest extends WpTestCase {
 

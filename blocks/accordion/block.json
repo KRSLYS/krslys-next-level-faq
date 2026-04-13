@@ -1,13 +1,13 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
-  "name": "next-level-faq/accordion",
+  "name": "krslys-next-level/accordion",
   "title": "Next Level Accordion",
   "category": "widgets",
   "icon": "list-view",
   "description": "Display a styled accordion section with collapsible content panels.",
   "keywords": ["accordion", "collapse", "toggle", "sections"],
-  "textdomain": "krslys-next-level-faq",
+  "textdomain": "krslys-next-level-faq-accordion",
   "supports": {
     "html": false,
     "align": true,

@@ -2,16 +2,16 @@
 /**
  * Tests for the Presets class.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
-use Krslys\NextLevelFaq\Presets;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Presets;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Presets
+ * @covers \Krslys\NextLevelFaqAccordion\Presets
  */
 class PresetsTest extends WpTestCase {
 

@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Next Level FAQ & Accordion 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/krslys-next-level-faq\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/krslys-next-level-faq-accordion\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -12,31 +12,31 @@ msgstr ""
 "POT-Creation-Date: 2026-03-30T01:11:12+03:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: krslys-next-level-faq\n"
+"X-Domain: krslys-next-level-faq-accordion\n"
 
 #. Plugin Name of the plugin
-#: krslys-next-level-faq.php
+#: krslys-next-level-faq-accordion.php
 #: includes/admin/class-admin-settings.php:67
 msgid "Next Level FAQ & Accordion"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: krslys-next-level-faq.php
+#: krslys-next-level-faq-accordion.php
 msgid "https://krslys.com/plugins/next-level-faq/"
 msgstr ""
 
 #. Description of the plugin
-#: krslys-next-level-faq.php
+#: krslys-next-level-faq-accordion.php
 msgid "Flexible FAQ and Accordion plugin with customizable styling, live preview, and Gutenberg block support."
 msgstr ""
 
 #. Author of the plugin
-#: krslys-next-level-faq.php
+#: krslys-next-level-faq-accordion.php
 msgid "Krslys"
 msgstr ""
 
 #. Author URI of the plugin
-#: krslys-next-level-faq.php
+#: krslys-next-level-faq-accordion.php
 msgid "https://krslys.com"
 msgstr ""
 

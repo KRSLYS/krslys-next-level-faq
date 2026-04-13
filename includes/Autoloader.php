@@ -1,11 +1,11 @@
 <?php
 /**
- * PSR-4 Autoloader for Krslys\NextLevelFaq namespace.
+ * PSR-4 Autoloader for Krslys\NextLevelFaqAccordion namespace.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,7 +21,7 @@ class Autoloader {
 	 *
 	 * @var string
 	 */
-	private $namespace_prefix = 'Krslys\\NextLevelFaq\\';
+	private $namespace_prefix = 'Krslys\\NextLevelFaqAccordion\\';
 
 	/**
 	 * Base directory for the namespace prefix.

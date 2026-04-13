@@ -2,10 +2,10 @@
 /**
  * Database schema manager for custom tables.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,7 +38,7 @@ class Database {
 	 */
 	public static function get_groups_table() {
 		global $wpdb;
-		return $wpdb->prefix . 'nlf_faq_groups';
+		return $wpdb->prefix . 'krslys_nlfa_groups';
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Database {
 	 */
 	public static function get_items_table() {
 		global $wpdb;
-		return $wpdb->prefix . 'nlf_faq_items';
+		return $wpdb->prefix . 'krslys_nlfa_items';
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Database {
 	 */
 	public static function get_settings_table() {
 		global $wpdb;
-		return $wpdb->prefix . 'nlf_plugin_settings';
+		return $wpdb->prefix . 'krslys_nlfa_settings';
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Database {
 	 * @param bool $force Force creation even if version is up to date.
 	 */
 	public static function create_tables( $force = false ) {
-		$current_version = get_option( 'nlf_faq_schema_version', '0.0.0' );
+		$current_version = get_option( 'krslys_nlfa_schema_version', '0.0.0' );
 
 		// Only run if schema version changed, forced, or migration needed.
 		if ( ! $force && version_compare( $current_version, self::SCHEMA_VERSION, '>=' ) && ! self::needs_migration() ) {
@@ -91,7 +91,7 @@ class Database {
 		self::create_settings_table( $charset_collate );
 
 		// Update schema version
-		update_option( 'nlf_faq_schema_version', self::SCHEMA_VERSION );
+		update_option( 'krslys_nlfa_schema_version', self::SCHEMA_VERSION );
 	}
 
 	/**
@@ -195,7 +195,7 @@ class Database {
 		}
 
 		// Delete schema version
-		delete_option( 'nlf_faq_schema_version' );
+		delete_option( 'krslys_nlfa_schema_version' );
 	}
 
 	/**
@@ -245,7 +245,7 @@ class Database {
 	 * @return string
 	 */
 	public static function get_schema_version() {
-		return get_option( 'nlf_faq_schema_version', '0.0.0' );
+		return get_option( 'krslys_nlfa_schema_version', '0.0.0' );
 	}
 }
 

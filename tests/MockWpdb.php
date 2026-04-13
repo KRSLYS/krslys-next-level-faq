@@ -2,10 +2,10 @@
 /**
  * Minimal $wpdb mock for unit tests.
  *
- * @package Krslys\NextLevelFaq\Tests
+ * @package Krslys\NextLevelFaqAccordion\Tests
  */
 
-namespace Krslys\NextLevelFaq\Tests;
+namespace Krslys\NextLevelFaqAccordion\Tests;
 
 /**
  * Lightweight stand-in for wpdb that avoids a real database connection.

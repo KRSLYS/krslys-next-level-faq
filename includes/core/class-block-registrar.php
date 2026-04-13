@@ -2,10 +2,10 @@
 /**
  * Gutenberg block registration.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -58,7 +58,7 @@ class Block_Registrar {
 	private static function register_editor_script() {
 		wp_register_script(
 			'nlf-faq-block-editor',
-			krslys_nlf_asset_url( 'blocks/faq/editor.js' ),
+			krslys_nlfa_asset_url( 'blocks/faq/editor.js' ),
 			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
 			NLF_FAQ_VERSION,
 			true
@@ -77,7 +77,7 @@ class Block_Registrar {
 			)
 		);
 
-		wp_set_script_translations( 'nlf-faq-block-editor', 'krslys-next-level-faq', NLF_FAQ_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'nlf-faq-block-editor', 'krslys-next-level-faq-accordion', NLF_FAQ_PLUGIN_DIR . 'languages' );
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Block_Registrar {
 	private static function register_accordion_editor_script() {
 		wp_register_script(
 			'nlf-accordion-block-editor',
-			krslys_nlf_asset_url( 'blocks/accordion/editor.js' ),
+			krslys_nlfa_asset_url( 'blocks/accordion/editor.js' ),
 			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
 			NLF_FAQ_VERSION,
 			true
@@ -105,7 +105,7 @@ class Block_Registrar {
 			)
 		);
 
-		wp_set_script_translations( 'nlf-accordion-block-editor', 'krslys-next-level-faq', NLF_FAQ_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'nlf-accordion-block-editor', 'krslys-next-level-faq-accordion', NLF_FAQ_PLUGIN_DIR . 'languages' );
 	}
 
 	/**

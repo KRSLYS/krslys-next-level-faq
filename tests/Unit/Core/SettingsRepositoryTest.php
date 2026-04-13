@@ -5,17 +5,17 @@
  * Because Settings_Repository uses $wpdb directly we swap in MockWpdb so no
  * real database connection is required.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
-use Krslys\NextLevelFaq\Settings_Repository;
-use Krslys\NextLevelFaq\Tests\MockWpdb;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Settings_Repository;
+use Krslys\NextLevelFaqAccordion\Tests\MockWpdb;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Settings_Repository
+ * @covers \Krslys\NextLevelFaqAccordion\Settings_Repository
  */
 class SettingsRepositoryTest extends WpTestCase {
 

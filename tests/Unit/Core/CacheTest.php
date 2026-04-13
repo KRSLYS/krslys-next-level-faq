@@ -2,17 +2,17 @@
 /**
  * Tests for the Cache class.
  *
- * @package Krslys\NextLevelFaq\Tests\Unit\Core
+ * @package Krslys\NextLevelFaqAccordion\Tests\Unit\Core
  */
 
-namespace Krslys\NextLevelFaq\Tests\Unit\Core;
+namespace Krslys\NextLevelFaqAccordion\Tests\Unit\Core;
 
 use Brain\Monkey\Functions;
-use Krslys\NextLevelFaq\Cache;
-use Krslys\NextLevelFaq\Tests\WpTestCase;
+use Krslys\NextLevelFaqAccordion\Cache;
+use Krslys\NextLevelFaqAccordion\Tests\WpTestCase;
 
 /**
- * @covers \Krslys\NextLevelFaq\Cache
+ * @covers \Krslys\NextLevelFaqAccordion\Cache
  */
 class CacheTest extends WpTestCase {
 

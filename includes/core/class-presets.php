@@ -2,10 +2,10 @@
 /**
  * Theme preset registry.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -40,8 +40,8 @@ class Presets {
 			// Minimal — Universal neutral baseline
 			'minimal'  => array(
 				'slug'        => 'minimal',
-				'name'        => __( 'Minimal', 'krslys-next-level-faq' ),
-				'description' => __( 'Clean and subtle. Works with any design.', 'krslys-next-level-faq' ),
+				'name'        => __( 'Minimal', 'krslys-next-level-faq-accordion' ),
+				'description' => __( 'Clean and subtle. Works with any design.', 'krslys-next-level-faq-accordion' ),
 				'values'      => array(
 					'container_background'    => '#ffffff',
 					'container_border_color'  => '#e5e7eb',
@@ -63,8 +63,8 @@ class Presets {
 			// Modern — Individual floating cards
 			'modern'   => array(
 				'slug'        => 'modern',
-				'name'        => __( 'Modern', 'krslys-next-level-faq' ),
-				'description' => __( 'Floating cards with indigo accent and soft elevation.', 'krslys-next-level-faq' ),
+				'name'        => __( 'Modern', 'krslys-next-level-faq-accordion' ),
+				'description' => __( 'Floating cards with indigo accent and soft elevation.', 'krslys-next-level-faq-accordion' ),
 				'values'      => array(
 					'container_background'    => '#ffffff',
 					'container_border_color'  => '#e0e7ff',
@@ -86,8 +86,8 @@ class Presets {
 			// Card — Connected bordered accordion
 			'card'     => array(
 				'slug'        => 'card',
-				'name'        => __( 'Card', 'krslys-next-level-faq' ),
-				'description' => __( 'Stacked connected items with clean borders.', 'krslys-next-level-faq' ),
+				'name'        => __( 'Card', 'krslys-next-level-faq-accordion' ),
+				'description' => __( 'Stacked connected items with clean borders.', 'krslys-next-level-faq-accordion' ),
 				'values'      => array(
 					'container_background'    => '#ffffff',
 					'container_border_color'  => '#d1d5db',
@@ -109,8 +109,8 @@ class Presets {
 			// Outline — Content-first with accent indicator
 			'outline'  => array(
 				'slug'        => 'outline',
-				'name'        => __( 'Outline', 'krslys-next-level-faq' ),
-				'description' => __( 'No borders. Answers marked with left accent bar.', 'krslys-next-level-faq' ),
+				'name'        => __( 'Outline', 'krslys-next-level-faq-accordion' ),
+				'description' => __( 'No borders. Answers marked with left accent bar.', 'krslys-next-level-faq-accordion' ),
 				'values'      => array(
 					'container_background'    => '#ffffff',
 					'container_border_color'  => '#e5e5e5',
@@ -132,8 +132,8 @@ class Presets {
 			// Contrast — Dark surface, warm accent
 			'contrast' => array(
 				'slug'        => 'contrast',
-				'name'        => __( 'Contrast', 'krslys-next-level-faq' ),
-				'description' => __( 'Dark surface with orange accent. Bold statement.', 'krslys-next-level-faq' ),
+				'name'        => __( 'Contrast', 'krslys-next-level-faq-accordion' ),
+				'description' => __( 'Dark surface with orange accent. Bold statement.', 'krslys-next-level-faq-accordion' ),
 				'values'      => array(
 					'container_background'    => '#0f172a',
 					'container_border_color'  => '#1e293b',
