@@ -136,7 +136,6 @@ class Database {
 		// Keep the existing table structure from Repository class
 		$sql = "CREATE TABLE {$table_name} (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			post_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			group_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			position int(11) UNSIGNED NOT NULL DEFAULT 0,
 			question text NOT NULL,
@@ -147,9 +146,10 @@ class Database {
 			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			PRIMARY KEY  (id),
-			KEY post_id (post_id),
 			KEY group_id (group_id),
-			KEY position (position)
+			KEY status (status),
+			KEY group_id_status (group_id, status),
+			KEY group_id_position (group_id, position)
 		) {$charset_collate};";
 
 		dbDelta( $sql );

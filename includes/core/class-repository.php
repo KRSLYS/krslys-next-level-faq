@@ -162,7 +162,6 @@ class Repository {
 		$table = self::get_table_name();
 
 		$data = array(
-			'post_id'       => 0,
 			'group_id'      => max( 0, (int) $group_id ),
 			'position'      => max( 0, (int) $position ),
 			'question'      => wp_kses_post( $question ),
@@ -172,7 +171,7 @@ class Repository {
 			'highlight'     => (int) $highlight,
 		);
 
-		$format = array( '%d', '%d', '%d', '%s', '%s', '%d', '%d', '%d' );
+		$format = array( '%d', '%d', '%s', '%s', '%d', '%d', '%d' );
 
 		if ( $id > 0 ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.

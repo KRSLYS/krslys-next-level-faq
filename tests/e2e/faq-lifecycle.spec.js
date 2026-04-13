@@ -93,7 +93,7 @@ async function deletePage( page, pageId ) {
 }
 
 // ---------------------------------------------------------------------------
-// Tests: FAQ Full Lifecycle
+// Tests: FAQ Lifecycle
 // ---------------------------------------------------------------------------
 
 test.describe( 'FAQ lifecycle', () => {
@@ -114,7 +114,7 @@ test.describe( 'FAQ lifecycle', () => {
 		await expect( page.locator( 'text=E2E Test FAQ' ) ).toBeVisible();
 	} );
 
-	test( 'FAQ renders on frontend page', async ( { page } ) => {
+	test( 'FAQ renders on frontend with correct question', async ( { page } ) => {
 		pageId = await createPage( page, groupId );
 		expect( pageId ).toBeTruthy();
 
@@ -123,29 +123,90 @@ test.describe( 'FAQ lifecycle', () => {
 		await expect( page.locator( '.nlf-faq__question' ).first() ).toContainText( 'What is 1+1?' );
 	} );
 
-	test( 'clicking question shows answer', async ( { page } ) => {
+	test( 'click opens answer, click again closes it', async ( { page } ) => {
 		await page.goto( `/?page_id=${ pageId }` );
 
 		const question = page.locator( '.nlf-faq__question' ).first();
 		const item = page.locator( '.nlf-faq__item' ).first();
+		const answer = page.locator( '.nlf-faq__answer' ).first();
+
+		// Open.
+		await question.click();
+		await expect( item ).toHaveClass( /is-open/ );
+		await expect( answer ).toContainText( 'It is 2.' );
+
+		// Close.
+		await question.click();
+		await expect( item ).not.toHaveClass( /is-open/ );
+	} );
+} );
+
+// ---------------------------------------------------------------------------
+// Tests: Accordion Lifecycle (same UI, different type)
+// ---------------------------------------------------------------------------
+
+test.describe( 'Accordion lifecycle', () => {
+	let groupId;
+	let pageId;
+
+	test.afterAll( async ( { page } ) => {
+		await deletePage( page, pageId );
+	} );
+
+	test( 'admin can create an Accordion group', async ( { page } ) => {
+		// Navigate to accordion groups page to get the correct nonce/type.
+		await ensureLoggedIn( page );
+		await page.goto( '/wp-admin/admin.php?page=nlf-accordion-groups&action=new' );
+
+		groupId = await page.evaluate( async ( { t, q, a } ) => {
+			const form = new FormData();
+			form.append( 'action', 'nlf_faq_save_group' );
+			form.append( 'nlf_faq_group_nonce', document.querySelector( '[name="nlf_faq_group_nonce"]' )?.value || '' );
+			form.append( 'nlf_group_title', t );
+			form.append( 'nlf_faq_group_type', 'accordion' );
+			form.append( 'nlf_faq_group_question[]', q );
+			form.append( 'nlf_faq_group_answer[]', a );
+			form.append( 'nlf_faq_group_status[]', '1' );
+			form.append( 'nlf_faq_group_item_id[]', '0' );
+
+			const res = await fetch( '/wp-admin/admin-ajax.php', {
+				method: 'POST',
+				credentials: 'same-origin',
+				body: form,
+			} );
+			const json = await res.json();
+			return json.success ? json.data.group_id : null;
+		}, { t: 'E2E Test Accordion', q: 'How does it work?', a: 'Click to expand.' } );
+
+		expect( groupId ).toBeTruthy();
+	} );
+
+	test( 'Accordion group appears in admin list', async ( { page } ) => {
+		await page.goto( '/wp-admin/admin.php?page=nlf-accordion-groups' );
+		await expect( page.locator( 'text=E2E Test Accordion' ) ).toBeVisible();
+	} );
+
+	test( 'Accordion renders on frontend with correct content', async ( { page } ) => {
+		pageId = await createPage( page, groupId );
+		expect( pageId ).toBeTruthy();
+
+		await page.goto( `/?page_id=${ pageId }` );
+		await expect( page.locator( '.nlf-faq' ) ).toBeVisible();
+		await expect( page.locator( '.nlf-faq__question' ).first() ).toContainText( 'How does it work?' );
+	} );
+
+	test( 'Accordion click opens and closes content', async ( { page } ) => {
+		await page.goto( `/?page_id=${ pageId }` );
+
+		const question = page.locator( '.nlf-faq__question' ).first();
+		const item = page.locator( '.nlf-faq__item' ).first();
+		const answer = page.locator( '.nlf-faq__answer' ).first();
 
 		await question.click();
 		await expect( item ).toHaveClass( /is-open/ );
+		await expect( answer ).toContainText( 'Click to expand.' );
 
-		const answer = page.locator( '.nlf-faq__answer' ).first();
-		await expect( answer ).toContainText( 'It is 2.' );
-	} );
-
-	test( 'clicking again closes the answer', async ( { page } ) => {
-		await page.goto( `/?page_id=${ pageId }` );
-
-		const question = page.locator( '.nlf-faq__question' ).first();
-		const item = page.locator( '.nlf-faq__item' ).first();
-
-		await question.click(); // open
-		await expect( item ).toHaveClass( /is-open/ );
-
-		await question.click(); // close
+		await question.click();
 		await expect( item ).not.toHaveClass( /is-open/ );
 	} );
 } );
