@@ -33,7 +33,11 @@ async function createGroup( page, title, question, answer, type ) {
 
 	const groupId = await page.evaluate( async ( { t, q, a, tp } ) => {
 		const nonceEl = document.querySelector( '[name="nlf_faq_group_nonce"]' );
-		if ( ! nonceEl ) return null;
+		if ( ! nonceEl ) {
+			// Debug: log what's on the page so CI failures are diagnosable.
+			console.error( 'Nonce field not found. Page title:', document.title, 'URL:', location.href );
+			return null;
+		}
 
 		const form = new FormData();
 		form.append( 'action', 'nlf_faq_save_group' );

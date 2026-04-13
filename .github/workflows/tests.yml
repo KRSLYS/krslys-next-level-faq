@@ -85,8 +85,12 @@ jobs:
           ln -s "$GITHUB_WORKSPACE" wordpress/wp-content/plugins/krslys-next-level-faq-accordion
           wp plugin activate krslys-next-level-faq-accordion --path=wordpress
 
-      - name: Start PHP server
-        run: php -S localhost:8080 -t wordpress &
+      - name: Start WordPress server
+        run: |
+          cd wordpress
+          wp server --host=0.0.0.0 --port=8080 &
+          sleep 3
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ || true
 
       - name: Install Playwright browsers
         run: npx playwright install chromium
