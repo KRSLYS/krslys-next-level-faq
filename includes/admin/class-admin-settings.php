@@ -174,93 +174,102 @@ class Admin_Settings {
 
 		$faq_count       = \Krslys\NextLevelFaqAccordion\Groups_Repository::count_groups( null, 'faq' );
 		$accordion_count = \Krslys\NextLevelFaqAccordion\Groups_Repository::count_groups( null, 'accordion' );
+		$total_items     = (int) $faq_count + (int) $accordion_count;
 		$groups_url      = admin_url( 'admin.php?page=nlf-faq-groups' );
 		$accordion_url   = admin_url( 'admin.php?page=nlf-accordion-groups' );
 		$tools_url       = admin_url( 'admin.php?page=' . self::TOOLS_SLUG );
+
+		$schema_enabled = Settings_Repository::get_setting( Settings_Repository::KEY_SCHEMA_MARKUP, true );
+		$settings_saved = isset( $_GET['settings-saved'] ) && '1' === $_GET['settings-saved']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice.
 		?>
 		<div class="wrap nlf-faq-admin nlf-faq-dashboard">
 
-			<div class="nlf-dashboard-hero">
-				<span class="dashicons dashicons-editor-help nlf-dashboard-hero__icon"></span>
-				<h1 class="nlf-dashboard-hero__title"><?php esc_html_e( 'Next Level FAQ & Accordion', 'krslys-next-level-faq-accordion' ); ?></h1>
-				<p class="nlf-dashboard-hero__desc"><?php esc_html_e( 'Flexible FAQ and Accordion plugin with customizable styling and live preview.', 'krslys-next-level-faq-accordion' ); ?></p>
+			<!-- Hero -->
+			<div class="nlf-dash-hero">
+				<div class="nlf-dash-hero__content">
+					<h1><?php esc_html_e( 'Next Level FAQ & Accordion', 'krslys-next-level-faq-accordion' ); ?></h1>
+					<p><?php esc_html_e( 'Flexible FAQ and Accordion plugin with customizable styling, schema markup, and live preview.', 'krslys-next-level-faq-accordion' ); ?></p>
+				</div>
+				<div class="nlf-dash-hero__stats">
+					<div class="nlf-dash-stat">
+						<span class="nlf-dash-stat__number"><?php echo esc_html( $faq_count ); ?></span>
+						<span class="nlf-dash-stat__label"><?php esc_html_e( 'FAQ Groups', 'krslys-next-level-faq-accordion' ); ?></span>
+					</div>
+					<div class="nlf-dash-stat">
+						<span class="nlf-dash-stat__number"><?php echo esc_html( $accordion_count ); ?></span>
+						<span class="nlf-dash-stat__label"><?php esc_html_e( 'Accordions', 'krslys-next-level-faq-accordion' ); ?></span>
+					</div>
+				</div>
 			</div>
 
-			<div class="nlf-dashboard-cards">
+			<?php if ( $settings_saved ) : ?>
+				<div class="notice notice-success is-dismissible" style="margin: 0 0 24px; border-radius: 8px;"><p><?php esc_html_e( 'Settings saved.', 'krslys-next-level-faq-accordion' ); ?></p></div>
+			<?php endif; ?>
 
-				<a href="<?php echo esc_url( $groups_url ); ?>" class="nlf-dashboard-card">
-					<span class="dashicons dashicons-editor-help nlf-dashboard-card__icon"></span>
-					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'FAQ Groups', 'krslys-next-level-faq-accordion' ); ?></h2>
-					<p class="nlf-dashboard-card__meta">
-						<?php
-						printf(
-							/* translators: %d: number of FAQ groups */
-							esc_html( _n( '%d group', '%d groups', $faq_count, 'krslys-next-level-faq-accordion' ) ),
-							(int) $faq_count
-						);
-						?>
-					</p>
-					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'krslys-next-level-faq-accordion' ); ?></p>
+			<!-- Quick Actions -->
+			<div class="nlf-dash-grid">
+				<a href="<?php echo esc_url( $groups_url ); ?>" class="nlf-dash-card">
+					<div class="nlf-dash-card__icon nlf-dash-card__icon--blue">
+						<span class="dashicons dashicons-editor-help"></span>
+					</div>
+					<div class="nlf-dash-card__body">
+						<h3><?php esc_html_e( 'FAQ Groups', 'krslys-next-level-faq-accordion' ); ?></h3>
+						<p><?php esc_html_e( 'Create and manage your FAQ groups and questions.', 'krslys-next-level-faq-accordion' ); ?></p>
+					</div>
+					<span class="nlf-dash-card__arrow dashicons dashicons-arrow-right-alt2"></span>
 				</a>
 
-				<a href="<?php echo esc_url( $accordion_url ); ?>" class="nlf-dashboard-card">
-					<span class="dashicons dashicons-list-view nlf-dashboard-card__icon"></span>
-					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Accordion Groups', 'krslys-next-level-faq-accordion' ); ?></h2>
-					<p class="nlf-dashboard-card__meta">
-						<?php
-						printf(
-							/* translators: %d: number of accordion groups */
-							esc_html( _n( '%d group', '%d groups', $accordion_count, 'krslys-next-level-faq-accordion' ) ),
-							(int) $accordion_count
-						);
-						?>
-					</p>
-					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Create and manage your accordion sections.', 'krslys-next-level-faq-accordion' ); ?></p>
+				<a href="<?php echo esc_url( $accordion_url ); ?>" class="nlf-dash-card">
+					<div class="nlf-dash-card__icon nlf-dash-card__icon--indigo">
+						<span class="dashicons dashicons-list-view"></span>
+					</div>
+					<div class="nlf-dash-card__body">
+						<h3><?php esc_html_e( 'Accordion Groups', 'krslys-next-level-faq-accordion' ); ?></h3>
+						<p><?php esc_html_e( 'Create and manage your collapsible content sections.', 'krslys-next-level-faq-accordion' ); ?></p>
+					</div>
+					<span class="nlf-dash-card__arrow dashicons dashicons-arrow-right-alt2"></span>
 				</a>
 
-				<a href="<?php echo esc_url( $tools_url ); ?>" class="nlf-dashboard-card">
-					<span class="dashicons dashicons-admin-tools nlf-dashboard-card__icon"></span>
-					<h2 class="nlf-dashboard-card__title"><?php esc_html_e( 'Tools', 'krslys-next-level-faq-accordion' ); ?></h2>
-					<p class="nlf-dashboard-card__desc"><?php esc_html_e( 'Import and export your FAQ data for backup or migration.', 'krslys-next-level-faq-accordion' ); ?></p>
+				<a href="<?php echo esc_url( $tools_url ); ?>" class="nlf-dash-card">
+					<div class="nlf-dash-card__icon nlf-dash-card__icon--emerald">
+						<span class="dashicons dashicons-admin-tools"></span>
+					</div>
+					<div class="nlf-dash-card__body">
+						<h3><?php esc_html_e( 'Import & Export', 'krslys-next-level-faq-accordion' ); ?></h3>
+						<p><?php esc_html_e( 'Backup, migrate, or restore your FAQ data.', 'krslys-next-level-faq-accordion' ); ?></p>
+					</div>
+					<span class="nlf-dash-card__arrow dashicons dashicons-arrow-right-alt2"></span>
 				</a>
-
 			</div>
 
-			<?php
-			$schema_enabled = Settings_Repository::get_setting( Settings_Repository::KEY_SCHEMA_MARKUP, true );
-			$settings_saved = isset( $_GET['settings-saved'] ) && '1' === $_GET['settings-saved']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only notice.
-			?>
-			<div class="nlf-dashboard-settings">
+			<!-- Settings -->
+			<div class="nlf-dash-section">
 				<h2><?php esc_html_e( 'Settings', 'krslys-next-level-faq-accordion' ); ?></h2>
-
-				<?php if ( $settings_saved ) : ?>
-					<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'krslys-next-level-faq-accordion' ); ?></p></div>
-				<?php endif; ?>
-
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="nlf-dash-settings-form">
 					<?php wp_nonce_field( 'nlf_faq_save_settings', 'nlf_settings_nonce' ); ?>
 					<input type="hidden" name="action" value="nlf_faq_save_settings" />
-
-					<table class="form-table" role="presentation">
-						<tr>
-							<th scope="row">
-								<?php esc_html_e( 'FAQPage Schema Markup', 'krslys-next-level-faq-accordion' ); ?>
-							</th>
-							<td>
-								<label>
-									<input type="checkbox" name="nlf_enable_schema_markup" value="1" <?php checked( $schema_enabled ); ?> />
-									<?php esc_html_e( 'Enable FAQPage structured data (JSON-LD)', 'krslys-next-level-faq-accordion' ); ?>
-								</label>
-								<p class="description">
-									<?php esc_html_e( 'Adds schema.org/FAQPage structured data to help search engines display rich results for your FAQ sections.', 'krslys-next-level-faq-accordion' ); ?>
-								</p>
-							</td>
-						</tr>
-					</table>
-
-					<?php submit_button( __( 'Save Settings', 'krslys-next-level-faq-accordion' ) ); ?>
+					<label class="nlf-dash-toggle">
+						<input type="checkbox" name="nlf_enable_schema_markup" value="1" <?php checked( $schema_enabled ); ?> />
+						<span class="nlf-dash-toggle__text">
+							<strong><?php esc_html_e( 'FAQPage Schema Markup', 'krslys-next-level-faq-accordion' ); ?></strong>
+							<span><?php esc_html_e( 'Adds JSON-LD structured data for Google rich results on FAQ pages.', 'krslys-next-level-faq-accordion' ); ?></span>
+						</span>
+					</label>
+					<?php submit_button( __( 'Save Settings', 'krslys-next-level-faq-accordion' ), 'primary', 'submit', false ); ?>
 				</form>
 			</div>
+
+			<!-- More Tools (Soon) -->
+			<div class="nlf-dash-section">
+				<div class="nlf-dash-section__header">
+					<h2><?php esc_html_e( 'More Tools', 'krslys-next-level-faq-accordion' ); ?></h2>
+					<p><?php esc_html_e( 'Powerful utilities coming in future updates.', 'krslys-next-level-faq-accordion' ); ?></p>
+				</div>
+				<?php self::render_upcoming_cards(); ?>
+			</div>
+
+			<!-- Pro Features -->
+			<?php self::render_pro_cards(); ?>
 
 		</div>
 		<?php
@@ -528,11 +537,10 @@ class Admin_Settings {
 			array( 'dashicons-image-rotate', __( 'Reset', 'krslys-next-level-faq-accordion' ), __( 'Selectively reset FAQ data, styles, or all plugin settings at once.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-chart-bar', __( 'Diagnostics', 'krslys-next-level-faq-accordion' ), __( 'Analyze your FAQ setup and get optimization suggestions.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-sort', __( 'Bulk Sort', 'krslys-next-level-faq-accordion' ), __( 'Drag-and-drop reordering for items across multiple groups.', 'krslys-next-level-faq-accordion' ) ),
-			array( 'dashicons-admin-page', __( 'Duplicate Group', 'krslys-next-level-faq-accordion' ), __( 'Clone any group with all its items, theme, and settings.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-art', __( '+10 Theme Presets', 'krslys-next-level-faq-accordion' ), __( 'More professionally designed themes to choose from out of the box.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-shortcode', __( 'Shortcode Builder', 'krslys-next-level-faq-accordion' ), __( 'Visual shortcode generator with live preview and copy-to-clipboard.', 'krslys-next-level-faq-accordion' ) ),
-			array( 'dashicons-code-standards', __( 'Custom CSS Editor', 'krslys-next-level-faq-accordion' ), __( 'Write custom CSS per group with syntax highlighting.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-welcome-widgets-menus', __( 'FAQ Widget', 'krslys-next-level-faq-accordion' ), __( 'Display FAQ groups in sidebars and widget areas.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-chart-area', __( 'Analytics Dashboard', 'krslys-next-level-faq-accordion' ), __( 'Visual stats for question opens, popular items, and interaction trends.', 'krslys-next-level-faq-accordion' ) ),
 		);
 		?>
 		<div class="nlf-tools-grid">
@@ -563,11 +571,10 @@ class Admin_Settings {
 	 */
 	private static function render_pro_cards() {
 		$cards = array(
-			array( 'dashicons-chart-area', __( 'Analytics Dashboard', 'krslys-next-level-faq-accordion' ), __( 'Track which questions users click the most, with open/close rates and trends.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-media-text', __( 'Rich Media Answers', 'krslys-next-level-faq-accordion' ), __( 'Embed images, videos, and shortcodes inside your answers.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-category', __( 'Categories & Tags', 'krslys-next-level-faq-accordion' ), __( 'Organize items with categories and tags, filter on the frontend.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-lock', __( 'Conditional Logic', 'krslys-next-level-faq-accordion' ), __( 'Show or hide FAQ items based on user role, page, or custom conditions.', 'krslys-next-level-faq-accordion' ) ),
-			array( 'dashicons-search', __( 'AJAX Live Search', 'krslys-next-level-faq-accordion' ), __( 'Global FAQ search across all groups with instant results and highlighting.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-search', __( 'Advanced Live Search', 'krslys-next-level-faq-accordion' ), __( 'Global search across all groups with AJAX, highlighting, and autocomplete.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-randomize', __( 'Multi-step Accordion', 'krslys-next-level-faq-accordion' ), __( 'Nested accordions with parent-child hierarchy for complex content.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-thumbs-up', __( 'Voting & Feedback', 'krslys-next-level-faq-accordion' ), __( 'Let visitors rate answers with thumbs up/down to improve your FAQ.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-rest-api', __( 'REST API', 'krslys-next-level-faq-accordion' ), __( 'Full REST API for headless WordPress and external integrations.', 'krslys-next-level-faq-accordion' ) ),
