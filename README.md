@@ -1,28 +1,6 @@
-# Next Level FAQ
+# Next Level FAQ & Accordion
 
-A lightweight, professional FAQ plugin for WordPress with a focus on design flexibility.
-Create and manage FAQ groups, configure styles and layouts from a dedicated admin interface,
-and embed them anywhere using a shortcode or Gutenberg block.
-
----
-
-## Development Status
-
-> **Pre-release — not yet publicly available.**
->
-> This plugin has not been published to WordPress.org or distributed in any other form.
-> There are no active installations and no production user data.
->
-> **What this means for development:**
->
-> - No backward compatibility constraints apply.
-> - Database schema, option names, hook names, and public APIs can be changed freely.
-> - Deprecation notices, migration helpers, and legacy shims are not required.
-> - Breaking changes can be made without a major version bump.
-> - All architectural decisions should be made on merit alone — never to preserve
->   compatibility with code that was never shipped.
->
-> This notice will be removed when a stable public version is released.
+A lightweight, professional FAQ and Accordion plugin for WordPress with customizable styling, schema markup, and Gutenberg block support.
 
 ---
 
@@ -34,12 +12,30 @@ and embed them anywhere using a shortcode or Gutenberg block.
 
 ---
 
-## Installation (Development)
+## Installation
 
-1. Clone or copy the `krslys-next-level-faq` folder into `wp-content/plugins/`.
+1. Clone or copy the `krslys-next-level-faq-accordion` folder into `wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** screen in WordPress admin.
 3. On activation the plugin creates its custom database tables automatically.
 4. Navigate to **FAQs** in the admin menu to get started.
+
+---
+
+## Features
+
+- **FAQ Groups** — organize questions into named groups with their own theme and display settings.
+- **Accordion Groups** — collapsible content sections with the same powerful styling options.
+- **FAQPage Schema Markup** — automatic JSON-LD structured data for Google rich results.
+- **Live Style Preview** — see your changes before saving, rendered entirely in the browser.
+- **Theme Presets** — 5 built-in presets: flat, cards, bordered, clean, and striped.
+- **Full Design Control** — customize colors, spacing, borders, and animations per group.
+- **Gutenberg Blocks** — native blocks for both FAQ and Accordion in the block editor.
+- **Shortcode Support** — use `[krslys_nlfa group="ID"]` anywhere.
+- **Accessibility (WCAG 2.1 AA)** — semantic `<button>` elements, ARIA attributes, keyboard navigation.
+- **RTL Ready** — automatic right-to-left language support via `dir="auto"`.
+- **Import / Export** — backup and migrate FAQ and Accordion groups as JSON.
+- **Custom Capability** — `manage_krslys_nlfa` for delegating FAQ management without full admin access.
+- **Conditional Asset Loading** — CSS/JS only load on pages with FAQ or Accordion content.
 
 ---
 
@@ -49,61 +45,41 @@ The plugin uses dedicated custom tables — it does **not** use `wp_posts` or `w
 
 | Table | Purpose |
 |---|---|
-| `{prefix}krslys_nlfa_groups` | FAQ groups with JSON theme and display settings |
+| `{prefix}krslys_nlfa_groups` | FAQ/Accordion groups with JSON theme and display settings |
 | `{prefix}krslys_nlfa_items` | Individual questions and answers, linked to groups |
-| `{prefix}krslys_nlfa_settings` | Global plugin configuration stored as JSON |
+| `{prefix}krslys_nlfa_settings` | Plugin settings stored as JSON key-value pairs |
 
-Classes follow PSR-4 autoloading under the `Krslys\NextLevelFaq` namespace.
+Classes follow PSR-4 autoloading under the `Krslys\NextLevelFaqAccordion` namespace.
 Each subsystem (Database, Admin, Frontend, Blocks, Styles) registers its own WordPress
-hooks through a static `init()` method — the main plugin class only boots subsystems.
+hooks through a static `init()` method.
 
 ---
 
 ## Usage
 
-### Creating FAQ Groups
+### Creating Groups
 
-1. Go to **FAQs → FAQ Groups** in the WordPress admin.
-2. Click **Add New FAQ Group**.
-3. In the **Content** tab, add questions and answers.
+1. Go to **FAQs → FAQ Groups** (or **Accordion Groups**) in the WordPress admin.
+2. Click **Add New**.
+3. In the **Content** tab, add questions and answers (or titles and content for accordions).
 4. In the **Appearance** tab, choose a theme preset or configure custom colors.
 5. Click **Save**.
 
 ### Embedding a Group
 
-Use the shortcode with the group ID:
-
+**Shortcode:**
 ```
 [krslys_nlfa group="1"]
 ```
 
-Or in PHP templates:
-
+**PHP template:**
 ```php
 echo do_shortcode( '[krslys_nlfa group="1"]' );
 ```
 
-The group ID is shown on the FAQ Groups list page and in the **How To Use** sidebar
-after saving a group.
+**Gutenberg:** Use the "Next Level FAQ" or "Next Level Accordion" blocks.
 
----
-
-## Styling System
-
-- Each FAQ group stores its own theme settings (preset + optional color overrides) as JSON.
-- The `Style_Generator` class compiles these settings into CSS custom properties at render time.
-- A separate `NLF_FAQ_CSS_VERSION` constant controls CSS asset cache-busting independently
-  of the plugin version — CSS caches are only invalidated when styles actually change.
-
-### Available Theme Presets
-
-| Slug | Description |
-|---|---|
-| `default` | Clean flat layout, plus/minus icons |
-| `cards` | Elevated card style |
-| `bordered` | Left-border accent |
-| `clean` | Minimal, no borders |
-| `striped` | Alternating row backgrounds |
+The group ID is shown on the groups list page and in the **How To Use** sidebar after saving.
 
 ---
 
@@ -111,26 +87,56 @@ after saving a group.
 
 ```
 FAQs  (Dashboard)
-  ├── Dashboard        — Overview with links to main sections
-  ├── FAQ Groups       — Create, edit, and manage FAQ groups
-  ├── Style & Layout   — Global style defaults and presets
-  └── Tools            — Import / export
+  ├── Dashboard          — Overview, stats, settings, upcoming features
+  ├── FAQ Groups         — Create, edit, and manage FAQ groups
+  ├── Accordion Groups   — Create, edit, and manage accordion sections
+  └── Tools              — Import / export data
 ```
 
 ---
 
-## Gutenberg Block
+## Theme Presets
 
-A `block.json` block (`next-level-faq/faq-group`) is registered for embedding groups
-in the block editor. The same CSS custom properties used by the shortcode apply to
-the block, ensuring visual consistency.
+| Slug | Description |
+|---|---|
+| `minimal` | Clean flat layout, plus/minus icons |
+| `modern` | Elevated card style |
+| `card` | Bordered card layout |
+| `outline` | Left-border accent |
+| `contrast` | High contrast with striped rows |
 
 ---
 
-## Development Notes
+## Development
 
-- Run `npm install && npm run build` to compile block assets.
-- PHP coding standards: WordPress ruleset via `phpcs`.
-- All AJAX save operations go through `wp_ajax_nlf_save_faq_group_ajax`.
-- The live preview in the group editor is rendered entirely client-side from the current
-  form state — no AJAX round-trip is made for preview updates.
+### Build
+
+```bash
+npm install
+npm run build
+```
+
+### Tests
+
+```bash
+# PHP unit tests
+composer install
+vendor/bin/phpunit
+
+# E2E tests (requires WordPress + WP-CLI)
+npx playwright install chromium
+npx playwright test
+```
+
+### Coding Standards
+
+- PHP: WordPress ruleset via `phpcs`
+- JS: WordPress JS coding standards
+- All AJAX operations go through `wp_ajax_nlf_save_faq_group_ajax`
+- Live preview in the group editor is rendered client-side — no AJAX round-trip
+
+---
+
+## License
+
+GPL-2.0-or-later
