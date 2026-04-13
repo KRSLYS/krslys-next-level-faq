@@ -1415,11 +1415,14 @@ class Admin_Settings {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling method.
-		$value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+		$value = wp_unslash( $_POST[ $key ] );
 
+		// Handle array values (e.g. checkboxes with [] names).
 		if ( is_array( $value ) ) {
 			$value = reset( $value );
 		}
+
+		$value = sanitize_text_field( $value );
 
 		// Use filter_var for proper boolean validation.
 		$validated = filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );

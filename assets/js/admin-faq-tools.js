@@ -5,7 +5,7 @@
 	var expScope  = document.getElementById('nlf-faq-export-scope');
 	var expGlobal = document.getElementById('nlf-export-global-opts');
 	var expHint   = document.getElementById('nlf-export-group-hint');
-	if(expScope){
+	if(expScope && expGlobal && expHint){
 		expScope.addEventListener('change',function(){
 			var isAll = this.value === 'all';
 			expGlobal.style.display = isAll ? '' : 'none';
@@ -18,7 +18,7 @@
 	var impGroupOps  = document.getElementById('nlf-import-group-opts');
 	var impReplaceOp = document.getElementById('nlf-import-replace-opt');
 	var impDupHint   = document.getElementById('nlf-import-duplicate-hint');
-	if(impTarget){
+	if(impTarget && impGroupOps && impReplaceOp && impDupHint){
 		impTarget.addEventListener('change',function(){
 			var v = this.value;
 			var isGroup = v !== 'all' && v !== 'duplicate';
@@ -45,7 +45,7 @@
 	}
 
 	function showFileInfo() {
-		if (fileInp.files && fileInp.files.length) {
+		if (fileInp && fileInp.files && fileInp.files.length && fileName && fileSize && zone && fileInfo) {
 			var f = fileInp.files[0];
 			fileName.textContent = f.name;
 			fileSize.textContent = formatBytes(f.size);
@@ -55,9 +55,9 @@
 	}
 
 	function clearFile() {
-		fileInp.value = '';
-		zone.style.display = '';
-		fileInfo.classList.remove('is-visible');
+		if (fileInp) fileInp.value = '';
+		if (zone) zone.style.display = '';
+		if (fileInfo) fileInfo.classList.remove('is-visible');
 	}
 
 	if (fileInp) {

@@ -430,7 +430,7 @@ class Groups_Repository {
 	 * @param int $id Group ID.
 	 * @return array Full state array ready for JSON encoding, or defaults for new group.
 	 */
-	public static function get_full_group_state( $id = 0 ) {
+	public static function get_full_group_state( $id = 0, $type = 'faq' ) {
 		$defaults = array(
 			'id'               => 0,
 			'title'            => '',
@@ -455,7 +455,7 @@ class Groups_Repository {
 			),
 			'custom_styles'    => Options::get_defaults(),
 			'use_custom_style' => false,
-			'type'             => 'faq',
+			'type'             => in_array( $type, array( 'faq', 'accordion' ), true ) ? $type : 'faq',
 			'status'           => 'active',
 			'items'            => array(),
 		);

@@ -284,7 +284,7 @@ class Group_Admin {
 		$group_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 		$type     = isset( $_GET['type'] ) ? sanitize_key( $_GET['type'] ) : 'faq'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		$state = Groups_Repository::get_full_group_state( $group_id );
+		$state = Groups_Repository::get_full_group_state( $group_id, $type );
 
 		if ( 'accordion' === $type ) {
 			$page_title = $group_id ? __( 'Edit Accordion Group', 'krslys-next-level-faq-accordion' ) : __( 'Add New Accordion Group', 'krslys-next-level-faq-accordion' );
@@ -1452,7 +1452,7 @@ class Group_Admin {
 	/**
 	 * Render Settings fields.
 	 *
-	 * @param array $settings Group settings.
+	 * @param string $type Content type ('faq' or 'accordion').
 	 */
 	private static function render_settings_fields( $type = 'faq' ) {
 		$is_accordion = 'accordion' === $type;
