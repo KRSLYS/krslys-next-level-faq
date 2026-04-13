@@ -12,17 +12,17 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 }
-if ( ! defined( 'NLF_FAQ_VERSION' ) ) {
-	define( 'NLF_FAQ_VERSION', '1.0.0' );
+if ( ! defined( 'KRSLYS_NLFA_VERSION' ) ) {
+	define( 'KRSLYS_NLFA_VERSION', '1.0.0' );
 }
-if ( ! defined( 'NLF_FAQ_CSS_VERSION' ) ) {
-	define( 'NLF_FAQ_CSS_VERSION', '1.0.0' );
+if ( ! defined( 'KRSLYS_NLFA_CSS_VERSION' ) ) {
+	define( 'KRSLYS_NLFA_CSS_VERSION', '1.0.0' );
 }
-if ( ! defined( 'NLF_FAQ_PLUGIN_DIR' ) ) {
-	define( 'NLF_FAQ_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
+if ( ! defined( 'KRSLYS_NLFA_PLUGIN_DIR' ) ) {
+	define( 'KRSLYS_NLFA_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
 }
-if ( ! defined( 'NLF_FAQ_PLUGIN_URL' ) ) {
-	define( 'NLF_FAQ_PLUGIN_URL', 'http://example.com/wp-content/plugins/krslys-next-level-faq-accordion/' );
+if ( ! defined( 'KRSLYS_NLFA_PLUGIN_URL' ) ) {
+	define( 'KRSLYS_NLFA_PLUGIN_URL', 'http://example.com/wp-content/plugins/krslys-next-level-faq-accordion/' );
 }
 
 // ---------------------------------------------------------------------------

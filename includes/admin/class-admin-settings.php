@@ -158,7 +158,7 @@ class Admin_Settings {
 			'nlf-faq-admin',
 			krslys_nlfa_asset_url( 'assets/css/admin-faq-style.css' ),
 			array(),
-			NLF_FAQ_CSS_VERSION
+			KRSLYS_NLFA_CSS_VERSION
 		);
 	}
 
@@ -505,7 +505,7 @@ class Admin_Settings {
 			'nlf-faq-admin-tools',
 			krslys_nlfa_asset_url( 'assets/js/admin-faq-tools.js' ),
 			array(),
-			NLF_FAQ_VERSION,
+			KRSLYS_NLFA_VERSION,
 			true
 		);
 		?>
@@ -659,7 +659,7 @@ class Admin_Settings {
 		$payload = array(
 			'meta' => array(
 				'schema'         => 'nlf-faq-tools.v1',
-				'plugin_version'  => NLF_FAQ_VERSION,
+				'plugin_version'  => KRSLYS_NLFA_VERSION,
 				'schema_version'  => Database::get_schema_version(),
 				'site_url'       => home_url(),
 				'generated_at'   => gmdate( 'c' ),

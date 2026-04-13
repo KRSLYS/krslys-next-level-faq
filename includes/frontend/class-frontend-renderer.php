@@ -77,7 +77,7 @@ class Frontend_Renderer {
 			'nlf-faq-frontend',
 			krslys_nlfa_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
-			NLF_FAQ_VERSION,
+			KRSLYS_NLFA_VERSION,
 			true
 		);
 

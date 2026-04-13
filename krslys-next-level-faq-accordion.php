@@ -22,20 +22,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'NLF_FAQ_VERSION', '1.0.0' );
-define( 'NLF_FAQ_CSS_VERSION', '1.0.0' );
-define( 'NLF_FAQ_PLUGIN_FILE', __FILE__ );
-define( 'NLF_FAQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'NLF_FAQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'KRSLYS_NLFA_VERSION', '1.0.0' );
+define( 'KRSLYS_NLFA_CSS_VERSION', '1.0.0' );
+define( 'KRSLYS_NLFA_PLUGIN_FILE', __FILE__ );
+define( 'KRSLYS_NLFA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'KRSLYS_NLFA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Load PSR-4 autoloader.
-require_once NLF_FAQ_PLUGIN_DIR . 'includes/Autoloader.php';
+require_once KRSLYS_NLFA_PLUGIN_DIR . 'includes/Autoloader.php';
 
 // Load global helper functions.
-require_once NLF_FAQ_PLUGIN_DIR . 'includes/core/functions.php';
+require_once KRSLYS_NLFA_PLUGIN_DIR . 'includes/core/functions.php';
 
 // Initialize autoloader.
-$krslys_nlfa_autoloader = new \Krslys\NextLevelFaqAccordion\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
+$krslys_nlfa_autoloader = new \Krslys\NextLevelFaqAccordion\Autoloader( KRSLYS_NLFA_PLUGIN_DIR . 'includes' );
 $krslys_nlfa_autoloader->register();
 
 /**
@@ -102,7 +102,7 @@ final class Krslys_NextLevelFaqAccordion_Plugin {
 }
 
 // Activation hook (must be registered at file load, before plugins_loaded).
-register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( 'Krslys_NextLevelFaqAccordion_Plugin', 'activate' ) );
+register_activation_hook( KRSLYS_NLFA_PLUGIN_FILE, array( 'Krslys_NextLevelFaqAccordion_Plugin', 'activate' ) );
 
 /**
  * Return the main plugin instance.
