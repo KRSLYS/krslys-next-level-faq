@@ -14,7 +14,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Krslys\\NextLevelFaq\\Tests\\": "tests/"
+            "Krslys\\NextLevelFaqAccordion\\Tests\\": "tests/"
         }
     },
     "scripts": {
