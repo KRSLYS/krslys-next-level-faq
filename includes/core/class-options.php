@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Options {
 
-	const OPTION_KEY = 'nlf_faq_style_options';
+	const OPTION_KEY = 'krslys_nlfa_style_options';
 
 	/**
 	 * Get preset registry.

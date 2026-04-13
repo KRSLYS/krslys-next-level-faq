@@ -33,10 +33,10 @@ class Style_Generator {
 	 * Regenerate CSS if the plugin version changed.
 	 */
 	public static function maybe_regenerate_css() {
-		$css_version = get_option( 'nlf_faq_css_version', '' );
+		$css_version = Settings_Repository::get_setting( 'css_version', '' );
 		if ( NLF_FAQ_CSS_VERSION !== $css_version ) {
 			if ( self::generate_and_save() ) {
-				update_option( 'nlf_faq_css_version', NLF_FAQ_CSS_VERSION );
+				Settings_Repository::update_setting( 'css_version', NLF_FAQ_CSS_VERSION );
 			}
 		}
 	}

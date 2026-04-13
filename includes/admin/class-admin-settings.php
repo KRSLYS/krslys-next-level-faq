@@ -56,7 +56,7 @@ class Admin_Settings {
 	 * @return bool
 	 */
 	public static function current_user_can_manage() {
-		return current_user_can( self::CAPABILITY ) || self::current_user_can_manage();
+		return current_user_can( self::CAPABILITY ) || current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -724,9 +724,12 @@ class Admin_Settings {
 					? sprintf( __( '%s (Copy)', 'krslys-next-level-faq-accordion' ), $original_title )
 					: __( 'Imported Group (Copy)', 'krslys-next-level-faq-accordion' );
 
+				$original_type = isset( $data['meta']['type'] ) ? sanitize_key( $data['meta']['type'] ) : 'faq';
+
 				$new_group_id = Groups_Repository::create_group(
 					array(
 						'title'  => $new_title,
+						'type'   => $original_type,
 						'status' => 'draft',
 					)
 				);
@@ -793,6 +796,7 @@ class Admin_Settings {
 
 					$create_data = array(
 						'title'  => $new_title,
+						'type'   => isset( $group_meta['type'] ) ? sanitize_key( $group_meta['type'] ) : 'faq',
 						'status' => 'draft',
 					);
 

@@ -71,8 +71,8 @@ class Database {
 	public static function create_tables( $force = false ) {
 		$current_version = get_option( 'krslys_nlfa_schema_version', '0.0.0' );
 
-		// Only run if schema version changed, forced, or migration needed.
-		if ( ! $force && version_compare( $current_version, self::SCHEMA_VERSION, '>=' ) && ! self::needs_migration() ) {
+		// Only run if schema version changed or forced.
+		if ( ! $force && version_compare( $current_version, self::SCHEMA_VERSION, '>=' ) ) {
 			return;
 		}
 
@@ -221,22 +221,6 @@ class Database {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Check if a schema migration is needed (e.g. new columns).
-	 *
-	 * @return bool
-	 */
-	private static function needs_migration() {
-		global $wpdb;
-
-		$table = self::get_groups_table();
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema introspection on custom table.
-		$column = $wpdb->get_var( "SHOW COLUMNS FROM `{$table}` LIKE 'type'" );
-
-		return empty( $column );
 	}
 
 	/**
