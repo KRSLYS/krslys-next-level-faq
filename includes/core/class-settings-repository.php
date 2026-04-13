@@ -56,9 +56,8 @@ class Settings_Repository {
 		
 		$table = Database::get_settings_table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$sql = $wpdb->prepare(
-			"SELECT setting_value FROM {$table} WHERE setting_key = %s",
+			"SELECT setting_value FROM {$table} WHERE setting_key = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 			sanitize_key( $key )
 		);
 
@@ -103,11 +102,11 @@ class Settings_Repository {
 		// Encode value as JSON
 		$json_value = is_string( $value ) && ! is_numeric( $value ) ? $value : wp_json_encode( $value );
 
-		// Check if setting exists
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
+		// Check if setting exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, prepared query.
 		$exists = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT id FROM {$table} WHERE setting_key = %s",
+				"SELECT id FROM {$table} WHERE setting_key = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 				$key
 			)
 		);
@@ -188,9 +187,9 @@ class Settings_Repository {
 		global $wpdb;
 		$table = Database::get_settings_table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, no user input.
 		$rows = $wpdb->get_results(
-			"SELECT setting_key, setting_value FROM {$table}",
+			"SELECT setting_key, setting_value FROM {$table}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Table name from internal method, no variable data.
 			ARRAY_A
 		);
 

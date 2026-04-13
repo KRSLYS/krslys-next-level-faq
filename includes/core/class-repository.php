@@ -49,13 +49,12 @@ class Repository {
 
 		$table = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE group_id = %d ORDER BY position ASC, created_at ASC",
+			"SELECT * FROM {$table} WHERE group_id = %d ORDER BY position ASC, created_at ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 			(int) $group_id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe, query is prepared. Custom table.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, query prepared above.
 		return $wpdb->get_results( $sql );
 	}
 
@@ -128,13 +127,12 @@ class Repository {
 
 		$table = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE status = 1 AND group_id = %d ORDER BY position ASC, created_at ASC",
+			"SELECT * FROM {$table} WHERE status = 1 AND group_id = %d ORDER BY position ASC, created_at ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 			(int) $group_id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe, query is prepared. Custom table.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, query prepared above.
 		return $wpdb->get_results( $sql );
 	}
 

@@ -35,10 +35,10 @@ delete_option( 'krslys_nlfa_schema_version' );
 /**
  * Remove custom capability from all roles.
  */
-foreach ( wp_roles()->roles as $role_name => $role_info ) {
-	$role = get_role( $role_name );
-	if ( $role && $role->has_cap( 'manage_krslys_nlfa' ) ) {
-		$role->remove_cap( 'manage_krslys_nlfa' );
+foreach ( wp_roles()->roles as $krslys_nlfa_role_name => $krslys_nlfa_role_info ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Foreach requires both key and value.
+	$krslys_nlfa_role = get_role( $krslys_nlfa_role_name );
+	if ( $krslys_nlfa_role && $krslys_nlfa_role->has_cap( 'manage_krslys_nlfa' ) ) {
+		$krslys_nlfa_role->remove_cap( 'manage_krslys_nlfa' );
 	}
 }
 

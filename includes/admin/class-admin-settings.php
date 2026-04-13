@@ -1471,7 +1471,7 @@ class Admin_Settings {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in calling method.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in calling method. Sanitized below after array check.
 		$value = wp_unslash( $_POST[ $key ] );
 
 		// Handle array values (e.g. checkboxes with [] names).
