@@ -23,7 +23,7 @@ function krslys_nlfa_asset_url( string $path ): string {
 		$path = preg_replace( '/(?<!\.min)\.(js|css)$/', '.min.$1', $path );
 	}
 
-	return NLF_FAQ_PLUGIN_URL . $path;
+	return KRSLYS_NLFA_PLUGIN_URL . $path;
 }
 
 /**
@@ -40,5 +40,5 @@ function krslys_nlfa_asset_path( string $path ): string {
 		$path = preg_replace( '/(?<!\.min)\.(js|css)$/', '.min.$1', $path );
 	}
 
-	return NLF_FAQ_PLUGIN_DIR . $path;
+	return KRSLYS_NLFA_PLUGIN_DIR . $path;
 }

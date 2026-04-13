@@ -34,9 +34,9 @@ class Style_Generator {
 	 */
 	public static function maybe_regenerate_css() {
 		$css_version = Settings_Repository::get_setting( 'css_version', '' );
-		if ( NLF_FAQ_CSS_VERSION !== $css_version ) {
+		if ( KRSLYS_NLFA_CSS_VERSION !== $css_version ) {
 			if ( self::generate_and_save() ) {
-				Settings_Repository::update_setting( 'css_version', NLF_FAQ_CSS_VERSION );
+				Settings_Repository::update_setting( 'css_version', KRSLYS_NLFA_CSS_VERSION );
 			}
 		}
 	}

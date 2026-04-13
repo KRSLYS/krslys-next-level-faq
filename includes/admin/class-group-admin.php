@@ -591,7 +591,7 @@ class Group_Admin {
 				'nlf-faq-admin',
 				krslys_nlfa_asset_url( 'assets/css/admin-faq-style.css' ),
 				array(),
-				NLF_FAQ_CSS_VERSION
+				KRSLYS_NLFA_CSS_VERSION
 			);
 
 			// Inline script for shortcode copy-to-clipboard.
@@ -635,7 +635,7 @@ class Group_Admin {
 			'nlf-faq-admin',
 			krslys_nlfa_asset_url( 'assets/css/admin-faq-style.css' ),
 			array( 'wp-color-picker' ),
-			NLF_FAQ_CSS_VERSION
+			KRSLYS_NLFA_CSS_VERSION
 		);
 
 		// Enqueue generated FAQ styles for preview.
@@ -655,7 +655,7 @@ class Group_Admin {
 			'nlf-faq-frontend',
 			krslys_nlfa_asset_url( 'assets/js/frontend-faq.js' ),
 			array(),
-			NLF_FAQ_VERSION,
+			KRSLYS_NLFA_VERSION,
 			true
 		);
 
@@ -666,7 +666,7 @@ class Group_Admin {
 			'nlf-faq-group-metabox',
 			krslys_nlfa_asset_url( 'assets/js/admin-faq-group-metabox.js' ),
 			array( 'wp-editor', 'wp-color-picker', 'nlf-faq-frontend' ),
-			file_exists( $js_metabox_path ) ? filemtime( $js_metabox_path ) : NLF_FAQ_VERSION,
+			file_exists( $js_metabox_path ) ? filemtime( $js_metabox_path ) : KRSLYS_NLFA_VERSION,
 			true
 		);
 
@@ -674,7 +674,7 @@ class Group_Admin {
 			'nlf-admin-state-collector',
 			krslys_nlfa_asset_url( 'assets/js/admin-state-collector.js' ),
 			array( 'nlf-faq-group-metabox' ),
-			file_exists( $js_collector_path ) ? filemtime( $js_collector_path ) : NLF_FAQ_VERSION,
+			file_exists( $js_collector_path ) ? filemtime( $js_collector_path ) : KRSLYS_NLFA_VERSION,
 			true
 		);
 	}

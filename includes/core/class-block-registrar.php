@@ -32,7 +32,7 @@ class Block_Registrar {
 		self::register_generated_style();
 
 		// FAQ block.
-		$faq_dir = NLF_FAQ_PLUGIN_DIR . 'blocks/faq';
+		$faq_dir = KRSLYS_NLFA_PLUGIN_DIR . 'blocks/faq';
 		if ( file_exists( $faq_dir . '/block.json' ) ) {
 			self::register_editor_script();
 			register_block_type(
@@ -42,7 +42,7 @@ class Block_Registrar {
 		}
 
 		// Accordion block.
-		$accordion_dir = NLF_FAQ_PLUGIN_DIR . 'blocks/accordion';
+		$accordion_dir = KRSLYS_NLFA_PLUGIN_DIR . 'blocks/accordion';
 		if ( file_exists( $accordion_dir . '/block.json' ) ) {
 			self::register_accordion_editor_script();
 			register_block_type(
@@ -60,7 +60,7 @@ class Block_Registrar {
 			'nlf-faq-block-editor',
 			krslys_nlfa_asset_url( 'blocks/faq/editor.js' ),
 			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
-			NLF_FAQ_VERSION,
+			KRSLYS_NLFA_VERSION,
 			true
 		);
 
@@ -77,7 +77,7 @@ class Block_Registrar {
 			)
 		);
 
-		wp_set_script_translations( 'nlf-faq-block-editor', 'krslys-next-level-faq-accordion', NLF_FAQ_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'nlf-faq-block-editor', 'krslys-next-level-faq-accordion', KRSLYS_NLFA_PLUGIN_DIR . 'languages' );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Block_Registrar {
 			'nlf-accordion-block-editor',
 			krslys_nlfa_asset_url( 'blocks/accordion/editor.js' ),
 			array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render' ),
-			NLF_FAQ_VERSION,
+			KRSLYS_NLFA_VERSION,
 			true
 		);
 
@@ -105,7 +105,7 @@ class Block_Registrar {
 			)
 		);
 
-		wp_set_script_translations( 'nlf-accordion-block-editor', 'krslys-next-level-faq-accordion', NLF_FAQ_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'nlf-accordion-block-editor', 'krslys-next-level-faq-accordion', KRSLYS_NLFA_PLUGIN_DIR . 'languages' );
 	}
 
 	/**
@@ -146,7 +146,7 @@ class Block_Registrar {
 			return;
 		}
 
-		$version = file_exists( $css_path ) ? filemtime( $css_path ) : NLF_FAQ_CSS_VERSION;
+		$version = file_exists( $css_path ) ? filemtime( $css_path ) : KRSLYS_NLFA_CSS_VERSION;
 
 		wp_register_style(
 			'nlf-faq-generated',
