@@ -2,10 +2,10 @@
 /**
  * Database schema manager for custom tables.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,7 +38,7 @@ class Database {
 	 */
 	public static function get_groups_table() {
 		global $wpdb;
-		return $wpdb->prefix . 'nlf_faq_groups';
+		return $wpdb->prefix . 'krslys_nlfa_groups';
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Database {
 	 */
 	public static function get_items_table() {
 		global $wpdb;
-		return $wpdb->prefix . 'nlf_faq_items';
+		return $wpdb->prefix . 'krslys_nlfa_items';
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Database {
 	 */
 	public static function get_settings_table() {
 		global $wpdb;
-		return $wpdb->prefix . 'nlf_plugin_settings';
+		return $wpdb->prefix . 'krslys_nlfa_settings';
 	}
 
 	/**
@@ -69,9 +69,9 @@ class Database {
 	 * @param bool $force Force creation even if version is up to date.
 	 */
 	public static function create_tables( $force = false ) {
-		$current_version = get_option( 'nlf_faq_schema_version', '0.0.0' );
+		$current_version = get_option( 'krslys_nlfa_schema_version', '0.0.0' );
 
-		// Only run if schema version changed or forced
+		// Only run if schema version changed or forced.
 		if ( ! $force && version_compare( $current_version, self::SCHEMA_VERSION, '>=' ) ) {
 			return;
 		}
@@ -91,7 +91,7 @@ class Database {
 		self::create_settings_table( $charset_collate );
 
 		// Update schema version
-		update_option( 'nlf_faq_schema_version', self::SCHEMA_VERSION );
+		update_option( 'krslys_nlfa_schema_version', self::SCHEMA_VERSION );
 	}
 
 	/**
@@ -111,11 +111,13 @@ class Database {
 			display_settings longtext,
 			custom_styles longtext,
 			use_custom_style tinyint(1) NOT NULL DEFAULT 0,
+			type varchar(20) NOT NULL DEFAULT 'faq',
 			status varchar(20) NOT NULL DEFAULT 'active',
 			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			PRIMARY KEY  (id),
 			UNIQUE KEY slug (slug),
+			KEY type (type),
 			KEY status (status),
 			KEY created_at (created_at)
 		) {$charset_collate};";
@@ -134,7 +136,6 @@ class Database {
 		// Keep the existing table structure from Repository class
 		$sql = "CREATE TABLE {$table_name} (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			post_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			group_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 			position int(11) UNSIGNED NOT NULL DEFAULT 0,
 			question text NOT NULL,
@@ -145,9 +146,10 @@ class Database {
 			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			PRIMARY KEY  (id),
-			KEY post_id (post_id),
 			KEY group_id (group_id),
-			KEY position (position)
+			KEY status (status),
+			KEY group_id_status (group_id, status),
+			KEY group_id_position (group_id, position)
 		) {$charset_collate};";
 
 		dbDelta( $sql );
@@ -188,12 +190,12 @@ class Database {
 		);
 
 		foreach ( $tables as $table ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL on custom tables during uninstall.
 			$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
 		}
 
 		// Delete schema version
-		delete_option( 'nlf_faq_schema_version' );
+		delete_option( 'krslys_nlfa_schema_version' );
 	}
 
 	/**
@@ -211,7 +213,7 @@ class Database {
 		);
 
 		foreach ( $tables as $table ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Checking existence of custom tables.
 			$exists = $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" );
 			if ( $exists !== $table ) {
 				return false;
@@ -227,7 +229,7 @@ class Database {
 	 * @return string
 	 */
 	public static function get_schema_version() {
-		return get_option( 'nlf_faq_schema_version', '0.0.0' );
+		return get_option( 'krslys_nlfa_schema_version', '0.0.0' );
 	}
 }
 

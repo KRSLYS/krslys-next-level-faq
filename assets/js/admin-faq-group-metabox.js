@@ -1200,7 +1200,7 @@
 			return;
 		}
 
-		const shortcode = '[krslys_nlf group="' + groupId + '"]';
+		const shortcode = '[krslys_nlfa group="' + groupId + '"]';
 		const phpCode   = "<?php echo do_shortcode( '" + shortcode + "' ); ?>";
 
 		// Update data-copy-text and visible code for each snippet.
@@ -1317,8 +1317,7 @@
 				publishButton.disabled = false;
 			}
 		})
-		.catch(error => {
-			console.error('Save error:', error);
+		.catch(function() {
 			showInlineNotice('An unexpected error occurred while saving.');
 			publishButton.value = originalText;
 			publishButton.disabled = false;

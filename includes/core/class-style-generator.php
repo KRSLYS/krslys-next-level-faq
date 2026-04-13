@@ -2,10 +2,10 @@
 /**
  * Builds and stores generated CSS for FAQ styles.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,10 +33,10 @@ class Style_Generator {
 	 * Regenerate CSS if the plugin version changed.
 	 */
 	public static function maybe_regenerate_css() {
-		$css_version = get_option( 'nlf_faq_css_version', '' );
+		$css_version = Settings_Repository::get_setting( 'css_version', '' );
 		if ( NLF_FAQ_CSS_VERSION !== $css_version ) {
 			if ( self::generate_and_save() ) {
-				update_option( 'nlf_faq_css_version', NLF_FAQ_CSS_VERSION );
+				Settings_Repository::update_setting( 'css_version', NLF_FAQ_CSS_VERSION );
 			}
 		}
 	}
@@ -84,7 +84,7 @@ class Style_Generator {
 		ob_start();
 		?>
 /* =======================================================
-   Next Level FAQ — Premium Design System v2
+   Next Level FAQ & Accordion — Premium Design System v2
    Professional-grade accordion styling
    ======================================================= */
 
@@ -107,7 +107,7 @@ class Style_Generator {
 	/* ---- Typography Sizes ---- */
 	--nlf-faq-question-size: <?php echo esc_html( $c['question_font_rem'] ); ?>rem;
 	--nlf-faq-answer-size: <?php echo esc_html( $c['answer_font_rem'] ); ?>rem;
-	--nlf-faq-question-weight: <?php echo intval( $o['question_font_weight'] ); ?>;
+	--nlf-faq-question-weight: <?php echo esc_html( intval( $o['question_font_weight'] ) ); ?>;
 
 	/* ---- Elevation ---- */
 	--nlf-faq-shadow: <?php echo esc_html( $c['shadow_css'] ); ?>;
@@ -238,7 +238,7 @@ class Style_Generator {
 	border: none;
 	background: none;
 	cursor: pointer;
-	text-align: left;
+	text-align: start;
 	color: var(--nlf-faq-question-color);
 	font-family: var(--nlf-faq-font-family);
 	font-size: var(--nlf-faq-question-size);

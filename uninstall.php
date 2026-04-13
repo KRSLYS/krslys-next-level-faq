@@ -1,46 +1,54 @@
 <?php
 /**
- * Uninstall script for Next Level FAQ plugin.
+ * Uninstall script for Next Level FAQ & Accordion.
  *
  * Runs when the plugin is deleted via WordPress admin.
  * Cleans up all plugin data from the database.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-// Exit if not called by WordPress
+// Exit if not called by WordPress.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-// Load the autoloader and classes
+// Load the autoloader and classes.
 require_once plugin_dir_path( __FILE__ ) . 'includes/Autoloader.php';
 
-$autoloader = new \Krslys\NextLevelFaq\Autoloader( plugin_dir_path( __FILE__ ) . 'includes' );
-$autoloader->register();
+$krslys_nlfa_autoloader = new \Krslys\NextLevelFaqAccordion\Autoloader( plugin_dir_path( __FILE__ ) . 'includes' );
+$krslys_nlfa_autoloader->register();
 
-// Import the Database class
-use Krslys\NextLevelFaq\Database;
-use Krslys\NextLevelFaq\Settings_Repository;
+use Krslys\NextLevelFaqAccordion\Database;
+
 /**
- * Drop all custom tables.
+ * Drop all custom tables (groups, items, settings).
+ * This removes ALL plugin data including settings stored in krslys_nlfa_settings.
  */
 Database::drop_tables();
 
 /**
- * Delete plugin options.
+ * Delete schema version from wp_options (the only wp_options entry).
  */
-delete_option( 'nlf_faq_schema_version' );
-delete_option( 'nlf_faq_style_options' );
-delete_option( 'nlf_faq_presets_css_version' );
-delete_option( 'nlf_faq_css_version' );
-/**
- * Delete generated CSS files from uploads directory using WP_Filesystem.
- */
-$uploads = wp_upload_dir();
-$css_dir = trailingslashit( $uploads['basedir'] ) . 'nlf-faq';
+delete_option( 'krslys_nlfa_schema_version' );
 
-if ( is_dir( $css_dir ) ) {
+/**
+ * Remove custom capability from all roles.
+ */
+foreach ( wp_roles()->roles as $krslys_nlfa_role_name => $krslys_nlfa_role_info ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Foreach requires both key and value.
+	$krslys_nlfa_role = get_role( $krslys_nlfa_role_name );
+	if ( $krslys_nlfa_role && $krslys_nlfa_role->has_cap( 'manage_krslys_nlfa' ) ) {
+		$krslys_nlfa_role->remove_cap( 'manage_krslys_nlfa' );
+	}
+}
+
+/**
+ * Delete generated CSS files from uploads directory.
+ */
+$krslys_nlfa_uploads = wp_upload_dir();
+$krslys_nlfa_css_dir = trailingslashit( $krslys_nlfa_uploads['basedir'] ) . 'nlf-faq';
+
+if ( is_dir( $krslys_nlfa_css_dir ) ) {
 	if ( ! function_exists( 'WP_Filesystem' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 	}
@@ -50,20 +58,6 @@ if ( is_dir( $css_dir ) ) {
 	global $wp_filesystem;
 
 	if ( $wp_filesystem ) {
-		$wp_filesystem->rmdir( $css_dir, true );
+		$wp_filesystem->rmdir( $krslys_nlfa_css_dir, true );
 	}
 }
-
-/**
- * Clear any transients.
- */
-global $wpdb;
-
-$wpdb->query(
-	$wpdb->prepare(
-		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$wpdb->esc_like( '_transient_nlf_' ) . '%',
-		$wpdb->esc_like( '_transient_timeout_nlf_' ) . '%'
-	)
-);
-

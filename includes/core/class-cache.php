@@ -2,10 +2,10 @@
 /**
  * Simple caching utilities.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -82,7 +82,7 @@ class Cache {
 		}
 
 		$version = self::get_version( $group_id );
-		update_option( self::version_option_name( $group_id ), $version + 1, false );
+		Settings_Repository::update_setting( self::version_setting_key( $group_id ), $version + 1 );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class Cache {
 	 * @return int
 	 */
 	private static function get_version( $group_id ) {
-		$version = get_option( self::version_option_name( $group_id ), 1 );
+		$version = Settings_Repository::get_setting( self::version_setting_key( $group_id ), 1 );
 
 		if ( ! $version ) {
 			$version = 1;
@@ -118,14 +118,14 @@ class Cache {
 	}
 
 	/**
-	 * Build option name for per-group cache version.
+	 * Build setting key for per-group cache version.
 	 *
 	 * @param int $group_id Group ID.
 	 *
 	 * @return string
 	 */
-	private static function version_option_name( $group_id ) {
-		return 'nlf_faq_cache_version_' . (int) $group_id;
+	private static function version_setting_key( $group_id ) {
+		return 'cache_v_' . (int) $group_id;
 	}
 }
 

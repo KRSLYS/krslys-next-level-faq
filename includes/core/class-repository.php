@@ -2,10 +2,10 @@
 /**
  * Data access layer for FAQ items stored in a custom table.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,7 +29,7 @@ class Repository {
 	public static function get_table_name() {
 		global $wpdb;
 
-		return $wpdb->prefix . 'nlf_faq_items';
+		return $wpdb->prefix . 'krslys_nlfa_items';
 	}
 
 	/**
@@ -50,11 +50,11 @@ class Repository {
 		$table = self::get_table_name();
 
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE group_id = %d ORDER BY position ASC, created_at ASC",
+			"SELECT * FROM {$table} WHERE group_id = %d ORDER BY position ASC, created_at ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 			(int) $group_id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is safe, query is prepared.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, query prepared above.
 		return $wpdb->get_results( $sql );
 	}
 
@@ -84,11 +84,9 @@ class Repository {
 			$where_sql = 'WHERE group_id > 0';
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, WHERE clause prepared above.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe, WHERE clause prepared above. Custom table.
 		$rows = $wpdb->get_results(
-			"SELECT group_id, position, question, answer, status, initial_state, highlight
-			FROM {$table} {$where_sql}
-			ORDER BY group_id ASC, position ASC, id ASC",
+			"SELECT group_id, position, question, answer, status, initial_state, highlight FROM {$table} {$where_sql} ORDER BY group_id ASC, position ASC, id ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			ARRAY_A
 		);
 
@@ -130,11 +128,11 @@ class Repository {
 		$table = self::get_table_name();
 
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE status = 1 AND group_id = %d ORDER BY position ASC, created_at ASC",
+			"SELECT * FROM {$table} WHERE status = 1 AND group_id = %d ORDER BY position ASC, created_at ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 			(int) $group_id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is safe, query is prepared.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, query prepared above.
 		return $wpdb->get_results( $sql );
 	}
 
@@ -162,7 +160,6 @@ class Repository {
 		$table = self::get_table_name();
 
 		$data = array(
-			'post_id'       => 0,
 			'group_id'      => max( 0, (int) $group_id ),
 			'position'      => max( 0, (int) $position ),
 			'question'      => wp_kses_post( $question ),
@@ -172,9 +169,10 @@ class Repository {
 			'highlight'     => (int) $highlight,
 		);
 
-		$format = array( '%d', '%d', '%d', '%s', '%s', '%d', '%d', '%d' );
+		$format = array( '%d', '%d', '%s', '%s', '%d', '%d', '%d' );
 
 		if ( $id > 0 ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 			$wpdb->update(
 				$table,
 				$data,
@@ -186,6 +184,7 @@ class Repository {
 			return (int) $id;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table.
 		$wpdb->insert( $table, $data, $format );
 
 		return (int) $wpdb->insert_id;
@@ -219,6 +218,7 @@ class Repository {
 		);
 
 		if ( empty( $keep_ids ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 			$wpdb->query(
 				$wpdb->prepare(
 					"DELETE FROM {$table} WHERE group_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
@@ -230,10 +230,10 @@ class Repository {
 
 		$placeholders = implode( ',', array_fill( 0, count( $keep_ids ), '%d' ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, placeholders are safe.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table} WHERE group_id = %d AND id NOT IN ({$placeholders})",
+				"DELETE FROM {$table} WHERE group_id = %d AND id NOT IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and placeholders are safe.
 				array_merge( array( (int) $group_id ), $keep_ids )
 			)
 		);
@@ -256,13 +256,12 @@ class Repository {
 
 	$visible_clause = $only_visible ? 'AND status = 1' : '';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and visible_clause are safe.
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE group_id = %d {$visible_clause} ORDER BY position ASC, created_at ASC",
+			"SELECT * FROM {$table} WHERE group_id = %d {$visible_clause} ORDER BY position ASC, created_at ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and visible_clause are safe.
 			(int) $group_id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared above. Custom table.
 		return $wpdb->get_results( $sql );
 	}
 
@@ -278,6 +277,7 @@ class Repository {
 
 		$table = self::get_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$wpdb->delete(
 			$table,
 			array( 'group_id' => (int) $group_id ),
@@ -298,7 +298,7 @@ class Repository {
 
 		$table = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, no user input.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is safe, no user input. Custom table.
 		$wpdb->query( "TRUNCATE TABLE {$table}" );
 	}
 

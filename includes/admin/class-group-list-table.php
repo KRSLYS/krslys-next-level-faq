@@ -2,10 +2,10 @@
 /**
  * WP_List_Table for FAQ Groups.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -18,14 +18,24 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 /**
  * FAQ Groups list table.
  *
- * Displays groups from the custom wp_nlf_faq_groups table.
+ * Displays groups from the custom wp_krslys_nlfa_groups table.
  */
 class Group_List_Table extends \WP_List_Table {
 
 	/**
-	 * Constructor.
+	 * Content type: 'faq' or 'accordion'.
+	 *
+	 * @var string
 	 */
-	public function __construct() {
+	private $type = 'faq';
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $type Content type ('faq' or 'accordion').
+	 */
+	public function __construct( $type = 'faq' ) {
+		$this->type = $type;
 		parent::__construct(
 			array(
 				'singular' => 'faq_group',
@@ -43,11 +53,11 @@ class Group_List_Table extends \WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'            => '<input type="checkbox" />',
-			'title'         => __( 'Title', 'next-level-faq' ),
-			'nlf_shortcode' => __( 'Shortcode', 'next-level-faq' ),
-			'nlf_questions' => __( 'Questions', 'next-level-faq' ),
-			'nlf_theme'     => __( 'Theme', 'next-level-faq' ),
-			'nlf_date'      => __( 'Date', 'next-level-faq' ),
+			'title'         => __( 'Title', 'krslys-next-level-faq-accordion' ),
+			'nlf_shortcode' => __( 'Shortcode', 'krslys-next-level-faq-accordion' ),
+			'nlf_questions' => $this->type === 'accordion' ? __( 'Items', 'krslys-next-level-faq-accordion' ) : __( 'Questions', 'krslys-next-level-faq-accordion' ),
+			'nlf_theme'     => __( 'Theme', 'krslys-next-level-faq-accordion' ),
+			'nlf_date'      => __( 'Date', 'krslys-next-level-faq-accordion' ),
 		);
 	}
 
@@ -70,7 +80,7 @@ class Group_List_Table extends \WP_List_Table {
 	 */
 	public function get_bulk_actions() {
 		return array(
-			'delete' => __( 'Delete', 'next-level-faq' ),
+			'delete' => __( 'Delete', 'krslys-next-level-faq-accordion' ),
 		);
 	}
 
@@ -86,10 +96,12 @@ class Group_List_Table extends \WP_List_Table {
 
 		$this->process_bulk_action();
 
-		$orderby = isset( $_REQUEST['orderby'] ) ? sanitize_key( $_REQUEST['orderby'] ) : 'created_at';
-		$order   = isset( $_REQUEST['order'] ) ? sanitize_key( $_REQUEST['order'] ) : 'DESC';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in process_bulk_action(); orderby/order are safe display parameters.
+		$orderby = isset( $_REQUEST['orderby'] ) ? sanitize_key( wp_unslash( $_REQUEST['orderby'] ) ) : 'created_at';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in process_bulk_action(); orderby/order are safe display parameters.
+		$order   = isset( $_REQUEST['order'] ) ? sanitize_key( wp_unslash( $_REQUEST['order'] ) ) : 'DESC';
 
-		$this->items = Groups_Repository::get_all_groups( null, $orderby, $order );
+		$this->items = Groups_Repository::get_all_groups( null, $orderby, $order, $this->type );
 	}
 
 	/**
@@ -101,14 +113,14 @@ class Group_List_Table extends \WP_List_Table {
 		}
 
 		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'bulk-faq_groups' ) ) {
-			wp_die( esc_html__( 'Security check failed.', 'next-level-faq' ) );
+			wp_die( esc_html__( 'Security check failed.', 'krslys-next-level-faq-accordion' ) );
 		}
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to delete groups.', 'next-level-faq' ) );
+		if ( ! Admin_Settings::current_user_can_manage() ) {
+			wp_die( esc_html__( 'You do not have permission to delete groups.', 'krslys-next-level-faq-accordion' ) );
 		}
 
-		$ids = isset( $_REQUEST['faq_group'] ) ? array_map( 'absint', (array) $_REQUEST['faq_group'] ) : array();
+		$ids = isset( $_REQUEST['faq_group'] ) ? array_map( 'absint', wp_unslash( (array) $_REQUEST['faq_group'] ) ) : array();
 
 		foreach ( $ids as $id ) {
 			Groups_Repository::delete_group( $id );
@@ -136,14 +148,17 @@ class Group_List_Table extends \WP_List_Table {
 			array(
 				'page' => 'nlf-faq-group-edit',
 				'id'   => (int) $item->id,
+				'type' => $this->type,
 			),
 			admin_url( 'admin.php' )
 		);
 
+		$list_page = 'accordion' === $this->type ? 'nlf-accordion-groups' : 'nlf-faq-groups';
+
 		$delete_url = wp_nonce_url(
 			add_query_arg(
 				array(
-					'page'   => 'nlf-faq-groups',
+					'page'   => $list_page,
 					'action' => 'delete',
 					'id'     => (int) $item->id,
 				),
@@ -155,7 +170,7 @@ class Group_List_Table extends \WP_List_Table {
 		$duplicate_url = wp_nonce_url(
 			add_query_arg(
 				array(
-					'page'   => 'nlf-faq-groups',
+					'page'   => $list_page,
 					'action' => 'duplicate',
 					'id'     => (int) $item->id,
 				),
@@ -165,9 +180,9 @@ class Group_List_Table extends \WP_List_Table {
 		);
 
 		$actions = array(
-			'edit'      => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'next-level-faq' ) ),
-			'duplicate' => sprintf( '<a href="%s">%s</a>', esc_url( $duplicate_url ), esc_html__( 'Duplicate', 'next-level-faq' ) ),
-			'delete'    => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $delete_url ), esc_attr__( 'Are you sure?', 'next-level-faq' ), esc_html__( 'Delete', 'next-level-faq' ) ),
+			'edit'      => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'krslys-next-level-faq-accordion' ) ),
+			'duplicate' => sprintf( '<a href="%s">%s</a>', esc_url( $duplicate_url ), esc_html__( 'Duplicate', 'krslys-next-level-faq-accordion' ) ),
+			'delete'    => sprintf( '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_url( $delete_url ), esc_attr__( 'Are you sure?', 'krslys-next-level-faq-accordion' ), esc_html__( 'Delete', 'krslys-next-level-faq-accordion' ) ),
 		);
 
 		return sprintf(
@@ -185,7 +200,7 @@ class Group_List_Table extends \WP_List_Table {
 	 * @return string
 	 */
 	public function column_nlf_shortcode( $item ) {
-		$shortcode = '[krslys_nlf group="' . (int) $item->id . '"]';
+		$shortcode = '[krslys_nlfa group="' . (int) $item->id . '"]';
 
 		return sprintf(
 			'<button type="button" class="nlf-list-shortcode" data-clipboard="%1$s" title="%2$s">'
@@ -194,7 +209,7 @@ class Group_List_Table extends \WP_List_Table {
 			. '<span class="nlf-list-shortcode__ok dashicons dashicons-yes-alt"></span>'
 			. '</button>',
 			esc_attr( $shortcode ),
-			esc_attr__( 'Copy shortcode', 'next-level-faq' )
+			esc_attr__( 'Copy shortcode', 'krslys-next-level-faq-accordion' )
 		);
 	}
 
@@ -224,9 +239,9 @@ class Group_List_Table extends \WP_List_Table {
 		if ( $hidden > 0 ) {
 			$output .= sprintf(
 				' <span class="nlf-list-count__hidden" title="%s">(%d %s)</span>',
-				esc_attr__( 'Hidden from frontend', 'next-level-faq' ),
+				esc_attr__( 'Hidden from frontend', 'krslys-next-level-faq-accordion' ),
 				$hidden,
-				esc_html__( 'hidden', 'next-level-faq' )
+				esc_html__( 'hidden', 'krslys-next-level-faq-accordion' )
 			);
 		}
 
@@ -291,6 +306,10 @@ class Group_List_Table extends \WP_List_Table {
 	 * No items message.
 	 */
 	public function no_items() {
-		esc_html_e( 'No FAQ groups found.', 'next-level-faq' );
+		if ( 'accordion' === $this->type ) {
+			esc_html_e( 'No accordion groups found.', 'krslys-next-level-faq-accordion' );
+		} else {
+			esc_html_e( 'No FAQ groups found.', 'krslys-next-level-faq-accordion' );
+		}
 	}
 }

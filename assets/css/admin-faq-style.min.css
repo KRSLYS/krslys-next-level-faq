@@ -1,6 +1,3 @@
-/*!************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./assets/css/admin-faq-style.css ***!
-  \************************************************************************************************************************************************************************************/
 /* ============================================
    Design System Variables
    ============================================ */
@@ -1160,6 +1157,29 @@
 	border: 1px solid var(--color-slate-200);
 }
 
+.nlf-badge--pro {
+	background: linear-gradient(135deg, #6366f1, #8b5cf6);
+	color: #fff;
+	border: none;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+}
+
+/* ── Pro Feature Cards ───────────── */
+
+.nlf-tool-card--pro {
+	position: relative;
+	opacity: 0.75;
+}
+
+.nlf-tool-card--pro .nlf-tool-card__accent {
+	background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+}
+
+.nlf-tool-card--pro .nlf-tool-card__icon span {
+	color: #8b5cf6;
+}
+
 /* ── Tools Page Notice Override ───────────── */
 
 .nlf-faq-tools > .notice {
@@ -2034,7 +2054,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-1);
-	animation: nlf-fadeIn 200ms ease;
+	animation: nlf-fade-in 200ms ease;
 }
 
 #titlediv .nlf-field-error .dashicons {
@@ -2054,7 +2074,7 @@
 	30%, 60%, 90% { transform: translateX(4px); }
 }
 
-@keyframes nlf-fadeIn {
+@keyframes nlf-fade-in {
 	from { opacity: 0; transform: translateY(-4px); }
 	to { opacity: 1; transform: translateY(0); }
 }
@@ -2072,7 +2092,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-2);
-	animation: nlf-fadeIn 200ms ease;
+	animation: nlf-fade-in 200ms ease;
 }
 
 .nlf-inline-notice .dashicons {
@@ -2827,11 +2847,11 @@
 
 /* ── Page wrapper ─────────────────────────── */
 
-.post-type-nlf_faq_group .wrap {
+.nlf-faq-admin-page .wrap {
 	font-family: var(--font-family-base);
 }
 
-.post-type-nlf_faq_group .wrap > h1 {
+.nlf-faq-admin-page .wrap > h1 {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-3);
@@ -2843,7 +2863,7 @@
 	padding: var(--spacing-4) 0;
 }
 
-.post-type-nlf_faq_group .wrap > h1::before {
+.nlf-faq-admin-page .wrap > h1::before {
 	content: '\f223';
 	display: inline-flex;
 	align-items: center;
@@ -2864,7 +2884,7 @@
 
 /* ── "Add New" button ─────────────────────── */
 
-.post-type-nlf_faq_group .wrap .page-title-action {
+.nlf-faq-admin-page .wrap .page-title-action {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--spacing-2);
@@ -2881,7 +2901,7 @@
 	line-height: var(--line-height-normal);
 }
 
-.post-type-nlf_faq_group .wrap .page-title-action:hover {
+.nlf-faq-admin-page .wrap .page-title-action:hover {
 	background: var(--color-primary-100);
 	border-color: var(--color-primary-500);
 	color: var(--color-primary-700);
@@ -2890,7 +2910,7 @@
 
 /* ── Table wrapper ────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table {
+.nlf-faq-admin-page .wp-list-table {
 	border-collapse: separate;
 	border-spacing: 0;
 	border: 1px solid var(--color-slate-200);
@@ -2902,8 +2922,8 @@
 
 /* ── Table header ─────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table thead th,
-.post-type-nlf_faq_group .wp-list-table thead td {
+.nlf-faq-admin-page .wp-list-table thead th,
+.nlf-faq-admin-page .wp-list-table thead td {
 	background: var(--color-slate-50);
 	border-bottom: 1px solid var(--color-slate-200);
 	font-size: var(--font-size-xs);
@@ -2916,24 +2936,24 @@
 	line-height: var(--line-height-normal);
 }
 
-.post-type-nlf_faq_group .wp-list-table thead th a,
-.post-type-nlf_faq_group .wp-list-table thead th a:visited {
+.nlf-faq-admin-page .wp-list-table thead th a,
+.nlf-faq-admin-page .wp-list-table thead th a:visited {
 	color: var(--color-slate-500);
 	text-decoration: none;
 }
 
-.post-type-nlf_faq_group .wp-list-table thead th a:hover {
+.nlf-faq-admin-page .wp-list-table thead th a:hover {
 	color: var(--color-slate-800);
 }
 
-.post-type-nlf_faq_group .wp-list-table thead th .sorting-indicators .sorting-indicator {
+.nlf-faq-admin-page .wp-list-table thead th .sorting-indicators .sorting-indicator {
 	color: var(--color-slate-400);
 }
 
 /* ── Table footer ─────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table tfoot th,
-.post-type-nlf_faq_group .wp-list-table tfoot td {
+.nlf-faq-admin-page .wp-list-table tfoot th,
+.nlf-faq-admin-page .wp-list-table tfoot td {
 	background: var(--color-slate-50);
 	border-top: 1px solid var(--color-slate-200);
 	font-size: var(--font-size-xs);
@@ -2947,15 +2967,15 @@
 
 /* ── Table rows ───────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table tbody tr {
+.nlf-faq-admin-page .wp-list-table tbody tr {
 	transition: background var(--transition-fast);
 }
 
-.post-type-nlf_faq_group .wp-list-table tbody tr:hover {
+.nlf-faq-admin-page .wp-list-table tbody tr:hover {
 	background: var(--color-slate-50);
 }
 
-.post-type-nlf_faq_group .wp-list-table tbody td {
+.nlf-faq-admin-page .wp-list-table tbody td {
 	padding: var(--spacing-4);
 	border-bottom: 1px solid var(--color-slate-100);
 	font-family: var(--font-family-base);
@@ -2965,42 +2985,42 @@
 	line-height: var(--line-height-normal);
 }
 
-.post-type-nlf_faq_group .wp-list-table tbody tr:last-child td {
+.nlf-faq-admin-page .wp-list-table tbody tr:last-child td {
 	border-bottom: none;
 }
 
 /* ── Title column ─────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table .column-title .row-title {
+.nlf-faq-admin-page .wp-list-table .column-title .row-title {
 	font-size: var(--font-size-base);
 	font-weight: var(--font-weight-semibold);
 	color: var(--color-slate-900);
 	text-decoration: none;
 }
 
-.post-type-nlf_faq_group .wp-list-table .column-title .row-title:hover {
+.nlf-faq-admin-page .wp-list-table .column-title .row-title:hover {
 	color: var(--color-primary-600);
 }
 
 /* Row actions */
 
-.post-type-nlf_faq_group .wp-list-table .row-actions span a {
+.nlf-faq-admin-page .wp-list-table .row-actions span a {
 	color: var(--color-slate-500);
 	text-decoration: none;
 	transition: color var(--transition-fast);
 }
 
-.post-type-nlf_faq_group .wp-list-table .row-actions span a:hover {
+.nlf-faq-admin-page .wp-list-table .row-actions span a:hover {
 	color: var(--color-primary-600);
 }
 
-.post-type-nlf_faq_group .wp-list-table .row-actions .trash a:hover {
+.nlf-faq-admin-page .wp-list-table .row-actions .trash a:hover {
 	color: var(--color-error-600);
 }
 
 /* Post-state labels (Draft, etc.) */
 
-.post-type-nlf_faq_group .wp-list-table .post-state {
+.nlf-faq-admin-page .wp-list-table .post-state {
 	display: inline-flex;
 	align-items: center;
 	font-size: 10px;
@@ -3017,7 +3037,7 @@
 
 /* ── Shortcode column ─────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table .column-nlf_shortcode {
+.nlf-faq-admin-page .wp-list-table .column-nlf_shortcode {
 	width: 260px;
 }
 
@@ -3099,7 +3119,7 @@
 
 /* ── Questions column ─────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table .column-nlf_questions {
+.nlf-faq-admin-page .wp-list-table .column-nlf_questions {
 	width: 100px;
 	text-align: center;
 }
@@ -3136,7 +3156,7 @@
 
 /* ── Theme column ─────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table .column-nlf_theme {
+.nlf-faq-admin-page .wp-list-table .column-nlf_theme {
 	width: 140px;
 }
 
@@ -3165,33 +3185,33 @@
 
 /* ── Tablenav (filters & pagination) ──────── */
 
-.post-type-nlf_faq_group .tablenav {
+.nlf-faq-admin-page .tablenav {
 	font-family: var(--font-family-base);
 }
 
-.post-type-nlf_faq_group .tablenav .tablenav-pages a,
-.post-type-nlf_faq_group .tablenav .tablenav-pages .current {
+.nlf-faq-admin-page .tablenav .tablenav-pages a,
+.nlf-faq-admin-page .tablenav .tablenav-pages .current {
 	font-family: var(--font-family-base);
 	border-radius: var(--radius-sm);
 }
 
 /* ── Checkbox styling ─────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table th.check-column,
-.post-type-nlf_faq_group .wp-list-table td.check-column {
+.nlf-faq-admin-page .wp-list-table th.check-column,
+.nlf-faq-admin-page .wp-list-table td.check-column {
 	vertical-align: middle;
 }
 
 /* ── Date column ──────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table .column-date {
+.nlf-faq-admin-page .wp-list-table .column-date {
 	width: 140px;
 	color: var(--color-slate-500);
 }
 
 /* ── Empty state ──────────────────────────── */
 
-.post-type-nlf_faq_group .wp-list-table .no-items td {
+.nlf-faq-admin-page .wp-list-table .no-items td {
 	text-align: center;
 	padding: var(--spacing-10) var(--spacing-6);
 	color: var(--color-slate-500);
@@ -3200,7 +3220,7 @@
 
 /* ── Search box ───────────────────────────── */
 
-.post-type-nlf_faq_group .search-box input[type="search"] {
+.nlf-faq-admin-page .search-box input[type="search"] {
 	border: 1px solid var(--color-slate-300);
 	border-radius: var(--radius-md);
 	padding: var(--spacing-2) var(--spacing-3);
@@ -3209,13 +3229,13 @@
 	transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
-.post-type-nlf_faq_group .search-box input[type="search"]:focus {
+.nlf-faq-admin-page .search-box input[type="search"]:focus {
 	border-color: var(--color-primary-500);
 	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	outline: none;
 }
 
-.post-type-nlf_faq_group .search-box input[type="submit"] {
+.nlf-faq-admin-page .search-box input[type="submit"] {
 	font-family: var(--font-family-base);
 	border-radius: var(--radius-md);
 }
@@ -3223,21 +3243,259 @@
 /* ── Responsive ───────────────────────────── */
 
 @media (max-width: 960px) {
-	.post-type-nlf_faq_group .wp-list-table .column-nlf_shortcode {
+	.nlf-faq-admin-page .wp-list-table .column-nlf_shortcode {
 		width: auto;
 	}
-	.post-type-nlf_faq_group .wp-list-table .column-nlf_theme {
+	.nlf-faq-admin-page .wp-list-table .column-nlf_theme {
 		display: none;
 	}
 }
 
 @media (max-width: 782px) {
-	.post-type-nlf_faq_group .wp-list-table .column-nlf_questions {
+	.nlf-faq-admin-page .wp-list-table .column-nlf_questions {
 		display: none;
 	}
 
-	.post-type-nlf_faq_group .wp-list-table thead th,
-	.post-type-nlf_faq_group .wp-list-table tbody td {
+	.nlf-faq-admin-page .wp-list-table thead th,
+	.nlf-faq-admin-page .wp-list-table tbody td {
 		padding: var(--spacing-3);
 	}
 }
+
+/* ── Dashboard Page ───────────────────────────────────────── */
+
+.nlf-faq-dashboard {
+	max-width: 900px;
+}
+
+/* =======================================================
+   Dashboard — Modern Design
+   ======================================================= */
+
+.nlf-dash-hero {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+	background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+	border-radius: var(--radius-xl, 12px);
+	padding: 32px 36px;
+	margin-bottom: 28px;
+	color: #fff;
+}
+
+.nlf-dash-hero__content h1 {
+	font-size: 22px;
+	font-weight: 700;
+	margin: 0 0 6px;
+	color: #fff;
+}
+
+.nlf-dash-hero__content p {
+	margin: 0;
+	font-size: 14px;
+	color: #94a3b8;
+	max-width: 480px;
+}
+
+.nlf-dash-hero__stats {
+	display: flex;
+	gap: 24px;
+	flex-shrink: 0;
+}
+
+.nlf-dash-stat {
+	text-align: center;
+	background: rgba(255, 255, 255, 0.08);
+	border-radius: var(--radius-lg, 10px);
+	padding: 16px 24px;
+	min-width: 90px;
+}
+
+.nlf-dash-stat__number {
+	display: block;
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1;
+	color: #fff;
+}
+
+.nlf-dash-stat__label {
+	display: block;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #94a3b8;
+	margin-top: 4px;
+}
+
+/* Quick Action Cards */
+
+.nlf-dash-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	margin-bottom: 32px;
+}
+
+.nlf-dash-card {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	background: #fff;
+	border: 1px solid var(--color-slate-200, #e2e8f0);
+	border-radius: var(--radius-lg, 10px);
+	padding: 20px;
+	text-decoration: none;
+	color: inherit;
+	transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.nlf-dash-card:hover {
+	border-color: var(--color-brand-500, #6366f1);
+	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+	transform: translateY(-1px);
+	color: inherit;
+}
+
+.nlf-dash-card__icon {
+	flex-shrink: 0;
+	width: 44px;
+	height: 44px;
+	border-radius: var(--radius-md, 8px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.nlf-dash-card__icon .dashicons {
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+	color: #fff;
+}
+
+.nlf-dash-card__icon--blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+.nlf-dash-card__icon--indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+.nlf-dash-card__icon--emerald { background: linear-gradient(135deg, #10b981, #059669); }
+
+.nlf-dash-card__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.nlf-dash-card__body h3 {
+	font-size: 14px;
+	font-weight: 600;
+	margin: 0 0 2px;
+	color: var(--color-slate-800, #1e293b);
+}
+
+.nlf-dash-card__body p {
+	font-size: 12px;
+	color: var(--color-slate-500, #64748b);
+	margin: 0;
+	line-height: 1.4;
+}
+
+.nlf-dash-card__arrow {
+	flex-shrink: 0;
+	color: var(--color-slate-300, #cbd5e1);
+	transition: color 0.2s, transform 0.2s;
+}
+
+.nlf-dash-card:hover .nlf-dash-card__arrow {
+	color: var(--color-brand-500, #6366f1);
+	transform: translateX(2px);
+}
+
+/* Dashboard Sections */
+
+.nlf-dash-section {
+	background: #fff;
+	border: 1px solid var(--color-slate-200, #e2e8f0);
+	border-radius: var(--radius-lg, 10px);
+	padding: 24px 28px;
+	margin-bottom: 24px;
+}
+
+.nlf-dash-section h2 {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 4px;
+	color: var(--color-slate-800, #1e293b);
+}
+
+.nlf-dash-section__header {
+	margin-bottom: 20px;
+}
+
+.nlf-dash-section__header p {
+	font-size: 13px;
+	color: var(--color-slate-500, #64748b);
+	margin: 4px 0 0;
+}
+
+/* Settings Toggle */
+
+.nlf-dash-settings-form {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+
+.nlf-dash-toggle {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	cursor: pointer;
+	flex: 1;
+}
+
+.nlf-dash-toggle input[type="checkbox"] {
+	margin-top: 3px;
+}
+
+.nlf-dash-toggle__text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.nlf-dash-toggle__text strong {
+	font-size: 14px;
+	color: var(--color-slate-800, #1e293b);
+}
+
+.nlf-dash-toggle__text span {
+	font-size: 12px;
+	color: var(--color-slate-500, #64748b);
+	line-height: 1.4;
+}
+
+.nlf-dash-settings-form .button-primary {
+	flex-shrink: 0;
+}
+
+@media (max-width: 782px) {
+	.nlf-dash-hero {
+		flex-direction: column;
+		text-align: center;
+		padding: 24px;
+	}
+	.nlf-dash-hero__stats {
+		justify-content: center;
+	}
+	.nlf-dash-grid {
+		grid-template-columns: 1fr;
+	}
+	.nlf-dash-settings-form {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+

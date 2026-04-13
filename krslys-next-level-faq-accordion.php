@@ -1,19 +1,20 @@
 <?php
 /**
- * Plugin Name: Next Level FAQ
+ * Plugin Name: Next Level FAQ & Accordion
  * Plugin URI:  https://krslys.com/plugins/next-level-faq/
- * Description: Flexible FAQ plugin with customizable styling and live preview.
+ * Description: Flexible FAQ and Accordion plugin with customizable styling, live preview, and Gutenberg block support.
  * Version:     1.0.0
  * Author:      Krslys
  * Author URI:  https://krslys.com
- * Text Domain: next-level-faq
+ * Text Domain: krslys-next-level-faq-accordion
  * Domain Path: /languages
  * License:     GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Requires at least: 5.8
+ * Tested up to:      6.9
  * Requires PHP: 7.4
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -34,25 +35,25 @@ require_once NLF_FAQ_PLUGIN_DIR . 'includes/Autoloader.php';
 require_once NLF_FAQ_PLUGIN_DIR . 'includes/core/functions.php';
 
 // Initialize autoloader.
-$autoloader = new \Krslys\NextLevelFaq\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
-$autoloader->register();
+$krslys_nlfa_autoloader = new \Krslys\NextLevelFaqAccordion\Autoloader( NLF_FAQ_PLUGIN_DIR . 'includes' );
+$krslys_nlfa_autoloader->register();
 
 /**
  * Main plugin class.
  */
-final class Krslys_NextLevelFaq_Plugin {
+final class Krslys_NextLevelFaqAccordion_Plugin {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var Krslys_NextLevelFaq_Plugin|null
+	 * @var Krslys_NextLevelFaqAccordion_Plugin|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return Krslys_NextLevelFaq_Plugin
+	 * @return Krslys_NextLevelFaqAccordion_Plugin
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -74,12 +75,12 @@ final class Krslys_NextLevelFaq_Plugin {
 	 */
 	private function hooks() {
 		// Each subsystem registers its own hooks internally.
-		\Krslys\NextLevelFaq\Database::init();
-		\Krslys\NextLevelFaq\Frontend_Renderer::init();
-		\Krslys\NextLevelFaq\Admin_Settings::init();
-		\Krslys\NextLevelFaq\Group_Admin::init();
-		\Krslys\NextLevelFaq\Block_Registrar::init();
-		\Krslys\NextLevelFaq\Style_Generator::init();
+		\Krslys\NextLevelFaqAccordion\Database::init();
+		\Krslys\NextLevelFaqAccordion\Frontend_Renderer::init();
+		\Krslys\NextLevelFaqAccordion\Admin_Settings::init();
+		\Krslys\NextLevelFaqAccordion\Group_Admin::init();
+		\Krslys\NextLevelFaqAccordion\Block_Registrar::init();
+		\Krslys\NextLevelFaqAccordion\Style_Generator::init();
 	}
 
 	/**
@@ -88,22 +89,28 @@ final class Krslys_NextLevelFaq_Plugin {
 	 * Runs all activation tasks in the correct order.
 	 */
 	public static function activate() {
-		\Krslys\NextLevelFaq\Database::create_tables();
-		\Krslys\NextLevelFaq\Settings_Repository::initialize_defaults();
-		\Krslys\NextLevelFaq\Options::activate();
+		\Krslys\NextLevelFaqAccordion\Database::create_tables();
+		\Krslys\NextLevelFaqAccordion\Settings_Repository::initialize_defaults();
+		\Krslys\NextLevelFaqAccordion\Options::activate();
+
+		// Grant custom capability to administrators.
+		$role = get_role( 'administrator' );
+		if ( $role ) {
+			$role->add_cap( 'manage_krslys_nlfa' );
+		}
 	}
 }
 
 // Activation hook (must be registered at file load, before plugins_loaded).
-register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( 'Krslys_NextLevelFaq_Plugin', 'activate' ) );
+register_activation_hook( NLF_FAQ_PLUGIN_FILE, array( 'Krslys_NextLevelFaqAccordion_Plugin', 'activate' ) );
 
 /**
  * Return the main plugin instance.
  *
- * @return Krslys_NextLevelFaq_Plugin
+ * @return Krslys_NextLevelFaqAccordion_Plugin
  */
-function nlf_faq() {
-	return Krslys_NextLevelFaq_Plugin::instance();
+function krslys_nlfa_faq() {
+	return Krslys_NextLevelFaqAccordion_Plugin::instance();
 }
 
-add_action( 'plugins_loaded', 'nlf_faq' );
+add_action( 'plugins_loaded', 'krslys_nlfa_faq' );

@@ -2,10 +2,10 @@
 /**
  * Repository for plugin settings stored as JSON.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -35,6 +35,11 @@ class Settings_Repository {
 	const KEY_CACHE_CONFIG = 'cache_config';
 
 	/**
+	 * Setting key for schema markup toggle.
+	 */
+	const KEY_SCHEMA_MARKUP = 'enable_schema_markup';
+
+	/**
 	 * Get a setting value.
 	 *
 	 * @param string $key Setting key.
@@ -51,13 +56,12 @@ class Settings_Repository {
 		
 		$table = Database::get_settings_table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql = $wpdb->prepare(
-			"SELECT setting_value FROM {$table} WHERE setting_key = %s",
+			"SELECT setting_value FROM {$table} WHERE setting_key = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 			sanitize_key( $key )
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, query prepared above.
 		$value = $wpdb->get_var( $sql );
 
 		if ( null === $value ) {
@@ -67,8 +71,13 @@ class Settings_Repository {
 		// Decode JSON
 		$decoded = json_decode( $value, true );
 
-		// Return decoded value or original if not valid JSON
-		return is_array( $decoded ) || is_object( $decoded ) ? $decoded : $value;
+		// Return decoded value if valid JSON, otherwise the raw string.
+		if ( null === $decoded && 'null' !== strtolower( trim( $value ) ) ) {
+			// json_decode failed — return raw string.
+			return $value;
+		}
+
+		return $decoded;
 	}
 
 	/**
@@ -93,17 +102,18 @@ class Settings_Repository {
 		// Encode value as JSON
 		$json_value = is_string( $value ) && ! is_numeric( $value ) ? $value : wp_json_encode( $value );
 
-		// Check if setting exists
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// Check if setting exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, prepared query.
 		$exists = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT id FROM {$table} WHERE setting_key = %s",
+				"SELECT id FROM {$table} WHERE setting_key = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from internal method.
 				$key
 			)
 		);
 
 		if ( $exists ) {
 			// Update existing setting
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 			$result = $wpdb->update(
 				$table,
 				array( 'setting_value' => $json_value ),
@@ -127,6 +137,7 @@ class Settings_Repository {
 			return true;
 		} else {
 			// Insert new setting.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table.
 			$result = $wpdb->insert(
 				$table,
 				array(
@@ -157,6 +168,7 @@ class Settings_Repository {
 		global $wpdb;
 		$table = Database::get_settings_table();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$result = $wpdb->delete(
 			$table,
 			array( 'setting_key' => sanitize_key( $key ) ),
@@ -175,9 +187,9 @@ class Settings_Repository {
 		global $wpdb;
 		$table = Database::get_settings_table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table, no user input.
 		$rows = $wpdb->get_results(
-			"SELECT setting_key, setting_value FROM {$table}",
+			"SELECT setting_key, setting_value FROM {$table}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Table name from internal method, no variable data.
 			ARRAY_A
 		);
 
@@ -209,8 +221,10 @@ class Settings_Repository {
 		global $wpdb;
 		$table = Database::get_settings_table();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 		$exists = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT id FROM {$table} WHERE setting_key = %s",
 				sanitize_key( $key )
 			)
@@ -246,6 +260,11 @@ class Settings_Repository {
 				)
 			);
 		}
+
+		// Initialize schema markup if not exist
+		if ( ! self::setting_exists( self::KEY_SCHEMA_MARKUP ) ) {
+			self::update_setting( self::KEY_SCHEMA_MARKUP, true );
+		}
 	}
 
 	/**
@@ -279,7 +298,7 @@ class Settings_Repository {
 		global $wpdb;
 		$table = Database::get_settings_table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 		$result = $wpdb->query( "TRUNCATE TABLE {$table}" );
 
 		return false !== $result;

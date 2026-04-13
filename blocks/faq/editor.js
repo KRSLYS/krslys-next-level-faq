@@ -1,142 +1,168 @@
 ( function () {
 	const { registerBlockType } = wp.blocks;
 	const { InspectorControls, useBlockProps } = wp.blockEditor || wp.editor;
-	const { PanelBody, SelectControl, TextControl, Spinner } = wp.components;
-	const { useSelect } = wp.data;
+	const { PanelBody, SelectControl, Disabled, Placeholder, Spinner, Button } = wp.components;
+	const ServerSideRender = wp.serverSideRender;
 	const { createElement: el, Fragment } = wp.element;
 	const { __ } = wp.i18n;
 
-	const blockName = 'next-level-faq/faq';
+	const blockName = 'krslys-next-level/faq';
 
-	// Register or update the block with edit and save functions
-	// When block.json is used, WordPress auto-registers the block server-side
-	// We provide the client-side edit function here
 	registerBlockType( blockName, {
 		edit: function ( props ) {
 			const { attributes, setAttributes } = props;
-			const { title, groupId, preset } = attributes;
-			const blockProps = useBlockProps( {
-				className: 'nlf-faq-block-wrapper',
-			} );
+			const { groupId } = attributes;
+			const blockProps = useBlockProps( { className: 'nlf-faq-block-wrapper' } );
 
-			const presetRegistry = ( window.nlfFaqBlockData && window.nlfFaqBlockData.presets ) || {};
-			const presetOptions = [
-				{ label: __( 'Use global preset', 'next-level-faq' ), value: '' },
-				...Object.keys( presetRegistry ).map( function ( slug ) {
-					return {
-						label: presetRegistry[ slug ].name || slug,
-						value: slug,
-					};
-				} ),
-			];
-
-			const activePreset = preset || ( window.nlfFaqBlockData && window.nlfFaqBlockData.activePreset ) || '';
-
-			const { groups, isLoading } = useSelect(
-				function ( select ) {
-					const coreData = select( 'core' );
-					if ( ! coreData || ! coreData.getEntityRecords ) {
-						return { groups: [], isLoading: false };
-					}
-
-					const query = {
-						per_page: -1,
-						_fields: [ 'id', 'title' ],
-					};
-
-					const selectorArgs = [ 'postType', 'nlf_faq_group', query ];
-					const records = coreData.getEntityRecords( ...selectorArgs );
-					const isResolving = coreData.isResolving( 'getEntityRecords', selectorArgs );
-
-					return {
-						groups: records || [],
-						isLoading: isResolving,
-					};
-				},
-				[]
-			);
+			const blockData    = window.nlfFaqBlockData || {};
+			const groups       = blockData.groups || [];
+			const editGroupsUrl = ( blockData.groupsListUrl || '' );
 
 			const groupOptions = [
-				{ label: __( 'All FAQs (default)', 'next-level-faq' ), value: 0 },
-				...( groups || [] ).map( function ( g ) {
+				{ label: __( '— Select a FAQ group —', 'krslys-next-level-faq-accordion' ), value: 0 },
+			].concat(
+				groups.map( function ( g ) {
 					return {
-						label: g.title && g.title.rendered ? g.title.rendered : __( '(no title)', 'next-level-faq' ),
+						label: g.title || __( '(no title)', 'krslys-next-level-faq-accordion' ),
 						value: g.id,
 					};
-				} ),
-			];
+				} )
+			);
 
-			return el(
-				Fragment,
+			// Edit link — only available when a group is selected.
+			const editUrl = groupId
+				? ( blockData.editGroupUrl || '' ) + groupId
+				: null;
+
+			// Inspector panel (always shown).
+			const inspector = el(
+				InspectorControls,
 				null,
 				el(
-					InspectorControls,
-					null,
-					el(
-						PanelBody,
-						{ title: __( 'FAQ Settings', 'next-level-faq' ), initialOpen: true },
-						el( TextControl, {
-							label: __( 'Title', 'next-level-faq' ),
-							value: title || '',
-							onChange: function ( value ) {
-								setAttributes( { title: value } );
-							},
-						} ),
-							el( SelectControl, {
-								label: __( 'Preset', 'next-level-faq' ),
-								value: activePreset,
-								options: presetOptions,
-								onChange: function ( value ) {
-									setAttributes( { preset: value || '' } );
-								},
-								help: __( 'Choose which preset to apply to this block. Leave blank to use the global preset.', 'next-level-faq' ),
-							} ),
-						isLoading
-							? el( 'div', { style: { padding: '10px 0' } }, el( Spinner ) )
-							: el( SelectControl, {
-								label: __( 'FAQ Group', 'next-level-faq' ),
-								value: groupId || 0,
-								options: groupOptions,
-								onChange: function ( value ) {
-									setAttributes( { groupId: parseInt( value || 0, 10 ) || 0 } );
-								},
-							} )
-					)
-				),
-				el(
-					'div',
-					blockProps,
-					el(
+					PanelBody,
+					{ title: __( 'FAQ Settings', 'krslys-next-level-faq-accordion' ), initialOpen: true },
+					el( SelectControl, {
+						label:    __( 'FAQ Group', 'krslys-next-level-faq-accordion' ),
+						value:    groupId || 0,
+						options:  groupOptions,
+						onChange: function ( value ) {
+							setAttributes( { groupId: parseInt( value || 0, 10 ) || 0 } );
+						},
+					} ),
+
+					editUrl && el(
 						'div',
-						{ className: 'nlf-faq nlf-faq--editor-placeholder' },
+						{ style: { marginTop: '8px' } },
 						el(
-							'h2',
-							{ className: 'nlf-faq__title' },
-							title || __( 'Frequently Asked Questions', 'next-level-faq' )
-						),
-						el(
-							'p',
-							null,
-							groupId
-								? __( 'This block will display the selected FAQ group on the front-end.', 'next-level-faq' )
-								: __( 'No specific group selected. Default FAQs will be shown.', 'next-level-faq' )
-						),
-						el(
-							'p',
-							{ className: 'description' },
-							activePreset
-								? __( 'Preset: ', 'next-level-faq' ) + ( presetRegistry[ activePreset ] ? presetRegistry[ activePreset ].name : activePreset )
-								: __( 'Using global preset', 'next-level-faq' )
+							Button,
+							{
+								variant: 'link',
+								href:    editUrl,
+								target:  '_blank',
+								rel:     'noreferrer noopener',
+								icon:    'edit',
+							},
+							__( 'Edit FAQ Group', 'krslys-next-level-faq-accordion' )
 						)
 					)
 				)
 			);
+
+			// Placeholder when no groups exist.
+			if ( groups.length === 0 ) {
+				return el(
+					Fragment,
+					null,
+					inspector,
+					el(
+						'div',
+						blockProps,
+						el(
+							Placeholder,
+							{
+								icon:         'editor-help',
+								label:        __( 'Next Level FAQ', 'krslys-next-level-faq-accordion' ),
+								instructions: __( 'No FAQ groups found. Create a FAQ group first, then come back to select it here.', 'krslys-next-level-faq-accordion' ),
+							},
+							editGroupsUrl && el(
+								Button,
+								{
+									variant: 'primary',
+									href:    editGroupsUrl,
+									target:  '_blank',
+									rel:     'noreferrer noopener',
+								},
+								__( 'Create FAQ Group', 'krslys-next-level-faq-accordion' )
+							)
+						)
+					)
+				);
+			}
+
+			// Placeholder when no group is selected yet.
+			if ( ! groupId ) {
+				return el(
+					Fragment,
+					null,
+					inspector,
+					el(
+						'div',
+						blockProps,
+						el(
+							Placeholder,
+							{
+								icon:         'editor-help',
+								label:        __( 'Next Level FAQ', 'krslys-next-level-faq-accordion' ),
+								instructions: __( 'Select a FAQ group from the block settings on the right.', 'krslys-next-level-faq-accordion' ),
+							},
+							el( SelectControl, {
+								label:    __( 'FAQ Group', 'krslys-next-level-faq-accordion' ),
+								value:    groupId || 0,
+								options:  groupOptions,
+								onChange: function ( value ) {
+									setAttributes( { groupId: parseInt( value || 0, 10 ) || 0 } );
+								},
+							} )
+						)
+					)
+				);
+			}
+
+			// Group selected: show server-side preview.
+			return el(
+				Fragment,
+				null,
+				inspector,
+				el(
+					'div',
+					blockProps,
+					el(
+						Disabled,
+						null,
+						el( ServerSideRender, {
+							block:      blockName,
+							attributes: attributes,
+							httpMethod: 'POST',
+
+							LoadingResponsePlaceholder: function () {
+								return el(
+									Placeholder,
+									{
+										icon:  'editor-help',
+										label: __( 'Next Level FAQ', 'krslys-next-level-faq-accordion' ),
+									},
+									el( Spinner )
+								);
+							},
+						} )
+					)
+				)
+			);
 		},
+
 		save: function () {
-			// Dynamic block - rendered server-side via render_callback
+			// Dynamic block — rendered server-side via render_callback.
 			return null;
 		},
 	} );
 } )();
-
-

@@ -2,10 +2,10 @@
 /**
  * Repository for FAQ Groups table operations.
  *
- * @package Krslys\NextLevelFaq
+ * @package Krslys\NextLevelFaqAccordion
  */
 
-namespace Krslys\NextLevelFaq;
+namespace Krslys\NextLevelFaqAccordion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -35,13 +35,12 @@ class Groups_Repository {
 		
 		$table = Database::get_groups_table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} WHERE id = %d",
+			"SELECT * FROM {$table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 			(int) $id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 		$group = $wpdb->get_row( $sql );
 
 		if ( ! $group ) {
@@ -62,11 +61,12 @@ class Groups_Repository {
 		$table = Database::get_groups_table();
 
 		$sql = $wpdb->prepare(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 			"SELECT * FROM {$table} WHERE slug = %s",
 			sanitize_title( $slug )
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 		$group = $wpdb->get_row( $sql );
 
 		if ( ! $group ) {
@@ -82,26 +82,31 @@ class Groups_Repository {
 	 * @param string|null $status Optional status filter ('active', 'inactive', etc.).
 	 * @param string      $orderby Order by column (default: 'created_at').
 	 * @param string      $order Sort order (default: 'DESC').
+	 * @param string|null $type Optional type filter ('faq', 'accordion').
 	 * @return array Array of group objects.
 	 */
-	public static function get_all_groups( $status = null, $orderby = 'created_at', $order = 'DESC' ) {
+	public static function get_all_groups( $status = null, $orderby = 'created_at', $order = 'DESC', $type = null ) {
 		global $wpdb;
 		$table = Database::get_groups_table();
 
-		$where = '';
+		$conditions = array();
 		if ( null !== $status ) {
-			$where = $wpdb->prepare( 'WHERE status = %s', sanitize_key( $status ) );
+			$conditions[] = $wpdb->prepare( 'status = %s', sanitize_key( $status ) );
 		}
+		if ( null !== $type ) {
+			$conditions[] = $wpdb->prepare( 'type = %s', sanitize_key( $type ) );
+		}
+		$where = ! empty( $conditions ) ? 'WHERE ' . implode( ' AND ', $conditions ) : '';
 
 		// Validate orderby and order to prevent SQL injection
 		$allowed_orderby = array( 'id', 'title', 'slug', 'status', 'created_at', 'updated_at' );
 		$orderby = in_array( $orderby, $allowed_orderby, true ) ? $orderby : 'created_at';
 		$order = 'ASC' === strtoupper( $order ) ? 'ASC' : 'DESC';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name, where clause, orderby and order are validated.
 		$sql = "SELECT * FROM {$table} {$where} ORDER BY {$orderby} {$order}";
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 		$groups = $wpdb->get_results( $sql );
 
 		if ( empty( $groups ) ) {
@@ -154,11 +159,13 @@ class Groups_Repository {
 			'display_settings'  => isset( $data['display_settings'] ) ? wp_json_encode( $data['display_settings'] ) : wp_json_encode( array() ),
 			'custom_styles'     => isset( $data['custom_styles'] ) ? wp_json_encode( $data['custom_styles'] ) : wp_json_encode( array() ),
 			'use_custom_style'  => isset( $data['use_custom_style'] ) ? (int) $data['use_custom_style'] : 0,
+			'type'              => isset( $data['type'] ) && in_array( $data['type'], array( 'faq', 'accordion' ), true ) ? $data['type'] : 'faq',
 			'status'            => isset( $data['status'] ) ? sanitize_key( $data['status'] ) : 'active',
 		);
 
-		$format = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' );
+		$format = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s' );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table.
 		$result = $wpdb->insert( $table, $insert_data, $format );
 
 		if ( false === $result ) {
@@ -234,6 +241,11 @@ class Groups_Repository {
 			$format[] = '%d';
 		}
 
+		if ( isset( $data['type'] ) && in_array( $data['type'], array( 'faq', 'accordion' ), true ) ) {
+			$update_data['type'] = $data['type'];
+			$format[] = '%s';
+		}
+
 		if ( isset( $data['status'] ) ) {
 			$update_data['status'] = sanitize_key( $data['status'] );
 			$format[] = '%s';
@@ -243,6 +255,7 @@ class Groups_Repository {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$result = $wpdb->update(
 			$table,
 			$update_data,
@@ -274,6 +287,7 @@ class Groups_Repository {
 
 		// Delete the group
 		$table = Database::get_groups_table();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		$result = $wpdb->delete(
 			$table,
 			array( 'id' => (int) $id ),
@@ -359,7 +373,7 @@ class Groups_Repository {
 				$where .= $wpdb->prepare( ' AND id != %d', (int) $exclude_id );
 			}
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 			$exists = $wpdb->get_var( "SELECT id FROM {$table} {$where}" );
 
 			if ( ! $exists ) {
@@ -416,7 +430,7 @@ class Groups_Repository {
 	 * @param int $id Group ID.
 	 * @return array Full state array ready for JSON encoding, or defaults for new group.
 	 */
-	public static function get_full_group_state( $id = 0 ) {
+	public static function get_full_group_state( $id = 0, $type = 'faq' ) {
 		$defaults = array(
 			'id'               => 0,
 			'title'            => '',
@@ -441,6 +455,7 @@ class Groups_Repository {
 			),
 			'custom_styles'    => Options::get_defaults(),
 			'use_custom_style' => false,
+			'type'             => in_array( $type, array( 'faq', 'accordion' ), true ) ? $type : 'faq',
 			'status'           => 'active',
 			'items'            => array(),
 		);
@@ -489,6 +504,7 @@ class Groups_Repository {
 			'display_settings' => wp_parse_args( is_array( $group->display_settings ) ? $group->display_settings : array(), $defaults['display_settings'] ),
 			'custom_styles'    => wp_parse_args( is_array( $group->custom_styles ) ? $group->custom_styles : array(), $defaults['custom_styles'] ),
 			'use_custom_style' => $group->use_custom_style,
+			'type'             => isset( $group->type ) ? $group->type : 'faq',
 			'status'           => $group->status,
 			'items'            => $items,
 		);
@@ -498,22 +514,30 @@ class Groups_Repository {
 	 * Count total groups.
 	 *
 	 * @param string|null $status Optional status filter.
+	 * @param string|null $type   Optional type filter ('faq', 'accordion').
 	 * @return int Total count.
 	 */
-	public static function count_groups( $status = null ) {
+	public static function count_groups( $status = null, $type = null ) {
 		global $wpdb;
 		$table = Database::get_groups_table();
 
+		$conditions = array();
 		if ( null !== $status ) {
-			$sql = $wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE status = %s",
-				sanitize_key( $status )
-			);
+			$conditions[] = $wpdb->prepare( 'status = %s', sanitize_key( $status ) );
+		}
+		if ( null !== $type ) {
+			$conditions[] = $wpdb->prepare( 'type = %s', sanitize_key( $type ) );
+		}
+
+		if ( ! empty( $conditions ) ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, conditions prepared above.
+			$sql = "SELECT COUNT(*) FROM {$table} WHERE " . implode( ' AND ', $conditions );
 		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 			$sql = "SELECT COUNT(*) FROM {$table}";
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table.
 		return (int) $wpdb->get_var( $sql );
 	}
 }
