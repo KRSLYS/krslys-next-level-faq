@@ -36,6 +36,20 @@ jobs:
     name: E2E (Playwright)
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,8 +74,19 @@ jobs:
       - name: Build assets
         run: npm run build
 
-      - name: Start WordPress (wp-env)
-        run: npx wp-env start
+      - name: Install WordPress
+        run: |
+          wp core download --path=wordpress
+          wp config create --path=wordpress --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1
+          wp core install --path=wordpress --url=http://localhost:8080 --title=Test --admin_user=admin --admin_password=password --admin_email=test@example.com --skip-email
+
+      - name: Activate plugin
+        run: |
+          ln -s "$GITHUB_WORKSPACE" wordpress/wp-content/plugins/krslys-next-level-faq-accordion
+          wp plugin activate krslys-next-level-faq-accordion --path=wordpress
+
+      - name: Start PHP server
+        run: php -S localhost:8080 -t wordpress &
 
       - name: Install Playwright browsers
         run: npx playwright install chromium
@@ -69,6 +94,6 @@ jobs:
       - name: Run E2E tests
         run: npx playwright test
         env:
-          WP_BASE_URL: http://localhost:8888
+          WP_BASE_URL: http://localhost:8080
           WP_ADMIN_USER: admin
           WP_ADMIN_PASS: password
