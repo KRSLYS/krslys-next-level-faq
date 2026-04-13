@@ -28,7 +28,8 @@ class RepositoryTest extends WpTestCase {
 	// -- Table name --
 
 	public function test_table_name(): void {
-		$this->assertSame( 'wp_krslys_nlfa_items', Repository::get_table_name() );
+		global $wpdb;
+		$this->assertSame( $wpdb->prefix . 'krslys_nlfa_items', Repository::get_table_name() );
 	}
 
 	// -- Invalid input returns empty --

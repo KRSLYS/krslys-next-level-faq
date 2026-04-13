@@ -49,9 +49,9 @@ The plugin uses dedicated custom tables — it does **not** use `wp_posts` or `w
 
 | Table | Purpose |
 |---|---|
-| `wp_krslys_nlfa_groups` | FAQ groups with JSON theme and display settings |
-| `wp_krslys_nlfa_items` | Individual questions and answers, linked to groups |
-| `wp_krslys_nlfa_settings` | Global plugin configuration stored as JSON |
+| `{prefix}krslys_nlfa_groups` | FAQ groups with JSON theme and display settings |
+| `{prefix}krslys_nlfa_items` | Individual questions and answers, linked to groups |
+| `{prefix}krslys_nlfa_settings` | Global plugin configuration stored as JSON |
 
 Classes follow PSR-4 autoloading under the `Krslys\NextLevelFaq` namespace.
 Each subsystem (Database, Admin, Frontend, Blocks, Styles) registers its own WordPress

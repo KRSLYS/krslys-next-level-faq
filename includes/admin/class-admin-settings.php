@@ -526,6 +526,7 @@ class Admin_Settings {
 			array( 'dashicons-shortcode', __( 'Shortcode Builder', 'krslys-next-level-faq-accordion' ), __( 'Visual shortcode generator with live preview and copy-to-clipboard.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-welcome-widgets-menus', __( 'FAQ Widget', 'krslys-next-level-faq-accordion' ), __( 'Display FAQ groups in sidebars and widget areas.', 'krslys-next-level-faq-accordion' ) ),
 			array( 'dashicons-chart-area', __( 'Analytics Dashboard', 'krslys-next-level-faq-accordion' ), __( 'Visual stats for question opens, popular items, and interaction trends.', 'krslys-next-level-faq-accordion' ) ),
+			array( 'dashicons-networking', __( 'Multisite Support', 'krslys-next-level-faq-accordion' ), __( 'Full network activation with automatic per-site provisioning.', 'krslys-next-level-faq-accordion' ) ),
 		);
 		?>
 		<div class="nlf-tools-grid">

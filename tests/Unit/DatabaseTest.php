@@ -24,15 +24,18 @@ class DatabaseTest extends WpTestCase {
 	}
 
 	public function test_groups_table_name(): void {
-		$this->assertSame( 'wp_krslys_nlfa_groups', Database::get_groups_table() );
+		global $wpdb;
+		$this->assertSame( $wpdb->prefix . 'krslys_nlfa_groups', Database::get_groups_table() );
 	}
 
 	public function test_items_table_name(): void {
-		$this->assertSame( 'wp_krslys_nlfa_items', Database::get_items_table() );
+		global $wpdb;
+		$this->assertSame( $wpdb->prefix . 'krslys_nlfa_items', Database::get_items_table() );
 	}
 
 	public function test_settings_table_name(): void {
-		$this->assertSame( 'wp_krslys_nlfa_settings', Database::get_settings_table() );
+		global $wpdb;
+		$this->assertSame( $wpdb->prefix . 'krslys_nlfa_settings', Database::get_settings_table() );
 	}
 
 	public function test_schema_version_is_defined(): void {

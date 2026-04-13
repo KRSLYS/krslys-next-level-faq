@@ -28,7 +28,7 @@ Flexible FAQ and Accordion plugin with customizable styling, schema markup, live
 * **Custom database tables** — dedicated tables for performance; does not pollute `wp_posts`.
 * **Clean & lightweight** — assets only load on pages with FAQ or Accordion content.
 * **RTL ready** — automatic right-to-left language support.
-* **Import / Export** — backup and migrate FAQ groups as JSON.
+* **Import / Export** — backup and migrate FAQ and Accordion groups as JSON.
 * **GPL licensed** — 100% open source.
 
 == Installation ==
@@ -69,7 +69,7 @@ Yes. FAQ groups automatically output FAQPage JSON-LD structured data in the page
 
 = Where are the settings stored? =
 
-FAQ groups and their style settings are stored in dedicated custom database tables (`wp_krslys_nlfa_groups`, `wp_krslys_nlfa_items`, `wp_krslys_nlfa_settings`). The plugin does not use `wp_posts` or `wp_postmeta`.
+FAQ groups and their style settings are stored in dedicated custom database tables (`{prefix}krslys_nlfa_groups`, `{prefix}krslys_nlfa_items`, `{prefix}krslys_nlfa_settings`). The plugin does not use `wp_posts` or `wp_postmeta`.
 
 = Will the plugin slow down my site? =
 
